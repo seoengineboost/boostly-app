@@ -1624,30 +1624,681 @@ function PricingPage({ goBack }) {
 }
 
 // ── Screen Map ────────────────────────────────────────────────────────
+// ── Content Lab ───────────────────────────────────────────────────────
+function ContentLab() {
+  const [score, setScore] = useState(72);
+  const [tab, setTab] = useState("editor");
+  const [content, setContent] = useState("Start writing your SEO-optimized content here. The AI Copilot will analyze your text in real time and suggest improvements.\n\nAdd your target keyword, adjust tone, and watch your SEO score improve as you write.");
+
+  const suggestions = [
+    { type: "keyword", msg: "Add 'dental implants cost' — missing from intro", icon: Target, c: C.orange },
+    { type: "heading", msg: "Add H2 heading after paragraph 2 for structure", icon: AlignLeft, c: C.blueL },
+    { type: "link", msg: "Add internal link to /dental-services page", icon: Link2, c: C.green },
+    { type: "readability", msg: "Sentence too long — split at 'and'", icon: Edit2, c: C.yellow },
+    { type: "meta", msg: "Meta description missing — click to generate", icon: FileText, c: C.purple },
+  ];
+
+  return (
+    <div className="fade" style={{ display: "flex", height: "calc(100vh - 57px)", overflow: "hidden" }}>
+      {/* Left: Editor */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        {/* Toolbar */}
+        <div style={{ padding: "10px 20px", borderBottom: `1px solid ${C.border}`, background: C.white, display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+          <div style={{ display: "flex", gap: 3, background: C.bg, padding: 3, borderRadius: 8, border: `1px solid ${C.border}` }}>
+            {["Editor","Outline","SERP Preview","Brief"].map((t,i) => (
+              <button key={t} onClick={() => setTab(t.toLowerCase())} style={{ padding: "5px 12px", borderRadius: 6, border: "none", cursor: "pointer", fontSize: 12, fontWeight: 600, fontFamily: "inherit", background: tab===t.toLowerCase()||( tab==="editor"&&i===0)?C.blueL:"transparent", color: tab===t.toLowerCase()||(tab==="editor"&&i===0)?"#fff":C.textDim }}>{t}</button>
+            ))}
+          </div>
+          <div style={{ flex: 1 }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 10px", background: C.bgLight, borderRadius: 8 }}>
+            <Target size={13} color={C.blueL} />
+            <span style={{ color: C.textDim, fontSize: 12 }}>Target:</span>
+            <input defaultValue="dental implants near me" style={{ background: "transparent", border: "none", outline: "none", color: C.blueL, fontSize: 12, fontWeight: 600, width: 160, fontFamily: "inherit" }} />
+          </div>
+          <button style={{ background: C.blueL, color: "#fff", border: "none", cursor: "pointer", padding: "7px 14px", borderRadius: 8, fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" }}>
+            <Sparkles size={13} /> AI Generate
+          </button>
+          <button style={{ background: C.green, color: "#fff", border: "none", cursor: "pointer", padding: "7px 14px", borderRadius: 8, fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" }}>
+            <Download size={13} /> Export
+          </button>
+        </div>
+
+        {/* Title input */}
+        <div style={{ padding: "16px 28px 0", background: C.white, flexShrink: 0 }}>
+          <input defaultValue="The Complete Guide to Dental Implants: Costs, Benefits & What to Expect" style={{ width: "100%", border: "none", outline: "none", fontSize: 22, fontWeight: 800, color: C.text, fontFamily: "Space Grotesk, sans-serif" }} placeholder="Article title..." />
+          <div style={{ display: "flex", gap: 16, marginTop: 8, paddingBottom: 12, borderBottom: `1px solid ${C.border}` }}>
+            {[{l:"Words",v:"847"},{l:"Read time",v:"4 min"},{l:"Paragraphs",v:"12"},{l:"Headings",v:"6"}].map(({l,v}) => (
+              <span key={l} style={{ color: C.textDim, fontSize: 11 }}><span style={{ color: C.text, fontWeight: 700 }}>{v}</span> {l}</span>
+            ))}
+          </div>
+        </div>
+
+        {/* Editor area */}
+        <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
+          <textarea value={content} onChange={e => { setContent(e.target.value); setScore(Math.min(98, score + 1)); }}
+            style={{ width: "100%", height: "100%", padding: "20px 28px", border: "none", outline: "none", resize: "none", fontSize: 14, lineHeight: 1.8, color: C.text, fontFamily: "inherit", background: C.white }} />
+        </div>
+
+        {/* Bottom bar */}
+        <div style={{ padding: "8px 20px", borderTop: `1px solid ${C.border}`, background: C.white, display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
+          {[["B","bold"],["I","italic"],["U","underline"],["H1","h1"],["H2","h2"],["Link","link"]].map(([l]) => (
+            <button key={l} style={{ padding: "3px 8px", borderRadius: 5, border: `1px solid ${C.border}`, background: "transparent", cursor: "pointer", fontSize: 12, fontWeight: 700, color: C.textMid, fontFamily: "inherit" }}>{l}</button>
+          ))}
+          <div style={{ flex: 1 }} />
+          <span style={{ color: C.green, fontSize: 12, fontWeight: 600 }}>✓ Auto-saved</span>
+        </div>
+      </div>
+
+      {/* Right: SEO Score + Suggestions */}
+      <div style={{ width: 300, background: C.white, borderLeft: `1px solid ${C.border}`, display: "flex", flexDirection: "column", flexShrink: 0 }}>
+        {/* Score */}
+        <div style={{ padding: "18px 18px 14px", borderBottom: `1px solid ${C.border}` }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+            <div className="sg" style={{ color: C.text, fontSize: 13, fontWeight: 700 }}>SEO Score</div>
+            <span className="chip" style={{ color: C.green, background: C.greenL, fontSize: 10 }}>Live</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 12 }}>
+            <ScoreRing score={score} size={60} />
+            <div>
+              <div style={{ color: C.text, fontSize: 22, fontWeight: 800 }}>{score}/100</div>
+              <div style={{ color: C.green, fontSize: 11, fontWeight: 600 }}>↑ Good — keep writing</div>
+            </div>
+          </div>
+          <ProgBar v={score} col={score > 75 ? C.green : score > 50 ? C.yellow : C.red} h={6} />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 12 }}>
+            {[{l:"Keyword density",v:"2.1%",ok:true},{l:"Readability",v:"Grade 9",ok:true},{l:"Word count",v:"847",ok:false},{l:"Internal links",v:"0",ok:false}].map(({l,v,ok}) => (
+              <div key={l} style={{ padding: "7px 9px", background: ok?C.greenL:C.redL, borderRadius: 7 }}>
+                <div style={{ color: ok?C.green:C.red, fontSize: 9.5, fontWeight: 700 }}>{ok?"✓":"✗"} {l}</div>
+                <div style={{ color: C.text, fontSize: 12, fontWeight: 700, marginTop: 1 }}>{v}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* AI Suggestions */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "14px 16px" }}>
+          <div className="sg" style={{ color: C.text, fontSize: 13, fontWeight: 700, marginBottom: 10 }}>AI Suggestions</div>
+          {suggestions.map(({ type, msg, icon: Icon, c }, i) => (
+            <div key={i} style={{ display: "flex", gap: 9, padding: "10px 10px", background: C.bg, borderRadius: 9, marginBottom: 7, border: `1px solid ${C.border}`, cursor: "pointer" }}>
+              <div style={{ width: 26, height: 26, borderRadius: 7, background: `${c}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <Icon size={12} color={c} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <p style={{ color: C.textMid, fontSize: 11.5, lineHeight: 1.5 }}>{msg}</p>
+              </div>
+              <button style={{ background: `${c}18`, border: "none", cursor: "pointer", padding: "3px 8px", borderRadius: 5, fontSize: 10, fontWeight: 700, color: c, fontFamily: "inherit", flexShrink: 0 }}>Fix</button>
+            </div>
+          ))}
+        </div>
+
+        {/* Keyword density */}
+        <div style={{ padding: "12px 16px", borderTop: `1px solid ${C.border}` }}>
+          <div className="sg" style={{ color: C.text, fontSize: 12, fontWeight: 700, marginBottom: 8 }}>Keyword Density</div>
+          {[{kw:"dental implants",count:8,target:10},{ kw:"near me",count:3,target:5},{kw:"cost",count:2,target:4},{kw:"procedure",count:5,target:6}].map(({kw,count,target}) => (
+            <div key={kw} style={{ marginBottom: 7 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                <span style={{ color: C.textMid, fontSize: 11 }}>{kw}</span>
+                <span style={{ color: C.text, fontSize: 11, fontWeight: 700 }}>{count}/{target}</span>
+              </div>
+              <ProgBar v={(count/target)*100} col={count>=target?C.green:C.blueL} h={4} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Reports & Insights ────────────────────────────────────────────────
+function Reports() {
+  const [reportTab, setReportTab] = useState("seo");
+  const reportTabs = ["SEO Report","Audit Report","Content Performance","Client Summary"];
+  const clientReports = [
+    {client:"Dental Pro Clinic",date:"May 1, 2026",type:"Monthly SEO",status:"ready",score:84},
+    {client:"TechFlow Agency",date:"Apr 30, 2026",type:"Audit Report",status:"ready",score:71},
+    {client:"GreenLeaf Studios",date:"Apr 28, 2026",type:"Content Perf.",status:"draft",score:55},
+    {client:"Urban Eats Brand",date:"Apr 25, 2026",type:"Monthly SEO",status:"sent",score:100},
+    {client:"Nexus Consulting",date:"Apr 20, 2026",type:"Client Summary",status:"ready",score:62},
+    {client:"Bright Media Co.",date:"Apr 18, 2026",type:"Monthly SEO",status:"sent",score:88},
+  ];
+  return (
+    <div className="fade" style={{ overflowY: "auto", height: "calc(100vh - 57px)" }}>
+      <div style={{ padding: "20px 24px" }}>
+        {/* Stats row */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 22 }}>
+          {[
+            {l:"Reports Generated",v:"48",c:C.blueL,icon:FileText},
+            {l:"Reports Sent",v:"32",c:C.green,icon:Share2},
+            {l:"Avg. Client Score",v:"76/100",c:C.orange,icon:BarChart2},
+            {l:"Pending Reports",v:"6",c:C.yellow,icon:Clock},
+          ].map(({l,v,c,icon:Icon}) => (
+            <div key={l} className="card ch" style={{padding:"16px 18px"}}>
+              <div style={{width:32,height:32,borderRadius:8,background:`${c}18`,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:10}}><Icon size={14} color={c}/></div>
+              <div className="sg" style={{color:C.text,fontSize:22,fontWeight:800}}>{v}</div>
+              <div style={{color:C.textDim,fontSize:11,marginTop:2}}>{l}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Report tabs */}
+        <div style={{ display: "flex", gap: 4, marginBottom: 16 }}>
+          {reportTabs.map((t,i) => (
+            <button key={t} onClick={() => setReportTab(t.toLowerCase())} style={{ padding: "7px 16px", borderRadius: 8, border: `1px solid ${reportTab===t.toLowerCase()||i===0&&reportTab==="seo"?C.blueL:C.border}`, cursor: "pointer", fontSize: 12.5, fontWeight: 600, fontFamily: "inherit", background: reportTab===t.toLowerCase()||(i===0&&reportTab==="seo")?C.bluePale:"transparent", color: reportTab===t.toLowerCase()||(i===0&&reportTab==="seo")?C.blueL:C.textMid }}>{t}</button>
+          ))}
+          <div style={{flex:1}}/>
+          <button style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"7px 16px",borderRadius:8,fontSize:12,fontWeight:700,display:"flex",alignItems:"center",gap:6,fontFamily:"inherit"}}><Plus size={13}/> New Report</button>
+        </div>
+
+        {/* Report preview area */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 16 }}>
+          {/* Report preview */}
+          <div className="card" style={{ padding: "24px 28px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+              <div>
+                <div className="sg" style={{ color: C.text, fontSize: 16, fontWeight: 800 }}>Monthly SEO Report</div>
+                <div style={{ color: C.textDim, fontSize: 12, marginTop: 2 }}>Dental Pro Clinic · May 2026</div>
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button style={{ background: C.bg, border: `1px solid ${C.border}`, color: C.textMid, cursor: "pointer", padding: "7px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" }}><Eye size={12}/> Preview</button>
+                <button style={{ background: C.blueL, color: "#fff", border: "none", cursor: "pointer", padding: "7px 14px", borderRadius: 8, fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" }}><Download size={12}/> Download PDF</button>
+                <button style={{ background: C.orange, color: "#fff", border: "none", cursor: "pointer", padding: "7px 14px", borderRadius: 8, fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" }}><Send size={12}/> Send to Client</button>
+              </div>
+            </div>
+
+            {/* Report content */}
+            <div style={{ background: C.bg, borderRadius: 12, padding: "20px 22px", marginBottom: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
+                <div style={{ width: 44, height: 44, borderRadius: 10, background: `linear-gradient(135deg,${C.orange},${C.blueL})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Zap size={20} color="#fff" fill="#fff" />
+                </div>
+                <div>
+                  <div className="sg" style={{ color: C.text, fontSize: 14, fontWeight: 700 }}>Boostly SEO Report</div>
+                  <div style={{ color: C.textDim, fontSize: 11 }}>Generated for Dental Pro Clinic · May 1, 2026</div>
+                </div>
+                <ScoreRing score={84} size={50} />
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }}>
+                {[["Organic Traffic","↑ 23%",C.green],["Ranked Keywords","↑ 12",C.blueL],["Backlinks","↑ 47",C.orange],["Avg Position","↑ 4.2",C.green]].map(([l,v,c]) => (
+                  <div key={l} style={{ background: C.white, borderRadius: 8, padding: "10px 12px", border: `1px solid ${C.border}` }}>
+                    <div style={{ color: C.textDim, fontSize: 10.5 }}>{l}</div>
+                    <div style={{ color: c, fontSize: 14, fontWeight: 800, marginTop: 2 }}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <ResponsiveContainer width="100%" height={160}>
+              <AreaChart data={trafficData} margin={{top:0,right:0,left:-22,bottom:0}}>
+                <defs>
+                  <linearGradient id="rg1" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={C.blueL} stopOpacity={0.2}/>
+                    <stop offset="95%" stopColor={C.blueL} stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9"/>
+                <XAxis dataKey="m" tick={{fill:C.textDim,fontSize:10}} axisLine={false} tickLine={false}/>
+                <YAxis tick={{fill:C.textDim,fontSize:9}} axisLine={false} tickLine={false}/>
+                <Tooltip contentStyle={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:8,fontSize:11}}/>
+                <Area type="monotone" dataKey="organic" stroke={C.blueL} fill="url(#rg1)" strokeWidth={2}/>
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Report list */}
+          <div className="card" style={{ overflow: "hidden" }}>
+            <div style={{ padding: "14px 18px", borderBottom: `1px solid ${C.border}` }}>
+              <div className="sg" style={{ color: C.text, fontSize: 14, fontWeight: 700 }}>All Reports</div>
+            </div>
+            {clientReports.map(({client,date,type,status,score},i) => (
+              <div key={i} className="td" style={{ padding: "12px 18px", borderBottom: i<clientReports.length-1?`1px solid ${C.border}`:"none", cursor: "pointer" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <Av l={client[0]} size={30} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ color: C.text, fontSize: 12.5, fontWeight: 600 }}>{client}</div>
+                    <div style={{ color: C.textDim, fontSize: 10.5 }}>{type} · {date}</div>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span className="chip" style={{ color: status==="sent"?C.green:status==="ready"?C.blueL:C.yellow, background: status==="sent"?C.greenL:status==="ready"?C.bluePale:C.yellowL }}>
+                      {status.toUpperCase()}
+                    </span>
+                    <span style={{ color: score>75?C.green:score>50?C.yellow:C.red, fontWeight: 800, fontSize: 12 }}>{score}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Local SEO ─────────────────────────────────────────────────────────
+function LocalSEO() {
+  const locations = [
+    {name:"Dental Pro Clinic",addr:"123 Main St, Atlanta GA",rating:4.8,reviews:124,status:"verified",updated:"2h ago"},
+    {name:"TechFlow HQ",addr:"456 Tech Blvd, Austin TX",rating:4.2,reviews:67,status:"verified",updated:"1d ago"},
+    {name:"GreenLeaf Studio",addr:"789 Park Ave, NYC",rating:3.9,reviews:43,status:"pending",updated:"3d ago"},
+  ];
+  const reviewsList = [
+    {author:"Sarah M.",rating:5,text:"Absolutely amazing service! Highly recommended.",time:"2 days ago",platform:"Google",replied:false},
+    {author:"Mark R.",rating:4,text:"Great experience overall. Quick and professional.",time:"5 days ago",platform:"Google",replied:true},
+    {author:"James K.",rating:2,text:"Had some issues with scheduling but team was helpful.",time:"1 week ago",platform:"Yelp",replied:false},
+    {author:"Anna L.",rating:5,text:"Best dental clinic in Atlanta. Will come back!",time:"2 weeks ago",platform:"Google",replied:true},
+  ];
+  return (
+    <div className="fade" style={{ overflowY: "auto", height: "calc(100vh - 57px)", padding: "20px 24px" }}>
+      {/* Stats */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 22 }}>
+        {[
+          {l:"GMB Locations",v:"3",c:C.blueL,icon:Globe},
+          {l:"Avg Star Rating",v:"4.3 ★",c:C.yellow,icon:Star},
+          {l:"Total Reviews",v:"234",c:C.green,icon:Users},
+          {l:"Pending Replies",v:"8",c:C.orange,icon:MessageSquare},
+        ].map(({l,v,c,icon:Icon}) => (
+          <div key={l} className="card ch" style={{padding:"16px 18px"}}>
+            <div style={{width:32,height:32,borderRadius:8,background:`${c}18`,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:10}}><Icon size={14} color={c}/></div>
+            <div className="sg" style={{color:C.text,fontSize:22,fontWeight:800}}>{v}</div>
+            <div style={{color:C.textDim,fontSize:11,marginTop:2}}>{l}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        {/* GMB Locations */}
+        <div className="card" style={{ overflow: "hidden" }}>
+          <div style={{ padding: "14px 18px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div className="sg" style={{ color: C.text, fontSize: 14, fontWeight: 700 }}>Google My Business</div>
+            <button style={{ background: C.blueL, color: "#fff", border: "none", cursor: "pointer", padding: "6px 12px", borderRadius: 7, fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 5, fontFamily: "inherit" }}><Plus size={12}/> Add Location</button>
+          </div>
+          {locations.map(({name,addr,rating,reviews,status,updated},i) => (
+            <div key={i} className="td" style={{ padding: "14px 18px", borderBottom: i<locations.length-1?`1px solid ${C.border}`:"none" }}>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 9, background: C.bgLight, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Globe size={15} color={C.blueL} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                    <div style={{ color: C.text, fontSize: 13, fontWeight: 700 }}>{name}</div>
+                    <span className="chip" style={{ color: status==="verified"?C.green:C.yellow, background: status==="verified"?C.greenL:C.yellowL }}>{status}</span>
+                  </div>
+                  <div style={{ color: C.textDim, fontSize: 11.5, marginBottom: 4 }}>{addr}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <span style={{ color: C.yellow, fontSize: 12, fontWeight: 700 }}>★ {rating}</span>
+                    <span style={{ color: C.textDim, fontSize: 11 }}>{reviews} reviews</span>
+                    <span style={{ color: C.textDim, fontSize: 11 }}>Updated {updated}</span>
+                  </div>
+                </div>
+                <button style={{ background: C.bg, border: `1px solid ${C.border}`, color: C.textMid, cursor: "pointer", padding: "5px 10px", borderRadius: 7, fontSize: 11, fontFamily: "inherit" }}>Optimize</button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Reviews */}
+        <div className="card" style={{ overflow: "hidden" }}>
+          <div style={{ padding: "14px 18px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div className="sg" style={{ color: C.text, fontSize: 14, fontWeight: 700 }}>Recent Reviews</div>
+            <div style={{ display: "flex", gap: 5 }}>
+              {["All","Google","Yelp"].map((t,i) => (
+                <button key={t} style={{ padding: "4px 10px", borderRadius: 6, border: "none", cursor: "pointer", fontSize: 11, fontWeight: 600, fontFamily: "inherit", background: i===0?C.blueL:"transparent", color: i===0?"#fff":C.textDim }}>{t}</button>
+              ))}
+            </div>
+          </div>
+          {reviewsList.map(({author,rating,text,time,platform,replied},i) => (
+            <div key={i} className="td" style={{ padding: "13px 18px", borderBottom: i<reviewsList.length-1?`1px solid ${C.border}`:"none" }}>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                <Av l={author[0]} size={30} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+                    <span style={{ color: C.text, fontSize: 12.5, fontWeight: 700 }}>{author}</span>
+                    <span style={{ color: C.yellow, fontSize: 11 }}>{"★".repeat(rating)}{"☆".repeat(5-rating)}</span>
+                    <span className="chip" style={{ color: platform==="Google"?C.blueL:C.orange, background: platform==="Google"?C.bluePale:C.orangeL }}>{platform}</span>
+                    <span style={{ color: C.textDim, fontSize: 10.5 }}>{time}</span>
+                  </div>
+                  <p style={{ color: C.textMid, fontSize: 12, lineHeight: 1.5, marginBottom: 6 }}>{text}</p>
+                  {!replied
+                    ? <button style={{ background: C.blueL, color: "#fff", border: "none", cursor: "pointer", padding: "5px 12px", borderRadius: 7, fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", gap: 4, fontFamily: "inherit" }}>
+                        <Bot size={10} /> AI Reply
+                      </button>
+                    : <span style={{ color: C.green, fontSize: 11, fontWeight: 600 }}>✓ Replied</span>
+                  }
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Team Members ──────────────────────────────────────────────────────
+function TeamMembers() {
+  const team = [
+    {name:"Mahmoud Al-Rashid",role:"Admin · Owner",email:"mahmoud@seoengineboost.com",status:"active",tasks:12,projects:8,joined:"Sep 2024",avatar:"M",permissions:"Full Access"},
+    {name:"Aisha Santos",role:"SEO Lead",email:"aisha@seoengineboost.com",status:"active",tasks:18,projects:6,joined:"Oct 2024",avatar:"A",permissions:"Editor"},
+    {name:"Sam Dela Cruz",role:"Content Writer",email:"sam@seoengineboost.com",status:"active",tasks:9,projects:4,joined:"Nov 2024",avatar:"S",permissions:"Writer"},
+    {name:"Jordan Reyes",role:"UI/UX Designer",email:"jordan@seoengineboost.com",status:"away",tasks:5,projects:3,joined:"Jan 2025",avatar:"J",permissions:"Viewer"},
+    {name:"Alex Tan",role:"Developer",email:"alex@seoengineboost.com",status:"active",tasks:14,projects:5,joined:"Feb 2025",avatar:"X",permissions:"Editor"},
+    {name:"Maria Chen",role:"Account Manager",email:"maria@seoengineboost.com",status:"offline",tasks:7,projects:6,joined:"Mar 2025",avatar:"C",permissions:"Editor"},
+  ];
+  const roles = [
+    {role:"Admin",desc:"Full access — manage billing, team, all data",count:1,c:C.red},
+    {role:"Editor",desc:"Create, edit, and publish content and reports",count:3,c:C.blueL},
+    {role:"Writer",desc:"Write and submit content for review",count:1,c:C.green},
+    {role:"Viewer",desc:"Read-only access to reports and dashboards",count:1,c:C.textDim},
+  ];
+  return (
+    <div className="fade" style={{ overflowY: "auto", height: "calc(100vh - 57px)", padding: "20px 24px" }}>
+      {/* Stats */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 22 }}>
+        {[{l:"Team Members",v:"6",c:C.blueL,icon:Users},{l:"Active Now",v:"4",c:C.green,icon:Activity},{l:"Tasks Assigned",v:"65",c:C.orange,icon:CheckSquare},{l:"Avg Productivity",v:"87%",c:C.purple,icon:TrendingUp}].map(({l,v,c,icon:Icon}) => (
+          <div key={l} className="card ch" style={{padding:"16px 18px"}}>
+            <div style={{width:32,height:32,borderRadius:8,background:`${c}18`,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:10}}><Icon size={14} color={c}/></div>
+            <div className="sg" style={{color:C.text,fontSize:22,fontWeight:800}}>{v}</div>
+            <div style={{color:C.textDim,fontSize:11,marginTop:2}}>{l}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 16 }}>
+        {/* Members table */}
+        <div className="card" style={{ overflow: "hidden" }}>
+          <div style={{ padding: "14px 20px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div className="sg" style={{ color: C.text, fontSize: 14, fontWeight: 700 }}>All Members</div>
+            <div style={{ display: "flex", gap: 7 }}>
+              <button style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.textMid, cursor: "pointer", display: "flex", gap: 5, padding: "6px 12px", borderRadius: 8, fontSize: 12, fontWeight: 600, fontFamily: "inherit" }}><Filter size={12}/> Filter</button>
+              <button style={{ background: C.blueL, color: "#fff", border: "none", cursor: "pointer", display: "flex", gap: 5, padding: "7px 14px", borderRadius: 8, fontSize: 12, fontWeight: 700, fontFamily: "inherit" }}><UserPlus size={13}/> Invite Member</button>
+            </div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr .8fr .8fr .8fr 90px", padding: "9px 20px", background: C.bg, borderBottom: `1px solid ${C.border}` }}>
+            {["Member","Role","Tasks","Projects","Status","Actions"].map(h => <div key={h} style={{ color: C.textDim, fontSize: 10.5, fontWeight: 700, letterSpacing: .4 }}>{h.toUpperCase()}</div>)}
+          </div>
+          {team.map(({name,role,email,status,tasks,projects,joined,avatar,permissions},i) => (
+            <div key={name} className="td" style={{ display: "grid", gridTemplateColumns: "2fr 1fr .8fr .8fr .8fr 90px", padding: "12px 20px", borderBottom: i<team.length-1?`1px solid ${C.border}`:"none", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ position: "relative" }}>
+                  <Av l={avatar} size={34} />
+                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: status==="active"?C.green:status==="away"?C.yellow:C.textDim, position: "absolute", bottom: 0, right: 0, border: "1.5px solid #fff" }} />
+                </div>
+                <div>
+                  <div style={{ color: C.text, fontWeight: 700, fontSize: 13 }}>{name}</div>
+                  <div style={{ color: C.textDim, fontSize: 10.5 }}>{email}</div>
+                </div>
+              </div>
+              <div>
+                <div style={{ color: C.text, fontSize: 12.5, fontWeight: 600 }}>{role.split("·")[0].trim()}</div>
+                <span className="chip" style={{ color: permissions==="Full Access"?C.red:permissions==="Editor"?C.blueL:permissions==="Writer"?C.green:C.textDim, background: permissions==="Full Access"?C.redL:permissions==="Editor"?C.bluePale:permissions==="Writer"?C.greenL:"#F1F5F9", fontSize: 9 }}>{permissions}</span>
+              </div>
+              <div style={{ color: C.text, fontWeight: 700, fontSize: 13 }}>{tasks}</div>
+              <div style={{ color: C.text, fontWeight: 700, fontSize: 13 }}>{projects}</div>
+              <div>
+                <span className="chip" style={{ color: status==="active"?C.green:status==="away"?C.yellow:C.textDim, background: status==="active"?C.greenL:status==="away"?C.yellowL:"#F1F5F9" }}>
+                  {status.charAt(0).toUpperCase()+status.slice(1)}
+                </span>
+              </div>
+              <div style={{ display: "flex", gap: 4 }}>
+                {[Edit2,MessageSquare,ExternalLink].map((Icon,j) => (
+                  <button key={j} style={{ background: "transparent", border: `1px solid ${C.border}`, cursor: "pointer", width: 26, height: 26, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <Icon size={11} color={C.textDim} />
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Roles + Permissions */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div className="card" style={{ padding: "16px 18px" }}>
+            <div className="sg" style={{ color: C.text, fontSize: 13, fontWeight: 700, marginBottom: 12 }}>Roles & Permissions</div>
+            {roles.map(({role,desc,count,c}) => (
+              <div key={role} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 0", borderBottom: `1px solid ${C.border}` }}>
+                <div style={{ width: 28, height: 28, borderRadius: 7, background: `${c}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Shield size={12} color={c} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+                    <span style={{ color: C.text, fontSize: 12.5, fontWeight: 700 }}>{role}</span>
+                    <span className="chip" style={{ color: c, background: `${c}18` }}>{count}</span>
+                  </div>
+                  <div style={{ color: C.textDim, fontSize: 11, lineHeight: 1.4 }}>{desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="card" style={{ padding: "16px 18px" }}>
+            <div className="sg" style={{ color: C.text, fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Pending Invites</div>
+            {[{email:"tom@agency.com",role:"Editor"},{email:"lisa@freelance.io",role:"Writer"}].map(({email,role}) => (
+              <div key={email} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderBottom: `1px solid ${C.border}` }}>
+                <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <UserPlus size={12} color={C.textDim} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ color: C.text, fontSize: 12, fontWeight: 600 }}>{email}</div>
+                  <div style={{ color: C.textDim, fontSize: 10.5 }}>{role} · Pending</div>
+                </div>
+                <button style={{ background: "transparent", border: "none", cursor: "pointer" }}><X size={13} color={C.textDim}/></button>
+              </div>
+            ))}
+            <button style={{ width: "100%", marginTop: 10, background: C.blueL, color: "#fff", border: "none", cursor: "pointer", padding: "8px 0", borderRadius: 8, fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontFamily: "inherit" }}>
+              <UserPlus size={13} /> Invite New Member
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── AI Copilot Floating Panel ─────────────────────────────────────────
+function AICopilot({ onClose }) {
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState([
+    { role: "ai", text: "Hi! I'm your SEO Copilot. Ask me anything — strategy, audits, keyword ideas, or what to do next." },
+    { role: "user", text: "Why did my traffic drop last week?" },
+    { role: "ai", text: "Based on your data, I see 3 possible causes: 1) Google algorithm update on Apr 29 affected dental keywords, 2) Page speed dropped to 3.2s on mobile, 3) 2 high-authority backlinks were removed. I'd recommend running a full audit. Want me to do that now?" },
+  ]);
+  const suggestions = ["What keywords should I target?","Generate a blog outline","Why did traffic drop?","Fix my top audit issues","Create monthly report"];
+
+  const send = () => {
+    if (!input.trim()) return;
+    setMessages(m => [...m, { role: "user", text: input }, { role: "ai", text: `Analyzing your question about "${input}"... Based on your site data, here are my top recommendations for your SEO strategy.` }]);
+    setInput("");
+  };
+
+  return (
+    <div style={{ position: "fixed", bottom: 24, right: 24, width: 380, height: 540, background: C.white, border: `1px solid ${C.border}`, borderRadius: 16, boxShadow: "0 20px 60px rgba(0,0,0,0.18)", display: "flex", flexDirection: "column", zIndex: 999 }}>
+      {/* Header */}
+      <div style={{ padding: "14px 16px", borderBottom: `1px solid ${C.border}`, display: "flex", alignItems: "center", gap: 10, background: `linear-gradient(135deg,${C.blue},${C.blueL})`, borderRadius: "16px 16px 0 0" }}>
+        <div style={{ width: 32, height: 32, borderRadius: 9, background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <Bot size={16} color="#fff" />
+        </div>
+        <div>
+          <div className="sg" style={{ color: "#fff", fontSize: 14, fontWeight: 700 }}>AI SEO Copilot</div>
+          <div style={{ color: "rgba(255,255,255,.7)", fontSize: 10.5 }}>Powered by Boostly AI · Always on</div>
+        </div>
+        <div style={{ marginLeft: "auto", display: "flex", gap: 6 }}>
+          <span style={{ color: "rgba(255,255,255,.7)", fontSize: 10, background: "rgba(255,255,255,.15)", padding: "2px 7px", borderRadius: 10, fontWeight: 600 }}>LIVE</span>
+          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={15} color="rgba(255,255,255,.7)" /></button>
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "14px 14px" }}>
+        {messages.map(({ role, text }, i) => (
+          <div key={i} style={{ display: "flex", flexDirection: role==="user"?"row-reverse":"row", gap: 8, marginBottom: 12 }}>
+            {role==="ai" && (
+              <div style={{ width: 26, height: 26, borderRadius: "50%", background: `linear-gradient(135deg,${C.blue},${C.blueL})`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 2 }}>
+                <Bot size={12} color="#fff" />
+              </div>
+            )}
+            <div style={{ maxWidth: "80%", padding: "9px 12px", borderRadius: role==="user"?"12px 12px 3px 12px":"3px 12px 12px 12px", background: role==="user"?C.blueL:C.bg, color: role==="user"?"#fff":C.text, fontSize: 12.5, lineHeight: 1.5, border: role==="ai"?`1px solid ${C.border}`:"none" }}>
+              {text}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Suggestions */}
+      <div style={{ padding: "8px 14px", borderTop: `1px solid ${C.border}` }}>
+        <div style={{ display: "flex", gap: 5, overflowX: "auto", paddingBottom: 6 }}>
+          {suggestions.map(s => (
+            <button key={s} onClick={() => setInput(s)} style={{ background: C.bluePale, border: "none", color: C.blueL, cursor: "pointer", padding: "4px 10px", borderRadius: 20, fontSize: 10.5, fontWeight: 600, whiteSpace: "nowrap", fontFamily: "inherit" }}>{s}</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Input */}
+      <div style={{ padding: "8px 14px 14px" }}>
+        <div style={{ display: "flex", gap: 6, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 10, padding: "6px 10px" }}>
+          <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key==="Enter"&&send()} placeholder="Ask anything about your SEO..." style={{ flex: 1, background: "transparent", border: "none", outline: "none", fontSize: 12.5, color: C.text, fontFamily: "inherit" }} />
+          <button onClick={send} style={{ background: C.blueL, color: "#fff", border: "none", cursor: "pointer", padding: "6px 10px", borderRadius: 7, display: "flex", alignItems: "center" }}>
+            <Send size={12} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Updated Sidebar with all nav items ────────────────────────────────
+function SidebarFull({ active, setActive, sub, setSub, openAI, setOpenAI }) {
+  const seoNav = [
+    { id:"dashboard", icon:LayoutDashboard, label:"Dashboard" },
+    { id:"competitive", icon:Globe, label:"Competitive Research", subs:[{id:"domain-overview",l:"Domain Overview"},{id:"keyword-gap",l:"Keyword Gap"}] },
+    { id:"keyword", icon:Search, label:"Keyword Research", subs:[{id:"kw-overview",l:"Keyword Overview"},{id:"kw-ideas",l:"Keyword Ideas"}] },
+    { id:"backlink", icon:Link2, label:"Backlink Research" },
+    { id:"onpage", icon:FileSearch, label:"On Page & Tech Audit" },
+    { id:"rank", icon:TrendingUp, label:"Rank Tracking" },
+    { id:"localseo", icon:Globe, label:"Local SEO" },
+  ];
+  const contentNav = [
+    { id:"contentlab", icon:Edit2, label:"Content Lab", badge:"AI" },
+    { id:"reports", icon:BarChart2, label:"Reports & Insights" },
+    { id:"calendar", icon:Calendar, label:"Campaign Planner" },
+  ];
+  const teamNav = [
+    { id:"messages", icon:MessageSquare, label:"Messages", badge:17 },
+    { id:"tasks", icon:CheckSquare, label:"Tasks & Projects" },
+    { id:"clients", icon:Briefcase, label:"Clients" },
+    { id:"team", icon:Users, label:"Team Members" },
+  ];
+
+  const NavItem = ({ id, icon: Icon, label, badge, subs }) => (
+    <div>
+      <div className={`nav${active===id&&!sub?" on":""}`} onClick={() => { setActive(id); if(!subs) setSub(null); }}>
+        <Icon size={14} />
+        <span style={{ flex: 1 }}>{label}</span>
+        {badge && typeof badge === "number"
+          ? <span style={{ background: C.orange, color: "#fff", fontSize: 9, fontWeight: 700, width: 17, height: 17, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>{badge}</span>
+          : badge && <span className="chip" style={{ color: C.blueL, background: C.bluePale, fontSize: 9 }}>{badge}</span>
+        }
+        {subs && <ChevronDown size={10} color={C.textDim} style={{ transform: active===id?"rotate(180deg)":"none", transition: "transform .2s" }} />}
+      </div>
+      {subs && active===id && subs.map(s => (
+        <div key={s.id} className={`nsub${sub===s.id?" on":""}`} onClick={() => setSub(s.id)}>{s.l}</div>
+      ))}
+    </div>
+  );
+
+  return (
+    <div style={{ width: 214, background: C.white, borderRight: `1px solid ${C.border}`, display: "flex", flexDirection: "column", height: "100vh", position: "sticky", top: 0, flexShrink: 0, overflowY: "auto" }}>
+      {/* Logo */}
+      <div style={{ padding: "14px 14px 12px", borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+          <div style={{ width: 34, height: 34, borderRadius: 10, background: `linear-gradient(135deg,${C.orange},${C.blueL})`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 3px 10px rgba(249,115,22,0.3)" }}>
+            <Zap size={17} color="#fff" fill="#fff" />
+          </div>
+          <div>
+            <div className="sg" style={{ color: C.text, fontWeight: 800, fontSize: 17, letterSpacing: "-0.5px", lineHeight: 1 }}>Boostly</div>
+            <div style={{ color: C.textDim, fontSize: 9, letterSpacing: ".8px", fontWeight: 700 }}>SEO · MARKETING · AI</div>
+          </div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 7, padding: "6px 9px", background: C.bgLight, borderRadius: 7, border: `1px solid ${C.bluePale}`, cursor: "pointer" }}>
+          <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.green }} className="pls" />
+          <span style={{ color: C.blue, fontSize: 11, fontWeight: 600, flex: 1 }}>Marketing Workspace</span>
+          <ChevronDown size={10} color={C.textDim} />
+        </div>
+      </div>
+
+      <div style={{ padding: "10px 8px", flex: 1 }}>
+        {/* AI Copilot button */}
+        <button onClick={() => setOpenAI(!openAI)} style={{ width: "100%", display: "flex", alignItems: "center", gap: 9, padding: "9px 12px", borderRadius: 9, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 700, marginBottom: 12, fontFamily: "inherit", background: openAI?`linear-gradient(135deg,${C.blue},${C.blueL})`:`linear-gradient(135deg,${C.bgLight},${C.bluePale})`, color: openAI?"#fff":C.blue }}>
+          <Bot size={15} />
+          <span style={{ flex: 1 }}>AI SEO Copilot</span>
+          <span className="chip" style={{ background: openAI?"rgba(255,255,255,.2)":C.blueL, color: openAI?"#fff":"#fff", fontSize: 9 }}>LIVE</span>
+        </button>
+
+        <div style={{ color: C.textDim, fontSize: 9.5, fontWeight: 700, letterSpacing: 1.2, padding: "0 8px", marginBottom: 4 }}>SEO TOOLS</div>
+        {seoNav.map(item => <NavItem key={item.id} {...item} />)}
+
+        <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 8, marginTop: 8 }}>
+          <div style={{ color: C.textDim, fontSize: 9.5, fontWeight: 700, letterSpacing: 1.2, padding: "0 8px", marginBottom: 4 }}>CONTENT & AI</div>
+          {contentNav.map(item => <NavItem key={item.id} {...item} />)}
+        </div>
+
+        <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 8, marginTop: 8 }}>
+          <div style={{ color: C.textDim, fontSize: 9.5, fontWeight: 700, letterSpacing: 1.2, padding: "0 8px", marginBottom: 4 }}>TEAM & CLIENTS</div>
+          {teamNav.map(item => <NavItem key={item.id} {...item} />)}
+        </div>
+
+        <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 8, marginTop: 8 }}>
+          <div className="nav" onClick={() => setActive("settings")} style={{ color: active==="settings"?C.blueL:C.textDim }}>
+            <Settings size={14} /> Settings
+          </div>
+          <div className="nav" style={{ color: C.textDim }}>
+            <HelpCircle size={14} /> Help & Docs
+          </div>
+        </div>
+      </div>
+
+      <div style={{ borderTop: `1px solid ${C.border}`, padding: "10px 10px 14px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 8px", background: C.bg, borderRadius: 9, cursor: "pointer" }}>
+          <Av l="Y" size={28} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ color: C.text, fontSize: 12, fontWeight: 700 }}>Your Account</div>
+            <div style={{ color: C.textDim, fontSize: 10 }}>Admin · Pro Plan</div>
+          </div>
+          <ChevronDown size={11} color={C.textDim} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Screen Map ────────────────────────────────────────────────────────
 const SCREENS = {
-  dashboard:   { C: Dashboard,           title: "Dashboard",            sub: "SEO Engine Boost · Boostly Platform" },
-  keyword:     { C: KeywordResearch,     title: "Keyword Research",     sub: "Discover high-value keywords" },
-  competitive: { C: CompetitiveResearch, title: "Competitive Research", sub: "Domain overview & keyword gaps" },
-  backlink:    { C: BacklinkResearch,    title: "Backlink Research",    sub: "Monitor your full backlink profile" },
-  onpage:      { C: OnPageAudit,         title: "On Page & Tech Audit", sub: "AI-powered SEO health check" },
-  rank:        { C: RankTracking,        title: "Rank Tracking",        sub: "Track keyword positions across devices" },
-  messages:    { C: Messages,            title: "Messages",             sub: "Team chat · AI-powered" },
-  tasks:       { C: Tasks,               title: "Tasks & Projects",     sub: "Kanban board — plan and ship" },
-  clients:     { C: Clients,             title: "Clients",              sub: "Manage all client projects" },
-  calendar:    { C: CalendarView,        title: "Calendar",             sub: "Campaign planner & social queue" },
-  settings:    { C: SettingsView,        title: "Settings",             sub: "Account & integrations" },
+  dashboard:   { C: Dashboard,           title: "Dashboard",               sub: "SEO Engine Boost · Boostly Platform" },
+  keyword:     { C: KeywordResearch,     title: "Keyword Research",        sub: "Discover high-value keywords & opportunities" },
+  competitive: { C: CompetitiveResearch, title: "Competitive Research",    sub: "Domain overview, keyword gaps & backlink comparison" },
+  backlink:    { C: BacklinkResearch,    title: "Backlink Research",       sub: "Monitor and grow your full backlink profile" },
+  onpage:      { C: OnPageAudit,         title: "On Page & Tech Audit",    sub: "Full technical SEO analysis with AI-powered fixes" },
+  rank:        { C: RankTracking,        title: "Rank Tracking",           sub: "Track keyword positions across devices and regions" },
+  localseo:    { C: LocalSEO,            title: "Local SEO Manager",       sub: "Google My Business, reviews & local optimization" },
+  contentlab:  { C: ContentLab,          title: "Content Lab",             sub: "AI-powered writing workspace with live SEO scoring" },
+  reports:     { C: Reports,             title: "Reports & Insights",      sub: "Branded client reports — PDF export & auto-send" },
+  messages:    { C: Messages,            title: "Messages",                sub: "Team chat · AI Chat-to-Task · Always-on Copilot" },
+  tasks:       { C: Tasks,               title: "Tasks & Projects",        sub: "Kanban board — plan, assign, track & ship" },
+  clients:     { C: Clients,             title: "Clients",                 sub: "Manage all client projects and relationships" },
+  team:        { C: TeamMembers,         title: "Team Members",            sub: "Manage your team, roles & permissions" },
+  calendar:    { C: CalendarView,        title: "Campaign Planner",        sub: "Campaign calendar, social queue & scheduler" },
+  settings:    { C: SettingsView,        title: "Settings",                sub: "Account, workspace & integrations" },
 };
 
 // ── App ───────────────────────────────────────────────────────────────
 export default function App() {
   const [active, setActive] = useState("dashboard");
   const [sub, setSub] = useState(null);
-  const [view, setView] = useState("app"); // "app" | "pricing"
+  const [view, setView] = useState("app");
+  const [aiOpen, setAiOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
 
   const screen = SCREENS[active] || SCREENS.dashboard;
   const Screen = screen.C;
 
-  // Show full pricing page
   if (view === "pricing") {
     return (
       <>
@@ -1660,47 +2311,66 @@ export default function App() {
   return (
     <>
       <style>{CSS}</style>
-      <div style={{ display: "flex", height: "100vh", background: C.bg, fontFamily: "'Manrope',sans-serif", overflow: "hidden" }}>
-        <Sidebar active={active} setActive={(id) => { setActive(id); setSub(null); }} sub={sub} setSub={setSub} />
+      <div style={{ display: "flex", height: "100vh", background: C.bg, fontFamily: "'Manrope',sans-serif", overflow: "hidden", position: "relative" }}>
+        <SidebarFull
+          active={active}
+          setActive={(id) => { setActive(id); setSub(null); }}
+          sub={sub}
+          setSub={setSub}
+          openAI={aiOpen}
+          setOpenAI={setAiOpen}
+        />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-          {/* Enhanced Topbar with nav links */}
-          <div style={{ padding: "0 24px", borderBottom: `1px solid ${C.border}`, display: "flex", alignItems: "center", gap: 12, background: C.white, position: "sticky", top: 0, zIndex: 20, flexShrink: 0, height: 57 }}>
-            <div style={{ flex: 1 }}>
-              <h1 className="sg" style={{ color: C.text, fontSize: 15, fontWeight: 700 }}>{screen.title}</h1>
-              <p style={{ color: C.textDim, fontSize: 10.5, marginTop: 0 }}>{screen.sub}</p>
+          {/* Topbar */}
+          <div style={{ padding: "0 24px", borderBottom: `1px solid ${C.border}`, display: "flex", alignItems: "center", gap: 10, background: C.white, position: "sticky", top: 0, zIndex: 20, flexShrink: 0, height: 57 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h1 className="sg" style={{ color: C.text, fontSize: 15, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{screen.title}</h1>
+              <p style={{ color: C.textDim, fontSize: 10.5 }}>{screen.sub}</p>
             </div>
-            {/* Nav links in topbar */}
-            <div style={{ display: "flex", gap: 2 }}>
-              {[
-                { id:"dashboard", l:"Dashboard" },
-                { id:"keyword",   l:"Tools" },
-                { id:"pricing",   l:"Pricing", isPricing: true },
-                { id:"clients",   l:"Clients" },
-                { id:"settings",  l:"Settings" },
-              ].map(({ id, l, isPricing }) => (
-                <button key={id} onClick={() => isPricing ? setView("pricing") : setActive(id)}
-                  style={{ padding: "5px 11px", borderRadius: 7, border: "none", cursor: "pointer", fontSize: 12, fontWeight: active===id||isPricing?600:500, fontFamily: "inherit",
-                    background: active===id && !isPricing ? C.bluePale : "transparent",
-                    color: active===id && !isPricing ? C.blueL : C.textDim }}>
-                  {l}
-                </button>
-              ))}
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 7, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 9, padding: "6px 11px", width: 185 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 9, padding: "6px 10px", width: 180, flexShrink: 0 }}>
               <Search size={12} color={C.textDim} />
-              <input placeholder="Search..." style={{ background: "transparent", border: "none", outline: "none", color: C.textMid, fontSize: 12, width: "100%", fontFamily: "inherit" }} />
+              <input placeholder="Search anything..." style={{ background: "transparent", border: "none", outline: "none", color: C.textMid, fontSize: 12, width: "100%", fontFamily: "inherit" }} />
             </div>
-            <button onClick={() => setView("pricing")} style={{ background: C.orange, color: "#fff", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 5, padding: "7px 14px", borderRadius: 8, fontSize: 12, fontWeight: 700, fontFamily: "inherit" }}>
+            <button onClick={() => setView("pricing")} style={{ background: C.orange, color: "#fff", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 5, padding: "7px 13px", borderRadius: 8, fontSize: 12, fontWeight: 700, fontFamily: "inherit", flexShrink: 0 }}>
               ⚡ Upgrade
             </button>
-            <div style={{ position: "relative", cursor: "pointer" }}>
+            <button onClick={() => setAiOpen(!aiOpen)} style={{ background: aiOpen?`linear-gradient(135deg,${C.blue},${C.blueL})`:"transparent", color: aiOpen?"#fff":C.blueL, border: `1px solid ${aiOpen?C.blueL:C.border}`, cursor: "pointer", display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 8, fontSize: 12, fontWeight: 700, fontFamily: "inherit", flexShrink: 0 }}>
+              <Bot size={13} /> AI Copilot
+            </button>
+            <div style={{ position: "relative", cursor: "pointer" }} onClick={() => setNotifOpen(!notifOpen)}>
               <Bell size={17} color={C.textDim} />
               <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.orange, position: "absolute", top: -1, right: -1, border: "1.5px solid #fff" }} />
             </div>
+            {notifOpen && (
+              <div style={{ position: "absolute", top: 57, right: 16, width: 320, background: C.white, border: `1px solid ${C.border}`, borderRadius: 12, boxShadow: "0 8px 30px rgba(0,0,0,0.12)", zIndex: 100, overflow: "hidden" }}>
+                <div style={{ padding: "12px 16px", borderBottom: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span className="sg" style={{ color: C.text, fontWeight: 700, fontSize: 13 }}>Notifications</span>
+                  <button onClick={() => setNotifOpen(false)} style={{ background: "none", border: "none", cursor: "pointer" }}><X size={13} color={C.textDim} /></button>
+                </div>
+                {[
+                  {icon:CheckCircle2,c:C.green,msg:"Jordan completed 'Homepage Redesign'",t:"2m ago"},
+                  {icon:MessageSquare,c:C.blueL,msg:"Mahmoud mentioned you in #seo-team",t:"14m ago"},
+                  {icon:AlertCircle,c:C.yellow,msg:"Task 'Facebook Ads Copy' is due tomorrow",t:"1h ago"},
+                  {icon:Bot,c:C.blueL,msg:"AI summarized 24 messages in #content-writers",t:"2h ago"},
+                  {icon:BarChart2,c:C.purple,msg:"Weekly SEO report ready for Dental Pro",t:"5h ago"},
+                ].map(({icon:Icon,c,msg,t},i) => (
+                  <div key={i} style={{ display: "flex", gap: 10, padding: "10px 16px", borderBottom: i<4?`1px solid ${C.border}`:"none", cursor: "pointer" }} className="td">
+                    <div style={{ width: 28, height: 28, borderRadius: 7, background: `${c}18`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Icon size={13} color={c}/></div>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ color: C.text, fontSize: 12 }}>{msg}</p>
+                      <span style={{ color: C.textDim, fontSize: 10.5 }}>{t}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
             <Av l="Y" size={30} />
           </div>
           <Screen />
         </div>
+
+        {/* Floating AI Copilot */}
+        {aiOpen && <AICopilot onClose={() => setAiOpen(false)} />}
       </div>
     </>
   );
