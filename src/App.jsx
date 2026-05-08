@@ -1575,82 +1575,346 @@ function Clients() {
 // ── Settings ─────────────────────────────────────────────────────────
 function SettingsView() {
   const [tab, setTab] = useState("profile");
+  const [biometric, setBiometric] = useState(false);
+  const [lang, setLang] = useState("English");
+  const [notifEmail, setNotifEmail] = useState(true);
+  const [notifPush, setNotifPush] = useState(true);
+  const [notifSMS, setNotifSMS] = useState(false);
+  const [notifWeekly, setNotifWeekly] = useState(true);
+
   const tabs = [
-    { id: "profile", icon: Users, l: "Profile" },
-    { id: "workspace", icon: Briefcase, l: "Workspace" },
-    { id: "notifications", icon: Bell, l: "Notifications" },
-    { id: "integrations", icon: Cpu, l: "Integrations" },
-    { id: "billing", icon: BarChart, l: "Billing" },
-    { id: "security", icon: Shield, l: "Security" },
+    { id:"profile",       icon:Users,       l:"Profile" },
+    { id:"general",       icon:Settings,    l:"General" },
+    { id:"security",      icon:Shield,      l:"Security" },
+    { id:"notifications", icon:Bell,        l:"Notifications" },
+    { id:"integrations",  icon:Cpu,         l:"Integrations" },
+    { id:"billing",       icon:BarChart,    l:"Billing & Plan" },
+    { id:"workspace",     icon:Briefcase,   l:"Workspace" },
   ];
+
+  // Toggle component
+  const Toggle = ({ on, setOn }) => (
+    <div onClick={() => setOn(!on)} style={{ width: 44, height: 24, borderRadius: 12, background: on ? C.blueL : "#CBD5E1", cursor: "pointer", position: "relative", transition: "background .2s", flexShrink: 0 }}>
+      <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#fff", position: "absolute", top: 2, left: on ? 22 : 2, transition: "left .2s", boxShadow: "0 1px 3px rgba(0,0,0,.2)" }} />
+    </div>
+  );
+
+  // Row item (mobile-style list row)
+  const Row = ({ icon: Icon, label, value, badge, onClick, danger }) => (
+    <div onClick={onClick} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px", borderBottom: `1px solid ${C.border}`, cursor: "pointer", transition: "background .12s" }}
+      className="td">
+      {Icon && <div style={{ width: 36, height: 36, borderRadius: 10, background: danger ? C.redL : C.bgLight, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        <Icon size={15} color={danger ? C.red : C.blueL} />
+      </div>}
+      <div style={{ flex: 1 }}>
+        <div style={{ color: danger ? C.red : C.text, fontSize: 13.5, fontWeight: 500 }}>{label}</div>
+        {value && <div style={{ color: C.textDim, fontSize: 12, marginTop: 2 }}>{value}</div>}
+      </div>
+      {badge && <span style={{ background: C.red, color: "#fff", fontSize: 10, fontWeight: 800, width: 19, height: 19, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>{badge}</span>}
+      <ChevronRight size={15} color={C.textDim} />
+    </div>
+  );
+
   return (
     <div className="fade" style={{ display: "flex", height: "calc(100vh - 57px)", overflow: "hidden" }}>
-      <div style={{ width: 190, background: C.white, borderRight: `1px solid ${C.border}`, padding: "14px 8px" }}>
-        <div style={{ color: C.textDim, fontSize: 9.5, fontWeight: 700, letterSpacing: 1.2, padding: "0 8px", marginBottom: 5 }}>SETTINGS</div>
+      {/* Settings nav */}
+      <div style={{ width: 200, background: C.white, borderRight: `1px solid ${C.border}`, padding: "14px 8px", flexShrink: 0 }}>
+        <div style={{ color: C.textDim, fontSize: 9.5, fontWeight: 700, letterSpacing: 1.2, padding: "0 8px", marginBottom: 6 }}>SETTINGS</div>
         {tabs.map(({ id, icon: Icon, l }) => (
           <div key={id} className={`nav${tab === id ? " on" : ""}`} onClick={() => setTab(id)}>
             <Icon size={14} />{l}
           </div>
         ))}
       </div>
-      <div style={{ flex: 1, overflowY: "auto", padding: "26px 32px", background: C.bg }}>
+
+      {/* Content */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "24px 32px", background: C.bg }}>
+
+        {/* ── PROFILE ── */}
         {tab === "profile" && (
-          <div>
-            <div className="sg" style={{ color: C.text, fontSize: 18, fontWeight: 800, marginBottom: 5 }}>Profile Settings</div>
-            <p style={{ color: C.textDim, fontSize: 13, marginBottom: 22 }}>Manage your personal account details</p>
-            <div className="card" style={{ padding: "22px 24px", marginBottom: 14 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 22 }}>
-                <Av l="Y" size={68} />
-                <div>
-                  <div style={{ color: C.text, fontSize: 15, fontWeight: 700, marginBottom: 3 }}>Your Account</div>
-                  <div style={{ color: C.textDim, fontSize: 12, marginBottom: 10 }}>admin@boostly.app · Pro Plan</div>
-                  <button style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.textMid, cursor: "pointer", padding: "6px 14px", borderRadius: 8, fontSize: 12, fontFamily: "inherit" }}>Change Avatar</button>
+          <div style={{ maxWidth: 700 }}>
+            <div className="sg" style={{ color: C.text, fontSize: 18, fontWeight: 800, marginBottom: 5 }}>Profile</div>
+            <p style={{ color: C.textDim, fontSize: 13, marginBottom: 20 }}>Manage your personal information and account preferences</p>
+
+            {/* Profile card */}
+            <div className="card" style={{ padding: "22px 24px", marginBottom: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 22, paddingBottom: 18, borderBottom: `1px solid ${C.border}` }}>
+                <div style={{ position: "relative" }}>
+                  <Av l="Y" size={72} />
+                  <button style={{ position: "absolute", bottom: 0, right: 0, width: 22, height: 22, borderRadius: "50%", background: C.blueL, border: "2px solid #fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <Edit2 size={10} color="#fff" />
+                  </button>
                 </div>
+                <div>
+                  <div style={{ color: C.text, fontSize: 17, fontWeight: 800 }}>Your Name</div>
+                  <div style={{ color: C.textDim, fontSize: 13, marginBottom: 4 }}>Admin · SEO Specialist</div>
+                  <span className="chip" style={{ color: C.green, background: C.greenL }}>Pro Plan · Active</span>
+                </div>
+                <button style={{ marginLeft: "auto", background: "transparent", border: `1px solid ${C.border}`, color: C.textMid, cursor: "pointer", padding: "7px 14px", borderRadius: 8, fontSize: 12, fontFamily: "inherit" }}>Edit Profile</button>
               </div>
-              {[{ l: "Full Name", v: "Your Name" }, { l: "Email", v: "admin@boostly.app" }, { l: "Role", v: "Admin" }, { l: "Time Zone", v: "Asia/Manila (UTC+8)" }].map(({ l, v }) => (
+              {[
+                { l: "Full Name", v: "Your Name", type: "text" },
+                { l: "Email Address", v: "admin@boostly.app", type: "email" },
+                { l: "Phone Number", v: "+63 912 345 6789", type: "tel" },
+                { l: "Job Title", v: "SEO Manager", type: "text" },
+                { l: "Company", v: "SEO Engine Boost", type: "text" },
+                { l: "Website", v: "https://seoengineboost.com", type: "url" },
+              ].map(({ l, v, type }) => (
                 <div key={l} style={{ marginBottom: 14 }}>
                   <label style={{ color: C.textMid, fontSize: 12, fontWeight: 600, display: "block", marginBottom: 5 }}>{l}</label>
-                  <input defaultValue={v} style={{ width: "100%", background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8, padding: "9px 13px", color: C.text, fontSize: 13, fontFamily: "inherit", outline: "none" }} />
+                  <input defaultValue={v} type={type} style={{ width: "100%", background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8, padding: "9px 13px", color: C.text, fontSize: 13, fontFamily: "inherit", outline: "none" }} />
                 </div>
               ))}
-              <button style={{ background: C.blueL, color: "#fff", border: "none", cursor: "pointer", padding: "9px 22px", borderRadius: 9, fontSize: 13, fontWeight: 700, fontFamily: "inherit" }}>Save Changes</button>
+              <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+                <button style={{ background: C.blueL, color: "#fff", border: "none", cursor: "pointer", padding: "9px 22px", borderRadius: 9, fontSize: 13, fontWeight: 700, fontFamily: "inherit" }}>Save Changes</button>
+                <button style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.textMid, cursor: "pointer", padding: "9px 18px", borderRadius: 9, fontSize: 13, fontFamily: "inherit" }}>Cancel</button>
+              </div>
+            </div>
+
+            {/* Profile menu (mobile-style) */}
+            <div className="card" style={{ overflow: "hidden" }}>
+              <div style={{ padding: "12px 16px", borderBottom: `1px solid ${C.border}` }}>
+                <div className="sg" style={{ color: C.text, fontSize: 13, fontWeight: 700 }}>Account Options</div>
+              </div>
+              <Row icon={Users} label="Personal Information" value="Update your name, email and phone" />
+              <Row icon={BarChart} label="Payment Preferences" value="Manage billing and payment methods" />
+              <Row icon={Shield} label="Banks and Cards" value="Connected payment methods" />
+              <Row icon={Bell} label="Notifications" value="Email, push and SMS preferences" badge={2} onClick={() => setTab("notifications")} />
+              <Row icon={MessageSquare} label="Message Center" value="In-app messages and announcements" />
+              <Row icon={Globe} label="Address" value="Location and timezone settings" />
+              <Row icon={Settings} label="Settings" value="Language, security and privacy" onClick={() => setTab("general")} />
             </div>
           </div>
         )}
-        {tab === "integrations" && (
-          <div>
-            <div className="sg" style={{ color: C.text, fontSize: 18, fontWeight: 800, marginBottom: 5 }}>Integrations</div>
-            <p style={{ color: C.textDim, fontSize: 13, marginBottom: 22 }}>Connect Boostly with your tools</p>
-            {[
-              { n: "Semrush", d: "Import keyword data & audits", connected: false },
-              { n: "Google Analytics 4", d: "Traffic & conversion tracking", connected: true },
-              { n: "Slack", d: "Sync notifications & messages", connected: true },
-              { n: "Google Search Console", d: "Rankings & indexation data", connected: false },
-              { n: "Ahrefs", d: "Backlink analysis", connected: false },
-              { n: "WordPress", d: "One-click content publishing", connected: true },
-            ].map(({ n, d, connected }) => (
-              <div key={n} className="card" style={{ padding: "14px 18px", marginBottom: 10, display: "flex", alignItems: "center", gap: 14, border: connected ? `1px solid ${C.green}40` : `1px solid ${C.border}` }}>
-                <div style={{ width: 38, height: 38, borderRadius: 9, background: C.bgLight, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <Globe size={16} color={C.blueL} />
+
+        {/* ── GENERAL ── */}
+        {tab === "general" && (
+          <div style={{ maxWidth: 620 }}>
+            <div className="sg" style={{ color: C.text, fontSize: 18, fontWeight: 800, marginBottom: 5 }}>General Settings</div>
+            <p style={{ color: C.textDim, fontSize: 13, marginBottom: 20 }}>Manage your app preferences and display options</p>
+
+            {/* General section */}
+            <div className="card" style={{ overflow: "hidden", marginBottom: 16 }}>
+              <div style={{ padding: "12px 16px 8px", color: C.textDim, fontSize: 10.5, fontWeight: 700, letterSpacing: 1 }}>GENERAL</div>
+              <div style={{ padding: "12px 16px", borderBottom: `1px solid ${C.border}`, display: "flex", alignItems: "center", gap: 14 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: C.bgLight, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Globe size={15} color={C.blueL} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ color: C.text, fontWeight: 700, fontSize: 13 }}>{n}</div>
-                  <div style={{ color: C.textDim, fontSize: 11.5, marginTop: 1 }}>{d}</div>
+                  <div style={{ color: C.text, fontSize: 13.5, fontWeight: 500 }}>Language</div>
                 </div>
-                <button style={{ padding: "7px 14px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 12, fontWeight: 700, fontFamily: "inherit", background: connected ? C.greenL : C.blueL, color: connected ? C.green : "#fff" }}>
+                <select value={lang} onChange={e => setLang(e.target.value)} style={{ border: `1px solid ${C.border}`, borderRadius: 7, padding: "5px 10px", fontSize: 13, fontFamily: "inherit", outline: "none", background: C.white, color: C.textMid, cursor: "pointer" }}>
+                  <option>English</option><option>Spanish</option><option>French</option><option>Arabic</option><option>Filipino</option>
+                </select>
+              </div>
+              <Row icon={Users} label="My Profile" value="View and edit your profile" onClick={() => setTab("profile")} />
+              <Row icon={HelpCircle} label="Contact Us" value="Get help and support" />
+            </div>
+
+            {/* Security section */}
+            <div className="card" style={{ overflow: "hidden", marginBottom: 16 }}>
+              <div style={{ padding: "12px 16px 8px", color: C.textDim, fontSize: 10.5, fontWeight: 700, letterSpacing: 1 }}>SECURITY</div>
+              <Row icon={Key} label="Change Password" value="Update your account password" onClick={() => setTab("security")} />
+              <Row icon={Shield} label="Privacy Policy" value="How we handle your data" />
+              <div style={{ padding: "12px 16px 6px 16px", borderBottom: `1px solid ${C.border}` }}>
+                <div style={{ color: C.textDim, fontSize: 11, marginBottom: 10 }}>Choose what data you share with us</div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 10, background: C.bgLight, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <Cpu size={15} color={C.blueL} />
+                    </div>
+                    <div>
+                      <div style={{ color: C.text, fontSize: 13.5, fontWeight: 500 }}>Biometric Login</div>
+                      <div style={{ color: C.textDim, fontSize: 11.5, marginTop: 1 }}>Use fingerprint or face ID</div>
+                    </div>
+                  </div>
+                  <Toggle on={biometric} setOn={setBiometric} />
+                </div>
+              </div>
+            </div>
+
+            {/* Danger zone */}
+            <div className="card" style={{ overflow: "hidden" }}>
+              <div style={{ padding: "12px 16px 8px", color: C.red, fontSize: 10.5, fontWeight: 700, letterSpacing: 1 }}>DANGER ZONE</div>
+              <Row icon={AlertCircle} label="Delete Account" value="Permanently delete your account and all data" danger />
+              <Row icon={LogOut} label="Sign Out" value="Sign out of all devices" danger />
+            </div>
+          </div>
+        )}
+
+        {/* ── SECURITY ── */}
+        {tab === "security" && (
+          <div style={{ maxWidth: 620 }}>
+            <div className="sg" style={{ color: C.text, fontSize: 18, fontWeight: 800, marginBottom: 5 }}>Security</div>
+            <p style={{ color: C.textDim, fontSize: 13, marginBottom: 20 }}>Manage your password, 2FA and security settings</p>
+            <div className="card" style={{ padding: "22px 24px", marginBottom: 16 }}>
+              <div className="sg" style={{ color: C.text, fontSize: 14, fontWeight: 700, marginBottom: 14 }}>Change Password</div>
+              {[{ l: "Current Password", p: "Enter current password" }, { l: "New Password", p: "Min. 8 characters" }, { l: "Confirm New Password", p: "Repeat new password" }].map(({ l, p }) => (
+                <div key={l} style={{ marginBottom: 14 }}>
+                  <label style={{ color: C.textMid, fontSize: 12, fontWeight: 600, display: "block", marginBottom: 5 }}>{l}</label>
+                  <input type="password" placeholder={p} style={{ width: "100%", background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8, padding: "9px 13px", color: C.text, fontSize: 13, fontFamily: "inherit", outline: "none" }} />
+                </div>
+              ))}
+              <button style={{ background: C.blueL, color: "#fff", border: "none", cursor: "pointer", padding: "9px 22px", borderRadius: 9, fontSize: 13, fontWeight: 700, fontFamily: "inherit" }}>Update Password</button>
+            </div>
+            <div className="card" style={{ padding: "20px 24px", marginBottom: 16 }}>
+              <div className="sg" style={{ color: C.text, fontSize: 14, fontWeight: 700, marginBottom: 4 }}>Two-Factor Authentication</div>
+              <p style={{ color: C.textDim, fontSize: 12.5, marginBottom: 14 }}>Add an extra layer of security to your account using an authenticator app.</p>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <span className="chip" style={{ color: C.textDim, background: "#F1F5F9" }}>Not Enabled</span>
+                <button style={{ background: C.blueL, color: "#fff", border: "none", cursor: "pointer", padding: "8px 18px", borderRadius: 8, fontSize: 12, fontWeight: 700, fontFamily: "inherit" }}>Enable 2FA</button>
+              </div>
+            </div>
+            <div className="card" style={{ padding: "20px 24px" }}>
+              <div className="sg" style={{ color: C.text, fontSize: 14, fontWeight: 700, marginBottom: 14 }}>Active Sessions</div>
+              {[
+                { device: "Chrome on MacBook Pro", location: "Cebu, Philippines", current: true, time: "Now" },
+                { device: "Safari on iPhone 15", location: "Manila, Philippines", current: false, time: "2 hours ago" },
+                { device: "Chrome on Windows PC", location: "Manila, Philippines", current: false, time: "Yesterday" },
+              ].map(({ device, location, current, time }) => (
+                <div key={device} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: `1px solid ${C.border}` }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 9, background: current ? C.bgLight : "#F1F5F9", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <Cpu size={15} color={current ? C.blueL : C.textDim} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ color: C.text, fontSize: 13, fontWeight: 600 }}>{device} {current && <span className="chip" style={{ color: C.green, background: C.greenL, marginLeft: 6 }}>Current</span>}</div>
+                    <div style={{ color: C.textDim, fontSize: 11.5 }}>{location} · {time}</div>
+                  </div>
+                  {!current && <button style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.red, cursor: "pointer", padding: "5px 12px", borderRadius: 7, fontSize: 11, fontWeight: 600, fontFamily: "inherit" }}>Revoke</button>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── NOTIFICATIONS ── */}
+        {tab === "notifications" && (
+          <div style={{ maxWidth: 620 }}>
+            <div className="sg" style={{ color: C.text, fontSize: 18, fontWeight: 800, marginBottom: 5 }}>Notifications</div>
+            <p style={{ color: C.textDim, fontSize: 13, marginBottom: 20 }}>Choose what notifications you receive and how</p>
+            {[
+              { label: "Email Notifications", desc: "Receive reports, alerts and updates via email", on: notifEmail, setOn: setNotifEmail },
+              { label: "Push Notifications", desc: "Browser push notifications for real-time alerts", on: notifPush, setOn: setNotifPush },
+              { label: "SMS Notifications", desc: "Text message alerts for critical updates", on: notifSMS, setOn: setNotifSMS },
+              { label: "Weekly SEO Report", desc: "Automated weekly summary delivered to your inbox", on: notifWeekly, setOn: setNotifWeekly },
+            ].map(({ label, desc, on, setOn }) => (
+              <div key={label} className="card" style={{ padding: "16px 20px", marginBottom: 10, display: "flex", alignItems: "center", gap: 14 }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ color: C.text, fontSize: 13.5, fontWeight: 600 }}>{label}</div>
+                  <div style={{ color: C.textDim, fontSize: 12, marginTop: 2 }}>{desc}</div>
+                </div>
+                <Toggle on={on} setOn={setOn} />
+              </div>
+            ))}
+            <div className="card" style={{ padding: "18px 20px", marginTop: 6 }}>
+              <div className="sg" style={{ color: C.text, fontSize: 13, fontWeight: 700, marginBottom: 12 }}>Alert Frequency</div>
+              {["Immediately", "Daily Digest", "Weekly Summary"].map((opt, i) => (
+                <label key={opt} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", cursor: "pointer", borderBottom: i < 2 ? `1px solid ${C.border}` : "none" }}>
+                  <input type="radio" name="freq" defaultChecked={i === 0} style={{ accentColor: C.blueL, width: 16, height: 16 }} />
+                  <span style={{ color: C.text, fontSize: 13 }}>{opt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── INTEGRATIONS ── */}
+        {tab === "integrations" && (
+          <div style={{ maxWidth: 700 }}>
+            <div className="sg" style={{ color: C.text, fontSize: 18, fontWeight: 800, marginBottom: 5 }}>Integrations</div>
+            <p style={{ color: C.textDim, fontSize: 13, marginBottom: 20 }}>Connect Boostly with your favorite tools and platforms</p>
+            {[
+              { n:"Semrush",               d:"Import keyword data, site audits and analytics",  connected:false, category:"SEO" },
+              { n:"Google Analytics 4",    d:"Traffic, conversions and behavior tracking",       connected:true,  category:"Analytics" },
+              { n:"Google Search Console", d:"Search rankings, clicks and indexation data",      connected:false, category:"SEO" },
+              { n:"Slack",                 d:"Sync notifications, alerts and team messages",     connected:true,  category:"Communication" },
+              { n:"Ahrefs",                d:"Backlink intelligence and keyword explorer",       connected:false, category:"SEO" },
+              { n:"WordPress",             d:"One-click content publishing to your CMS",         connected:true,  category:"CMS" },
+              { n:"HubSpot",               d:"CRM, lead management and marketing automation",    connected:false, category:"CRM" },
+              { n:"Grammarly",             d:"Grammar, tone and readability corrections",        connected:false, category:"Content" },
+              { n:"Zapier",                d:"Automate workflows with 5,000+ apps",             connected:false, category:"Automation" },
+            ].map(({ n, d, connected, category }) => (
+              <div key={n} className="card" style={{ padding: "14px 18px", marginBottom: 10, display: "flex", alignItems: "center", gap: 14, border: connected ? `1px solid ${C.green}40` : `1px solid ${C.border}` }}>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: connected ? C.greenL : C.bgLight, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <Globe size={17} color={connected ? C.green : C.blueL} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                    <div style={{ color: C.text, fontWeight: 700, fontSize: 13.5 }}>{n}</div>
+                    <span className="chip" style={{ color: C.textDim, background: "#F1F5F9", fontSize: 9 }}>{category}</span>
+                  </div>
+                  <div style={{ color: C.textDim, fontSize: 12 }}>{d}</div>
+                </div>
+                <button style={{ padding: "8px 16px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 12, fontWeight: 700, fontFamily: "inherit", background: connected ? C.greenL : C.blueL, color: connected ? C.green : "#fff", flexShrink: 0 }}>
                   {connected ? "Connected ✓" : "Connect"}
                 </button>
               </div>
             ))}
           </div>
         )}
-        {!["profile", "integrations"].includes(tab) && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "50%", textAlign: "center" }}>
-            <Settings size={40} color={C.border} style={{ marginBottom: 14 }} />
-            <div className="sg" style={{ color: C.textMid, fontSize: 16, fontWeight: 700, marginBottom: 5 }}>
-              {tabs.find((t) => t.id === tab)?.l} Settings
+
+        {/* ── BILLING ── */}
+        {tab === "billing" && (
+          <div style={{ maxWidth: 680 }}>
+            <div className="sg" style={{ color: C.text, fontSize: 18, fontWeight: 800, marginBottom: 5 }}>Billing & Plan</div>
+            <p style={{ color: C.textDim, fontSize: 13, marginBottom: 20 }}>Manage your subscription, usage and payment methods</p>
+            {/* Current plan */}
+            <div style={{ background: `linear-gradient(135deg,${C.blue},${C.blueL})`, borderRadius: 14, padding: "22px 26px", marginBottom: 16, position: "relative", overflow: "hidden" }}>
+              <div style={{ position: "absolute", top: -20, right: -20, width: 100, height: 100, borderRadius: "50%", background: "rgba(255,255,255,.08)" }} />
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative" }}>
+                <div>
+                  <div style={{ color: "rgba(255,255,255,.7)", fontSize: 11, fontWeight: 700, letterSpacing: 1, marginBottom: 4 }}>CURRENT PLAN</div>
+                  <div className="sg" style={{ color: "#fff", fontSize: 22, fontWeight: 900, marginBottom: 4 }}>Pro Plan</div>
+                  <div style={{ color: "rgba(255,255,255,.75)", fontSize: 13 }}>$30/month · Renews June 1, 2026</div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ color: "rgba(255,255,255,.7)", fontSize: 11, marginBottom: 4 }}>Usage this month</div>
+                  <div style={{ color: "#fff", fontSize: 18, fontWeight: 800 }}>4 / 4 crawls</div>
+                  <button style={{ marginTop: 8, background: C.orange, color: "#fff", border: "none", cursor: "pointer", padding: "7px 16px", borderRadius: 8, fontSize: 12, fontWeight: 700, fontFamily: "inherit" }}>Upgrade Plan</button>
+                </div>
+              </div>
             </div>
-            <p style={{ color: C.textDim, fontSize: 13 }}>Configuration options coming soon</p>
+            {/* Usage */}
+            <div className="card" style={{ padding: "18px 22px", marginBottom: 14 }}>
+              <div className="sg" style={{ color: C.text, fontSize: 13, fontWeight: 700, marginBottom: 12 }}>Monthly Usage</div>
+              {[{ l: "Site Crawls", v: 4, max: 4, c: C.red }, { l: "Keyword Searches", v: 36, max: 40, c: C.orange }, { l: "Backlink Lookups", v: 24, max: 24, c: C.red }, { l: "Reports Generated", v: 8, max: 20, c: C.green }].map(({ l, v, max, c }) => (
+                <div key={l} style={{ marginBottom: 12 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                    <span style={{ color: C.textMid, fontSize: 12 }}>{l}</span>
+                    <span style={{ color: v >= max ? C.red : C.text, fontSize: 12, fontWeight: 700 }}>{v} / {max}</span>
+                  </div>
+                  <ProgBar v={(v / max) * 100} col={v >= max ? C.red : v >= max * 0.8 ? C.orange : c} h={6} />
+                </div>
+              ))}
+            </div>
+            {/* Payment */}
+            <div className="card" style={{ padding: "18px 22px" }}>
+              <div className="sg" style={{ color: C.text, fontSize: 13, fontWeight: 700, marginBottom: 12 }}>Payment Method</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 14px", background: C.bg, borderRadius: 9, border: `1px solid ${C.border}` }}>
+                <div style={{ width: 40, height: 26, borderRadius: 5, background: C.blueL, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <span style={{ color: "#fff", fontSize: 9, fontWeight: 800 }}>VISA</span>
+                </div>
+                <div style={{ flex: 1 }}><div style={{ color: C.text, fontSize: 13, fontWeight: 600 }}>Visa ending in 4242</div><div style={{ color: C.textDim, fontSize: 11.5 }}>Expires 12/2027</div></div>
+                <button style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.textMid, cursor: "pointer", padding: "5px 12px", borderRadius: 7, fontSize: 11, fontFamily: "inherit" }}>Update</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── WORKSPACE ── */}
+        {tab === "workspace" && (
+          <div style={{ maxWidth: 620 }}>
+            <div className="sg" style={{ color: C.text, fontSize: 18, fontWeight: 800, marginBottom: 5 }}>Workspace Settings</div>
+            <p style={{ color: C.textDim, fontSize: 13, marginBottom: 20 }}>Configure your team workspace preferences</p>
+            <div className="card" style={{ padding: "22px 24px" }}>
+              {[{ l: "Workspace Name", v: "SEO Engine Boost" }, { l: "Website URL", v: "https://seoengineboost.com" }, { l: "Industry", v: "Digital Marketing" }, { l: "Team Size", v: "1-10 people" }].map(({ l, v }) => (
+                <div key={l} style={{ marginBottom: 14 }}>
+                  <label style={{ color: C.textMid, fontSize: 12, fontWeight: 600, display: "block", marginBottom: 5 }}>{l}</label>
+                  <input defaultValue={v} style={{ width: "100%", background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8, padding: "9px 13px", color: C.text, fontSize: 13, fontFamily: "inherit", outline: "none" }} />
+                </div>
+              ))}
+              <button style={{ background: C.blueL, color: "#fff", border: "none", cursor: "pointer", padding: "9px 22px", borderRadius: 9, fontSize: 13, fontWeight: 700, fontFamily: "inherit" }}>Save Workspace</button>
+            </div>
           </div>
         )}
       </div>
@@ -2769,27 +3033,41 @@ function AICopilot({ onClose }) {
 // ── Updated Sidebar with all nav items ────────────────────────────────
 function SidebarFull({ active, setActive, sub, setSub, openAI, setOpenAI }) {
   const seoNav = [
-    { id:"crawl",       icon:LayoutDashboard, label:"SEO Dashboard" },
-    { id:"progress",    icon:Activity,        label:"Progress" },
-    { id:"onpage",      icon:FileSearch,      label:"Crawl & Audit" },
-    { id:"seotasks",    icon:CheckSquare,     label:"SEO Tasks", badge:15 },
-    { id:"competitive", icon:Globe,           label:"Competitive Research", subs:[{id:"domain-overview",l:"Domain Overview"},{id:"keyword-gap",l:"Keyword Gap"}] },
-    { id:"keyword",     icon:Search,          label:"Keyword Research" },
-    { id:"backlink",    icon:Link2,           label:"Backlink Research" },
-    { id:"rank",        icon:TrendingUp,      label:"Rank Tracking" },
-    { id:"localseo",    icon:Globe,           label:"Local SEO" },
+    { id:"crawl",              icon:LayoutDashboard, label:"SEO Dashboard" },
+    { id:"progress",           icon:Activity,        label:"Progress" },
+    { id:"siteaudit",          icon:FileSearch,      label:"Site Audit" },
+    { id:"onpage",             icon:Shield,          label:"On-Page Audit" },
+    { id:"seotasks",           icon:CheckSquare,     label:"SEO Tasks", badge:15 },
+    { id:"aisuggestions",      icon:Sparkles,        label:"AI Suggestions", badge:"AI" },
+    { id:"competitive",        icon:Globe,           label:"Competitive Research", subs:[{id:"domain-overview",l:"Domain Overview"},{id:"keyword-gap",l:"Keyword Gap"}] },
+    { id:"competitoranalyzer", icon:Target,          label:"Competitor Analyzer" },
+    { id:"keyword",            icon:Search,          label:"Keyword Research" },
+    { id:"advancedkeywords",   icon:TrendingUp,      label:"Advanced Keywords", badge:"PRO" },
+    { id:"backlink",           icon:Link2,           label:"Backlink Research" },
+    { id:"rank",               icon:BarChart2,       label:"Rank Tracking" },
+    { id:"ranktracker",        icon:Activity,        label:"Domain Tracker" },
+    { id:"trafficanalytics",   icon:BarChart,        label:"Traffic Analytics" },
+    { id:"localseo",           icon:Globe,           label:"Local SEO" },
   ];
   const contentNav = [
-    { id:"contentlab", icon:Edit2,    label:"Content Lab", badge:"AI" },
-    { id:"reports",    icon:BarChart2, label:"Reports & Insights" },
-    { id:"calendar",   icon:Calendar, label:"Campaign Planner" },
+    { id:"contentlab",   icon:Edit2,      label:"Content Lab", badge:"AI" },
+    { id:"seoassistant", icon:Bot,        label:"SEO Assistant", badge:"AI" },
+    { id:"reports",      icon:BarChart2,  label:"Reports & Insights" },
+    { id:"calendar",     icon:Calendar,   label:"Campaign Planner" },
   ];
   const teamNav = [
-    { id:"messages", icon:MessageSquare, label:"Messages", badge:17 },
-    { id:"tasks",    icon:Kanban,        label:"Project Tasks" },
-    { id:"clients",  icon:Briefcase,     label:"Clients" },
-    { id:"team",     icon:Users,         label:"Team Members" },
-    { id:"dashboard",icon:BarChart2,     label:"Analytics" },
+    { id:"messages",  icon:MessageSquare, label:"Messages", badge:17 },
+    { id:"tasks",     icon:CheckSquare,   label:"Project Tasks" },
+    { id:"clients",   icon:Briefcase,     label:"Clients" },
+    { id:"team",      icon:Users,         label:"Team Members" },
+    { id:"dashboard", icon:BarChart2,     label:"Analytics" },
+  ];
+  const adminNav = [
+    { id:"admin",             icon:Shield,         label:"Admin Dashboard" },
+    { id:"usermanagement",    icon:Users,          label:"User Management" },
+    { id:"paymentlogs",       icon:BarChart,       label:"Payment Logs" },
+    { id:"nlpanalytics",      icon:Activity,       label:"NLP Analytics" },
+    { id:"pushnotifications", icon:Bell,           label:"Push Notifications" },
   ];
 
   const NavItem = ({ id, icon: Icon, label, badge, subs }) => (
@@ -2848,6 +3126,11 @@ function SidebarFull({ active, setActive, sub, setSub, openAI, setOpenAI }) {
         <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 8, marginTop: 8 }}>
           <div style={{ color: C.textDim, fontSize: 9.5, fontWeight: 700, letterSpacing: 1.2, padding: "0 8px", marginBottom: 4 }}>TEAM & CLIENTS</div>
           {teamNav.map(item => <NavItem key={item.id} {...item} />)}
+        </div>
+
+        <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 8, marginTop: 8 }}>
+          <div style={{ color: C.textDim, fontSize: 9.5, fontWeight: 700, letterSpacing: 1.2, padding: "0 8px", marginBottom: 4 }}>ADMIN</div>
+          {adminNav.map(item => <NavItem key={item.id} {...item} />)}
         </div>
 
         <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 8, marginTop: 8 }}>
@@ -3167,26 +3450,568 @@ function CrawlDashboard({ onNavigate }) {
   );
 }
 
+// ── Advanced Keyword Research ──────────────────────────────────────────
+function AdvancedKeywordResearch() {
+  const [kw, setKw] = useState("");
+  const [filters, setFilters] = useState({longTail:false,lowComp:false,highCPC:false});
+  const results = [
+    {kw:"best ai seo tools",vol:"4,800/mo",comp:"Low",compPct:20,cpc:"$3.20"},
+    {kw:"ai content generator seo",vol:"3,200/mo",comp:"Medium",compPct:50,cpc:"$4.75"},
+    {kw:"how to rank with ai content",vol:"2,400/mo",comp:"High",compPct:82,cpc:"$5.50"},
+    {kw:"ai seo optimization tips",vol:"1,900/mo",comp:"Low",compPct:18,cpc:"$2.40"},
+    {kw:"seo automation tools 2025",vol:"1,600/mo",comp:"Medium",compPct:45,cpc:"$3.90"},
+    {kw:"free seo ai writer",vol:"1,200/mo",comp:"Low",compPct:15,cpc:"$1.80"},
+    {kw:"keyword research with ai",vol:"900/mo",comp:"Medium",compPct:55,cpc:"$4.20"},
+    {kw:"rank tracking software",vol:"8,100/mo",comp:"High",compPct:78,cpc:"$6.50"},
+  ];
+  const compColor = (c) => c==="Low"?C.green:c==="Medium"?C.orange:C.red;
+  const filteredRes = results.filter(r => {
+    if (filters.lowComp && r.comp!=="Low") return false;
+    if (filters.highCPC && parseFloat(r.cpc.slice(1))<4) return false;
+    return true;
+  });
+  return (
+    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", background:C.bg }}>
+      <div style={{ background:`linear-gradient(135deg,${C.blueL},${C.blue})`, padding:"18px 28px" }}>
+        <h2 className="sg" style={{ color:"#fff", fontSize:18, fontWeight:800, marginBottom:12 }}>Advanced Keyword Research</h2>
+        <div style={{ display:"flex", gap:10 }}>
+          <div style={{ flex:1, display:"flex", alignItems:"center", gap:8, background:"rgba(255,255,255,.15)", border:"1px solid rgba(255,255,255,.25)", borderRadius:10, padding:"9px 14px" }}>
+            <Search size={14} color="rgba(255,255,255,.7)"/>
+            <input value={kw} onChange={e=>setKw(e.target.value)} placeholder="Search keywords..." style={{ flex:1, background:"transparent", border:"none", outline:"none", color:"#fff", fontSize:13, fontFamily:"inherit" }}/>
+          </div>
+          <button style={{ background:"rgba(255,255,255,.2)", border:"1px solid rgba(255,255,255,.3)", color:"#fff", cursor:"pointer", padding:"9px 14px", borderRadius:10, display:"flex", alignItems:"center" }}><Filter size={15}/></button>
+        </div>
+        <div style={{ display:"flex", gap:8, marginTop:12, flexWrap:"wrap" }}>
+          {[["longTail","Long-tail"],["lowComp","Low competition"],["highCPC","High CPC"]].map(([k,l]) => (
+            <button key={k} onClick={()=>setFilters(f=>({...f,[k]:!f[k]}))} style={{ padding:"5px 12px", borderRadius:20, border:`1px solid rgba(255,255,255,${filters[k]?.5:.25})`, background:filters[k]?"rgba(255,255,255,.25)":"transparent", color:"#fff", cursor:"pointer", fontSize:12, fontWeight:600, fontFamily:"inherit" }}>{l}</button>
+          ))}
+          <button style={{ marginLeft:"auto", background:"rgba(255,255,255,.15)", border:"1px solid rgba(255,255,255,.3)", color:"#fff", cursor:"pointer", padding:"5px 14px", borderRadius:20, fontSize:12, fontWeight:700, fontFamily:"inherit" }}>Add to Project</button>
+        </div>
+      </div>
+      <div style={{ padding:"16px 28px" }}>
+        {filteredRes.map((r,i) => (
+          <div key={i} className="card ch" style={{ padding:"14px 18px", marginBottom:10 }}>
+            <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:8 }}>
+              <div style={{ color:C.text, fontSize:14, fontWeight:700 }}>{r.kw}</div>
+              <button style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"4px 12px", borderRadius:7, fontSize:11, fontWeight:700, fontFamily:"inherit", flexShrink:0 }}>Add to Project</button>
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12 }}>
+              <div>
+                <div style={{ color:C.textDim, fontSize:10.5, marginBottom:2 }}>Search Volume</div>
+                <div className="sg" style={{ color:C.text, fontSize:16, fontWeight:800 }}>{r.vol}</div>
+              </div>
+              <div>
+                <div style={{ color:C.textDim, fontSize:10.5, marginBottom:2 }}>Competition</div>
+                <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                  <div style={{ flex:1, height:6, background:C.border, borderRadius:3, overflow:"hidden" }}>
+                    <div style={{ width:`${r.compPct}%`, height:"100%", background:compColor(r.comp), borderRadius:3 }}/>
+                  </div>
+                  <span style={{ color:compColor(r.comp), fontSize:11, fontWeight:700 }}>{r.comp}</span>
+                </div>
+              </div>
+              <div>
+                <div style={{ color:C.textDim, fontSize:10.5, marginBottom:2 }}>CPC Value</div>
+                <div className="sg" style={{ color:C.text, fontSize:16, fontWeight:800 }}>{r.cpc}</div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <button style={{ position:"fixed", bottom:24, right:24, width:52, height:52, borderRadius:"50%", background:`linear-gradient(135deg,${C.blueL},${C.blue})`, color:"#fff", border:"none", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:`0 6px 20px ${C.blueL}55`, zIndex:100 }}>
+        <Plus size={22}/>
+      </button>
+    </div>
+  );
+}
+
+// ── Competitor Analyzer ────────────────────────────────────────────────
+function CompetitorAnalyzer() {
+  const [url, setUrl] = useState("imranashrafai.com");
+  const [tab, setTab] = useState("traffic");
+  const TABS = ["Traffic","Keywords","Pages","Gaps"];
+  const trafficSources = [
+    {name:"Organic Search (45%)",pct:45,color:C.blueL},
+    {name:"Direct (25%)",pct:25,color:C.green},
+    {name:"Referral (8%)",pct:8,color:C.orange},
+    {name:"Social (20%)",pct:20,color:C.purple},
+    {name:"Email (2%)",pct:2,color:C.yellow},
+  ];
+  const topKeywords = [
+    {kw:"SEO tools (Ranking 2)",vol:"8,200/mo",bar:80},
+    {kw:"Keyword tool (Ranking 4)",vol:"5,400/mo",bar:55},
+    {kw:"Backlink analyzer (Ranking 4)",vol:"4,100/mo",bar:42},
+    {kw:"Site audit tool (Ranking V)",vol:"3,300/mo",bar:34},
+    {kw:"Seo guide (Ranking 3)",vol:"2,800/mo",bar:28},
+  ];
+  const topPages = [
+    {title:"How to Do Keyword Research",traffic:"34,350/mo",words:"3,210"},
+    {title:"SEO Tools Comparison",traffic:"18,720/mo",words:"4,520"},
+    {title:"Backlink Building Guide",traffic:"15,430/mo",words:"2,890"},
+  ];
+  const gaps = [
+    {kw:"SEO Strategy Templates",vol:"3,800",diff:"Medium"},
+    {kw:"Content SEO Checklist",vol:"2,500",diff:"Low"},
+    {kw:"Google Algorithm Updates",vol:"4,200",diff:"High"},
+    {kw:"Local SEO Guide 2025",vol:"1,900",diff:"Low"},
+  ];
+  return (
+    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", background:C.bg }}>
+      <div style={{ padding:"18px 28px", background:C.white, borderBottom:`1px solid ${C.border}` }}>
+        <h2 className="sg" style={{ color:C.text, fontSize:18, fontWeight:800, marginBottom:14 }}>Competitor Analyzer</h2>
+        <div style={{ display:"flex", gap:10 }}>
+          <input value={url} onChange={e=>setUrl(e.target.value)} placeholder="Enter competitor URL" style={{ flex:1, padding:"10px 14px", border:`1px solid ${C.border}`, borderRadius:10, fontSize:13, fontFamily:"inherit", outline:"none", color:C.text, background:C.bg }}/>
+          <button style={{ background:`linear-gradient(135deg,${C.blueL},${C.blue})`, color:"#fff", border:"none", cursor:"pointer", padding:"10px 24px", borderRadius:10, fontSize:13, fontWeight:700, fontFamily:"inherit" }}>Analyze Now</button>
+        </div>
+      </div>
+      <div style={{ padding:"16px 28px 0" }}>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
+          <div className="sg" style={{ color:C.text, fontSize:15, fontWeight:700 }}>Analysis Results</div>
+          <span style={{ color:C.blueL, fontSize:12.5, cursor:"pointer" }}>{url}</span>
+        </div>
+        <div style={{ display:"flex", gap:0, background:C.white, border:`1px solid ${C.border}`, borderRadius:12, overflow:"hidden", marginBottom:16 }}>
+          {TABS.map((t,i) => (
+            <button key={t} onClick={()=>setTab(t.toLowerCase())} style={{ flex:1, padding:"11px 0", border:"none", borderRight:i<TABS.length-1?`1px solid ${C.border}`:"none", cursor:"pointer", fontSize:13, fontWeight:tab===t.toLowerCase()?700:500, fontFamily:"inherit", background:tab===t.toLowerCase()?C.blueL:"transparent", color:tab===t.toLowerCase()?"#fff":C.textMid }}>{t}</button>
+          ))}
+        </div>
+        {tab==="traffic" && (
+          <div>
+            <div className="card" style={{ padding:"18px 20px", marginBottom:14 }}>
+              <div style={{ display:"flex", alignItems:"baseline", gap:8, marginBottom:16 }}>
+                <span className="sg" style={{ color:C.text, fontSize:28, fontWeight:900 }}>124,583</span>
+                <span style={{ color:C.textDim, fontSize:13 }}>Monthly Visits</span>
+              </div>
+              <div style={{ display:"flex", gap:20, alignItems:"center" }}>
+                <svg width={140} height={140} viewBox="0 0 140 140">
+                  {(()=>{let cum=0;const r=56,cx=70,cy=70,circ=2*Math.PI*r;return trafficSources.map(({pct,color},i)=>{const slice=(pct/100)*circ;const rot=(cum/100)*360-90;cum+=pct;return <circle key={i} cx={cx} cy={cy} r={r} fill="none" stroke={color} strokeWidth={28} strokeDasharray={`${slice} ${circ-slice}`} style={{transform:`rotate(${rot}deg)`,transformOrigin:`${cx}px ${cy}px`}}/>;});})()}
+                  <circle cx={70} cy={70} r={42} fill="white"/>
+                </svg>
+                <div style={{ flex:1 }}>
+                  {trafficSources.map(({name,color}) => (
+                    <div key={name} style={{ display:"flex", alignItems:"center", gap:8, marginBottom:7 }}>
+                      <div style={{ width:10, height:10, borderRadius:3, background:color, flexShrink:0 }}/>
+                      <span style={{ color:C.textMid, fontSize:12 }}>{name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <button style={{ width:"100%", background:`linear-gradient(135deg,${C.blueL},${C.blue})`, color:"#fff", border:"none", cursor:"pointer", padding:"13px", borderRadius:12, fontSize:14, fontWeight:700, fontFamily:"inherit" }}>Download Report</button>
+          </div>
+        )}
+        {tab==="keywords" && (
+          <div>
+            <div className="card" style={{ padding:"16px 18px", marginBottom:12 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:14 }}>
+                <div><div style={{ color:C.textDim, fontSize:11 }}>Total Keywords</div><div className="sg" style={{ color:C.text, fontSize:24, fontWeight:900 }}>1,432</div></div>
+                <span className="chip" style={{ color:C.green, background:C.greenL }}>↑ 12.1%</span>
+              </div>
+              {topKeywords.map(({kw,vol,bar},i) => (
+                <div key={i} style={{ marginBottom:10 }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
+                    <span style={{ color:C.blueL, fontSize:12, cursor:"pointer" }}>{kw}</span>
+                    <span style={{ color:C.textMid, fontSize:12 }}>{vol}</span>
+                  </div>
+                  <ProgBar v={bar} col={C.blueL} h={6}/>
+                </div>
+              ))}
+              <div style={{ display:"flex", gap:6, marginTop:12 }}>
+                {[{l:"Top 3",v:"286",c:C.green},{l:"4-10",v:"543",c:C.blueL},{l:"11-20",v:"327",c:C.orange},{l:"21+",v:"276",c:C.textDim}].map(({l,v,c}) => (
+                  <div key={l} style={{ flex:1, background:`${c}15`, border:`1px solid ${c}30`, borderRadius:8, padding:"8px", textAlign:"center" }}>
+                    <div className="sg" style={{ color:c, fontSize:16, fontWeight:800 }}>{v}</div>
+                    <div style={{ color:C.textDim, fontSize:10 }}>{l}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <button style={{ width:"100%", background:`linear-gradient(135deg,${C.blueL},${C.blue})`, color:"#fff", border:"none", cursor:"pointer", padding:"13px", borderRadius:12, fontSize:14, fontWeight:700, fontFamily:"inherit" }}>Download Report</button>
+          </div>
+        )}
+        {tab==="pages" && (
+          <div>
+            <div className="sg" style={{ color:C.text, fontSize:14, fontWeight:700, marginBottom:12 }}>Top Performing Pages</div>
+            {topPages.map(({title,traffic,words},i) => (
+              <div key={i} className="card" style={{ padding:"14px 18px", marginBottom:10 }}>
+                <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:8 }}>
+                  <div style={{ color:C.text, fontSize:13, fontWeight:700, flex:1, paddingRight:10 }}>{title}</div>
+                  <button style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"4px 12px", borderRadius:6, fontSize:11, fontWeight:700, fontFamily:"inherit", flexShrink:0 }}>View Page</button>
+                </div>
+                <div style={{ display:"flex", gap:16 }}>
+                  <span style={{ color:C.textDim, fontSize:12 }}>Traffic: <span style={{ color:C.blueL, fontWeight:700 }}>{traffic}</span></span>
+                  <span style={{ color:C.textDim, fontSize:12 }}>Words: <span style={{ color:C.text, fontWeight:600 }}>{words}</span></span>
+                </div>
+              </div>
+            ))}
+            <button style={{ width:"100%", background:`linear-gradient(135deg,${C.blueL},${C.blue})`, color:"#fff", border:"none", cursor:"pointer", padding:"13px", borderRadius:12, fontSize:14, fontWeight:700, fontFamily:"inherit" }}>Download Report</button>
+          </div>
+        )}
+        {tab==="gaps" && (
+          <div>
+            <div className="card" style={{ padding:"16px 18px", marginBottom:14 }}>
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
+                <div><div style={{ color:C.textDim, fontSize:11 }}>Total Gap Keywords</div><div className="sg" style={{ color:C.text, fontSize:26, fontWeight:900 }}>348</div></div>
+                <span style={{ background:`${C.orange}20`, color:C.orange, fontSize:11, fontWeight:800, padding:"4px 10px", borderRadius:20 }}>High Opportunity</span>
+              </div>
+              {gaps.map(({kw,vol,diff},i) => (
+                <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"11px 14px", background:C.bg, borderRadius:9, marginBottom:7, border:`1px solid ${C.border}` }}>
+                  <div style={{ flex:1 }}>
+                    <div style={{ color:C.text, fontSize:13, fontWeight:600 }}>{kw}</div>
+                    <div style={{ color:C.textDim, fontSize:11 }}>Monthly Volume: {vol} · Difficulty: {diff}</div>
+                  </div>
+                  <button style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"6px 14px", borderRadius:7, fontSize:11, fontWeight:700, fontFamily:"inherit" }}>Target</button>
+                </div>
+              ))}
+            </div>
+            <button style={{ width:"100%", background:`linear-gradient(135deg,${C.blueL},${C.blue})`, color:"#fff", border:"none", cursor:"pointer", padding:"13px", borderRadius:12, fontSize:14, fontWeight:700, fontFamily:"inherit" }}>Download Report</button>
+          </div>
+        )}
+      </div>
+      <div style={{ height:28 }}/>
+    </div>
+  );
+}
+
+// ── Traffic Analytics ──────────────────────────────────────────────────
+function TrafficAnalytics() {
+  const [domainTab, setDomainTab] = useState("overview");
+  const organicData = [
+    {m:"Sep",v:120},{m:"Oct",v:130},{m:"Nov",v:125},{m:"Dec",v:140},{m:"Jan",v:150},
+    {m:"Feb",v:145},{m:"Mar",v:155},{m:"Apr",v:160},{m:"May",v:158},{m:"Jun",v:165},{m:"Jul",v:170},{m:"Aug",v:175},
+  ];
+  const topKwTraffic = [
+    {kw:"tim kiem bang hinh anh",pct:"5.23"},{kw:"rut gon link",pct:"4.10"},{kw:"content marketing",pct:"3.36"},
+    {kw:"seo tools 2025",pct:"2.62"},{kw:"suaghe tv",pct:"2.24"},{kw:"content",pct:"2.23"},
+  ];
+  const topUrls = [
+    {url:"/seo-tools",pct:"18.96"},{url:"/keyword-research",pct:"4.69"},{url:"/backlinks",pct:"4.64"},
+    {url:"/content-marketing",pct:"3.62"},{url:"/seo-audit",pct:"3.38"},
+  ];
+  return (
+    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", background:C.bg }}>
+      <div style={{ background:C.white, borderBottom:`1px solid ${C.border}`, padding:"18px 28px" }}>
+        <div style={{ color:C.textDim, fontSize:12, marginBottom:4 }}>Domain:</div>
+        <h2 className="sg" style={{ color:C.text, fontSize:20, fontWeight:800, marginBottom:14 }}>seoengineboost.com</h2>
+        <div style={{ display:"flex", gap:0 }}>
+          {["Overview","Top Keywords","Top URL","Backlinks"].map((t,i) => (
+            <button key={t} onClick={()=>setDomainTab(t.toLowerCase().replace(" ",""))} style={{ padding:"9px 18px", border:"none", borderBottom:domainTab===t.toLowerCase().replace(" ","")?`2.5px solid ${C.blueL}`:"2.5px solid transparent", cursor:"pointer", fontSize:13, fontWeight:domainTab===t.toLowerCase().replace(" ","")? 700:500, fontFamily:"inherit", background:"transparent", color:domainTab===t.toLowerCase().replace(" ","")?C.blueL:C.textMid }}>{t}</button>
+          ))}
+        </div>
+      </div>
+      <div style={{ padding:"20px 28px" }}>
+        {/* Domain metrics */}
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:12, marginBottom:20 }}>
+          {[{l:"Authority Score",v:"42",chg:"+5",c:C.blueL},{l:"Backlinks",v:"104.7k",chg:"-50",c:C.orange},{l:"SEO Score",v:"73.1",chg:"",c:C.green},{l:"Link Index",v:"82",chg:"+4",c:C.purple},{l:"Traffic",v:"35.6k",chg:"+224",c:C.blueL}].map(({l,v,chg,c}) => (
+            <div key={l} className="card ch" style={{ padding:"14px 16px" }}>
+              <div className="sg" style={{ color:C.text, fontSize:18, fontWeight:800 }}>{v}</div>
+              {chg && <span style={{ color:parseFloat(chg)>0?C.green:C.red, fontSize:10.5, fontWeight:700 }}>{chg}</span>}
+              <div style={{ color:C.textDim, fontSize:10.5, marginTop:2 }}>{l}</div>
+            </div>
+          ))}
+        </div>
+        <div className="card" style={{ padding:"18px 22px", marginBottom:16 }}>
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
+            <div className="sg" style={{ color:C.text, fontSize:14, fontWeight:700 }}>Organic Traffic</div>
+            <div style={{ display:"flex", gap:6 }}>
+              {["3M","6M","12M","All device"].map((t,i) => (
+                <button key={t} style={{ padding:"4px 10px", borderRadius:6, border:"none", cursor:"pointer", fontSize:11, fontWeight:i===2?700:400, fontFamily:"inherit", background:i===2?C.blueL:"rgba(0,0,0,.05)", color:i===2?"#fff":C.textDim }}>{t}</button>
+              ))}
+            </div>
+          </div>
+          <ResponsiveContainer width="100%" height={180}>
+            <AreaChart data={organicData} margin={{top:0,right:0,left:-20,bottom:0}}>
+              <defs><linearGradient id="tg1" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={C.blueL} stopOpacity={.18}/><stop offset="95%" stopColor={C.blueL} stopOpacity={0}/></linearGradient></defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9"/>
+              <XAxis dataKey="m" tick={{fill:C.textDim,fontSize:10}} axisLine={false} tickLine={false}/>
+              <YAxis tick={{fill:C.textDim,fontSize:10}} axisLine={false} tickLine={false}/>
+              <Tooltip contentStyle={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:8,fontSize:11}} formatter={v=>[`${v}K`,"Traffic"]}/>
+              <Area type="monotone" dataKey="v" stroke={C.blueL} fill="url(#tg1)" strokeWidth={2.5}/>
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
+          <div className="card" style={{ overflow:"hidden" }}>
+            <div style={{ padding:"12px 18px", borderBottom:`1px solid ${C.border}` }}>
+              <div className="sg" style={{ color:C.text, fontSize:13, fontWeight:700 }}>Top Organic Traffic Keywords</div>
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr auto", padding:"8px 18px", background:C.bg, borderBottom:`1px solid ${C.border}` }}>
+              <span style={{ color:C.textDim, fontSize:10, fontWeight:700 }}>KEYWORD</span>
+              <span style={{ color:C.textDim, fontSize:10, fontWeight:700 }}>TRAFFIC %</span>
+            </div>
+            {topKwTraffic.map(({kw,pct},i) => (
+              <div key={i} className="td" style={{ display:"grid", gridTemplateColumns:"1fr auto", padding:"10px 18px", borderBottom:i<topKwTraffic.length-1?`1px solid ${C.border}`:"none", alignItems:"center" }}>
+                <span style={{ color:C.text, fontSize:12.5 }}>{kw}</span>
+                <span style={{ color:C.blueL, fontWeight:700, fontSize:12 }}>{pct}</span>
+              </div>
+            ))}
+            <div style={{ padding:"10px 18px" }}>
+              <button style={{ color:C.blueL, background:"none", border:"none", cursor:"pointer", fontSize:12, fontWeight:600, fontFamily:"inherit" }}>View all →</button>
+            </div>
+          </div>
+          <div className="card" style={{ overflow:"hidden" }}>
+            <div style={{ padding:"12px 18px", borderBottom:`1px solid ${C.border}` }}>
+              <div className="sg" style={{ color:C.text, fontSize:13, fontWeight:700 }}>Top Organic Traffic URLs</div>
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr auto", padding:"8px 18px", background:C.bg, borderBottom:`1px solid ${C.border}` }}>
+              <span style={{ color:C.textDim, fontSize:10, fontWeight:700 }}>URL</span>
+              <span style={{ color:C.textDim, fontSize:10, fontWeight:700 }}>TRAFFIC %</span>
+            </div>
+            {topUrls.map(({url,pct},i) => (
+              <div key={i} className="td" style={{ display:"grid", gridTemplateColumns:"1fr auto", padding:"10px 18px", borderBottom:i<topUrls.length-1?`1px solid ${C.border}`:"none", alignItems:"center" }}>
+                <span style={{ color:C.blueL, fontSize:12, cursor:"pointer", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{url}</span>
+                <span style={{ color:C.blueL, fontWeight:700, fontSize:12 }}>{pct}</span>
+              </div>
+            ))}
+            <div style={{ padding:"10px 18px" }}>
+              <button style={{ color:C.blueL, background:"none", border:"none", cursor:"pointer", fontSize:12, fontWeight:600, fontFamily:"inherit" }}>View all →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Site Audit ────────────────────────────────────────────────────────
+function SiteAudit() {
+  const [period, setPeriod] = useState("Year");
+  const healthData = [{m:"Sep",v:60},{m:"Oct",v:65},{m:"Nov",v:70},{m:"Dec",v:68},{m:"Jan",v:72},{m:"Feb",v:75},{m:"Mar",v:73},{m:"Apr",v:78},{m:"May",v:76},{m:"Jun",v:80},{m:"Jul",v:82},{m:"Aug",v:80}];
+  const issues = [
+    {t:"73 pages have slow load speed",pct:5,c:C.orange},
+    {t:"2 issues with mixed content",pct:2,c:C.yellow},
+    {t:"3 redirect chains and loops",pct:0,c:C.red},
+    {t:"22 pages have slow load speed",pct:5,c:C.orange},
+    {t:"100 issues with mixed content",pct:10,c:C.yellow},
+    {t:"50 redirect chains and loops",pct:5,c:C.red},
+  ];
+  return (
+    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", background:C.bg, padding:"20px 28px" }}>
+      <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:20 }}>
+        <h2 className="sg" style={{ color:C.text, fontSize:18, fontWeight:800 }}>Site Audit</h2>
+        <div style={{ display:"flex", alignItems:"center", gap:8, padding:"6px 14px", background:C.white, border:`1px solid ${C.border}`, borderRadius:9 }}>
+          <input defaultValue="toponseek.com" style={{ border:"none", outline:"none", fontSize:13, color:C.text, fontFamily:"inherit", width:160 }}/>
+          <button style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"5px 12px", borderRadius:7, fontSize:12, fontWeight:700, fontFamily:"inherit" }}>Check SEO Audit</button>
+        </div>
+      </div>
+      <div style={{ display:"grid", gridTemplateColumns:"320px 1fr", gap:16, marginBottom:16 }}>
+        {/* Health gauge */}
+        <div className="card" style={{ padding:"20px 22px" }}>
+          <div className="sg" style={{ color:C.text, fontSize:13, fontWeight:700, marginBottom:14 }}>Site Health</div>
+          <div style={{ display:"flex", justifyContent:"center", marginBottom:12 }}>
+            <div style={{ position:"relative", width:140, height:80, overflow:"hidden" }}>
+              <svg width={140} height={140} viewBox="0 0 140 140" style={{ marginTop:-70 }}>
+                <path d="M 10 70 A 60 60 0 0 1 130 70" fill="none" stroke="#E2E8F0" strokeWidth={22} strokeLinecap="round"/>
+                <path d="M 10 70 A 60 60 0 0 1 130 70" fill="none" stroke={C.blueL} strokeWidth={22} strokeLinecap="round" strokeDasharray={`${(57/100)*188} 188`}/>
+              </svg>
+              <div style={{ position:"absolute", top:30, left:"50%", transform:"translateX(-50%)", textAlign:"center" }}>
+                <div className="sg" style={{ color:C.text, fontSize:26, fontWeight:900 }}>57%</div>
+                <div style={{ color:C.textDim, fontSize:10 }}>no changes</div>
+              </div>
+            </div>
+          </div>
+          <div style={{ borderTop:`1px solid ${C.border}`, paddingTop:12 }}>
+            {[{l:"ERROR",v:6,c:C.red},{l:"WARNING",v:2,c:C.orange},{l:"NOTICE",v:2,c:C.blueL},{l:"PASSED",v:17,c:C.green}].map(({l,v,c}) => (
+              <div key={l} style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
+                <div style={{ width:8, height:8, borderRadius:"50%", background:c }}/>
+                <span style={{ color:C.textMid, fontSize:11.5, flex:1 }}>{l}</span>
+                <span style={{ color:C.text, fontWeight:700, fontSize:12 }}>{v}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop:12, paddingTop:12, borderTop:`1px solid ${C.border}` }}>
+            <div className="sg" style={{ color:C.text, fontSize:13, fontWeight:700, marginBottom:8 }}>Crawled Pages</div>
+            <div className="sg" style={{ color:C.blueL, fontSize:36, fontWeight:900 }}>1,334</div>
+            <ProgBar v={70} col={C.blueL} h={8}/>
+          </div>
+          <div style={{ marginTop:12, paddingTop:12, borderTop:`1px solid ${C.border}` }}>
+            <div className="sg" style={{ color:C.text, fontSize:13, fontWeight:700, marginBottom:8 }}>PageSpeed — Desktop</div>
+            <div style={{ display:"flex", justifyContent:"center" }}>
+              <ScoreRing score={90} size={80}/>
+            </div>
+          </div>
+        </div>
+        {/* Issues */}
+        <div>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10, marginBottom:14 }}>
+            {[{l:"Errors",v:"235",chg:"-1,837",c:C.red},{l:"Warnings",v:"1,366",chg:"-59,161",c:C.orange},{l:"Notices",v:"2,605",chg:"-26,941",c:C.blueL}].map(({l,v,chg,c}) => (
+              <div key={l} className="card ch" style={{ padding:"14px 18px" }}>
+                <div style={{ color:C.textDim, fontSize:11, marginBottom:4 }}>{l}</div>
+                <div className="sg" style={{ color:c, fontSize:28, fontWeight:900 }}>{v}</div>
+                <span className="chip" style={{ color:C.green, background:C.greenL, fontSize:9 }}>{chg}</span>
+              </div>
+            ))}
+          </div>
+          <div className="card" style={{ overflow:"hidden" }}>
+            <div style={{ padding:"12px 18px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+              <div className="sg" style={{ color:C.text, fontSize:13, fontWeight:700 }}>Top Issues</div>
+              <div style={{ display:"flex", gap:4 }}>
+                {["All issues","Onpage","Technical"].map((f,i) => (
+                  <button key={f} style={{ padding:"4px 10px", borderRadius:6, border:"none", cursor:"pointer", fontSize:11, fontFamily:"inherit", background:i===0?C.blueL:"rgba(0,0,0,.05)", color:i===0?"#fff":C.textDim }}>{f}</button>
+                ))}
+              </div>
+            </div>
+            {issues.map(({t,pct,c},i) => (
+              <div key={i} style={{ padding:"10px 18px", borderBottom:i<issues.length-1?`1px solid ${C.border}`:"none" }}>
+                <div style={{ color:C.blueL, fontSize:13, cursor:"pointer", marginBottom:4 }}>{t}</div>
+                <div style={{ color:C.textDim, fontSize:11, marginBottom:5 }}>{pct}% of total issues</div>
+                <ProgBar v={pct*4} col={c} h={4}/>
+              </div>
+            ))}
+            <div style={{ padding:"12px 18px" }}>
+              <button style={{ color:C.blueL, background:"none", border:`1px solid ${C.blueL}`, cursor:"pointer", padding:"7px 16px", borderRadius:8, fontSize:12, fontWeight:600, fontFamily:"inherit" }}>View all issues →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="card" style={{ padding:"18px 22px" }}>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
+          <div className="sg" style={{ color:C.text, fontSize:14, fontWeight:700 }}>Site Health History</div>
+          <div style={{ display:"flex", gap:4 }}>
+            {["Week","Month","Year"].map(p => (
+              <button key={p} onClick={()=>setPeriod(p)} style={{ padding:"5px 12px", borderRadius:7, border:"none", cursor:"pointer", fontSize:12, fontWeight:600, fontFamily:"inherit", background:period===p?C.blueL:"rgba(0,0,0,.05)", color:period===p?"#fff":C.textDim }}>{p}</button>
+            ))}
+          </div>
+        </div>
+        <ResponsiveContainer width="100%" height={140}>
+          <AreaChart data={healthData} margin={{top:0,right:0,left:-20,bottom:0}}>
+            <defs><linearGradient id="hg1" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={C.blueL} stopOpacity={.15}/><stop offset="95%" stopColor={C.blueL} stopOpacity={0}/></linearGradient></defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9"/>
+            <XAxis dataKey="m" tick={{fill:C.textDim,fontSize:10}} axisLine={false} tickLine={false}/>
+            <YAxis domain={[0,100]} tick={{fill:C.textDim,fontSize:10}} axisLine={false} tickLine={false}/>
+            <Tooltip contentStyle={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:8,fontSize:11}} formatter={v=>[`${v}%`,"Health"]}/>
+            <Area type="monotone" dataKey="v" stroke={C.blueL} fill="url(#hg1)" strokeWidth={2}/>
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+}
+
+// ── Domain Rank Tracker ────────────────────────────────────────────────
+function DomainRankTracker() {
+  const [newDomain, setNewDomain] = useState("");
+  const domains = [
+    { name:"RU9", url:"https://www.ru9.vn", avgPos:8.2, change:"+1.9", posData:[{n:"W1",pos:10},{n:"W2",pos:9},{n:"W3",pos:8},{n:"W4",pos:7},{n:"W5",pos:8}] },
+    { name:"TOPONTECH", url:"topon.tech", avgPos:3.4, change:"-1.9", posData:[{n:"W1",pos:4},{n:"W2",pos:3},{n:"W3",pos:4},{n:"W4",pos:3},{n:"W5",pos:3}] },
+    { name:"SEO Engine Boost", url:"seoengineboost.com", avgPos:12.6, change:"+3.2", posData:[{n:"W1",pos:16},{n:"W2",pos:14},{n:"W3",pos:13},{n:"W4",pos:12},{n:"W5",pos:11}] },
+  ];
+  const last24 = [{l:"Top 1",v:46},{l:"Top 5",v:32},{l:"Top 10",v:97},{l:"Top 20",v:46},{l:"Top 100",v:32},{l:">100",v:97}];
+  const pieD = [{name:"Top 3",v:280,color:C.green},{name:"Top 10",v:400,color:C.blueL},{name:"Top 20",v:300,color:C.orange},{name:"Top 100",v:300,color:C.yellow},{name:">100",v:195,color:C.textDim}];
+  return (
+    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", background:C.bg }}>
+      {/* Add domain */}
+      <div style={{ background:`linear-gradient(135deg,${C.blueL},${C.blue})`, padding:"22px 28px", textAlign:"center" }}>
+        <h2 className="sg" style={{ color:"#fff", fontSize:18, fontWeight:800, marginBottom:8 }}>Have another website to track? Enter the domain</h2>
+        <div style={{ display:"flex", gap:10, maxWidth:600, margin:"0 auto 12px" }}>
+          <input value={newDomain} onChange={e=>setNewDomain(e.target.value)} placeholder="topon tech" style={{ flex:1, padding:"11px 16px", border:"none", borderRadius:10, fontSize:14, fontFamily:"inherit", outline:"none", color:C.text }}/>
+          <button style={{ background:C.orange, color:"#fff", border:"none", cursor:"pointer", padding:"11px 28px", borderRadius:10, fontSize:14, fontWeight:700, fontFamily:"inherit" }}>Next</button>
+        </div>
+        <p style={{ color:"rgba(255,255,255,.7)", fontSize:12, lineHeight:1.6 }}>Create a campaign for any website and get keyword rankings, technical issues, social activity, and recommendations.</p>
+      </div>
+      <div style={{ padding:"20px 28px" }}>
+        {domains.map((d,di) => (
+          <div key={di} className="card" style={{ padding:"18px 22px", marginBottom:16 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:16 }}>
+              <div style={{ width:32, height:32, borderRadius:8, background:`linear-gradient(135deg,${C.blueL},${C.blue})`, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                <Target size={15} color="#fff"/>
+              </div>
+              <div>
+                <div className="sg" style={{ color:C.text, fontSize:15, fontWeight:800 }}>{d.name}</div>
+                <div style={{ color:C.textDim, fontSize:12 }}>{d.url}</div>
+              </div>
+              <div style={{ marginLeft:"auto", display:"flex", alignItems:"center", gap:8 }}>
+                <span style={{ color:C.green, fontSize:11, fontWeight:600 }}>✓ Updated: today at 9:23am</span>
+              </div>
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 200px 180px", gap:16, alignItems:"start" }}>
+              <div>
+                <div style={{ color:C.textDim, fontSize:11, marginBottom:4 }}>AVERAGE POSITION</div>
+                <div style={{ display:"flex", gap:12, marginBottom:10 }}>
+                  {["Today","Last 7 days","Last 30 days"].map((t,i) => (
+                    <button key={t} style={{ padding:"4px 10px", borderRadius:6, border:"none", cursor:"pointer", fontSize:11, fontFamily:"inherit", background:i===1?C.blueL:"rgba(0,0,0,.05)", color:i===1?"#fff":C.textDim }}>{t}</button>
+                  ))}
+                </div>
+                <div style={{ display:"flex", alignItems:"baseline", gap:8, marginBottom:8 }}>
+                  <span className="sg" style={{ color:C.text, fontSize:28, fontWeight:900 }}>{d.avgPos}</span>
+                  <span style={{ color:parseFloat(d.change)>0?C.green:C.red, fontWeight:700, fontSize:13 }}>{d.change}</span>
+                </div>
+                <ResponsiveContainer width="100%" height={80}>
+                  <LineChart data={d.posData} margin={{top:0,right:0,left:0,bottom:0}}>
+                    <Line type="monotone" dataKey="pos" stroke={C.blueL} strokeWidth={2} dot={{fill:C.blueL,r:3}} legendType="none"/>
+                    <Tooltip contentStyle={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:8,fontSize:11}} formatter={v=>[`#${v}`,"Position"]}/>
+                  </LineChart>
+                </ResponsiveContainer>
+                <div style={{ marginTop:8 }}>
+                  <div style={{ color:C.textDim, fontSize:10, fontWeight:700, letterSpacing:.5, marginBottom:6 }}>RANKING CHANGE</div>
+                  {[["Last 24 hours","123 ↑","123 ↓","123"],["Last 7 days","123 ↑","123 ↓","123"],["Last 30 days","123 ↑","123 ↓","123"]].map(([l,u,d2,n],i) => (
+                    <div key={i} style={{ display:"flex", gap:16, padding:"4px 0", borderBottom:i<2?`1px solid ${C.border}`:"none" }}>
+                      <span style={{ color:C.textDim, fontSize:11, flex:1 }}>{l}</span>
+                      <span style={{ color:C.green, fontSize:11, fontWeight:600 }}>{u}</span>
+                      <span style={{ color:C.red, fontSize:11, fontWeight:600 }}>{d2}</span>
+                      <span style={{ color:C.textMid, fontSize:11 }}>{n}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div style={{ color:C.textDim, fontSize:11, marginBottom:6 }}>LAST 24 HOURS</div>
+                {last24.map(({l,v},i) => (
+                  <div key={i} style={{ display:"flex", gap:8, marginBottom:5, alignItems:"center" }}>
+                    <span style={{ color:C.textMid, fontSize:11, flex:1 }}>{l}</span>
+                    <span style={{ color:C.blueL, fontWeight:700, fontSize:12 }}>{v}</span>
+                    <span style={{ color:C.green, fontSize:10 }}>↑</span>
+                    <span style={{ color:C.red, fontSize:10 }}>↓</span>
+                  </div>
+                ))}
+              </div>
+              <div>
+                <ResponsiveContainer width="100%" height={120}>
+                  <PieChart>
+                    <Pie data={pieD} cx="50%" cy="50%" innerRadius={32} outerRadius={50} paddingAngle={2} dataKey="v">
+                      {pieD.map((pd,i) => <Cell key={i} fill={pd.color}/>)}
+                    </Pie>
+                    <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" style={{fontSize:14,fontWeight:800,fill:C.text,fontFamily:"Space Grotesk"}}>1475</text>
+                    <Tooltip contentStyle={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:8,fontSize:11}}/>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 // ── Screen Map ────────────────────────────────────────────────────────
 const SCREENS = {
-  crawl:       { C: CrawlDashboard,      title: "Dashboard",                sub: "Welcome to Boostly — your SEO command center" },
-  dashboard:   { C: Dashboard,           title: "Analytics Overview",       sub: "SEO Engine Boost · Full platform metrics" },
-  keyword:     { C: KeywordResearch,     title: "Keyword Research",         sub: "Discover high-value keywords & opportunities" },
-  competitive: { C: CompetitiveResearch, title: "Competitive Research",     sub: "Domain overview, keyword gaps & backlink comparison" },
-  backlink:    { C: BacklinkResearch,    title: "Backlink Research",        sub: "Monitor and grow your full backlink profile" },
-  onpage:      { C: OnPageAudit,         title: "On Page & Tech Audit",     sub: "Full technical SEO analysis with AI-powered fixes" },
-  rank:        { C: RankTracking,        title: "Rank Tracking",            sub: "Track keyword positions across devices and regions" },
-  localseo:    { C: LocalSEO,            title: "Local SEO Manager",        sub: "Google My Business, reviews & local optimization" },
-  seotasks:    { C: SEOTaskManagement,   title: "SEO Task Management",      sub: "Fix SEO issues — On-Page · Technical · Content" },
-  progress:    { C: ProgressScreen,      title: "SEO Progress",             sub: "Crawl results, outstanding issues & task completion" },
-  contentlab:  { C: ContentLab,          title: "Content Lab",              sub: "AI-powered writing workspace with live SEO scoring" },
-  reports:     { C: Reports,             title: "Reports & Insights",       sub: "Branded client reports — PDF export & auto-send" },
-  messages:    { C: Messages,            title: "Messages",                 sub: "Team chat · AI Chat-to-Task · Always-on Copilot" },
-  tasks:       { C: Tasks,               title: "Project Tasks",            sub: "Kanban board — plan, assign, track & ship" },
-  clients:     { C: Clients,             title: "Clients",                  sub: "Manage all client projects and relationships" },
-  team:        { C: TeamMembers,         title: "Team Members",             sub: "Manage your team, roles & permissions" },
-  calendar:    { C: CalendarView,        title: "Campaign Planner",         sub: "Campaign calendar, social queue & scheduler" },
-  settings:    { C: SettingsView,        title: "Settings",                 sub: "Account, workspace & integrations" },
+  crawl:              { C: CrawlDashboard,         title: "Dashboard",               sub: "Welcome to Boostly — your SEO command center" },
+  dashboard:          { C: Dashboard,              title: "Analytics Overview",      sub: "SEO Engine Boost · Full platform metrics" },
+  keyword:            { C: KeywordResearch,        title: "Keyword Research",        sub: "Discover high-value keywords & opportunities" },
+  advancedkeywords:   { C: AdvancedKeywordResearch,title: "Advanced Keywords",       sub: "Filter by Long-tail, Low competition, High CPC" },
+  competitive:        { C: CompetitiveResearch,    title: "Competitive Research",    sub: "Domain overview, keyword gaps & backlink comparison" },
+  competitoranalyzer: { C: CompetitorAnalyzer,     title: "Competitor Analyzer",     sub: "Traffic, keywords, pages & gap analysis" },
+  backlink:           { C: BacklinkResearch,       title: "Backlink Research",       sub: "Monitor and grow your full backlink profile" },
+  onpage:             { C: OnPageAudit,            title: "On Page & Tech Audit",    sub: "Full technical SEO analysis with AI-powered fixes" },
+  siteaudit:          { C: SiteAudit,              title: "Site Audit",              sub: "Site health, crawl errors, warnings & page speed" },
+  rank:               { C: RankTracking,           title: "Rank Tracking",           sub: "Track keyword positions across devices and regions" },
+  ranktracker:        { C: DomainRankTracker,      title: "Domain Rank Tracker",     sub: "Track multiple domains with position history" },
+  trafficanalytics:   { C: TrafficAnalytics,       title: "Traffic Analytics",       sub: "Organic traffic, top keywords & competitor position map" },
+  localseo:           { C: LocalSEO,               title: "Local SEO Manager",       sub: "Google My Business, reviews & local optimization" },
+  seotasks:           { C: SEOTaskManagement,      title: "SEO Task Management",     sub: "Fix SEO issues — On-Page · Technical · Content" },
+  progress:           { C: ProgressScreen,         title: "SEO Progress",            sub: "Crawl results, outstanding issues & task completion" },
+  aisuggestions:      { C: AISuggestions,          title: "AI Suggestions",          sub: "Critical issues, improvements & content insights" },
+  contentlab:         { C: ContentLab,             title: "Content Lab",             sub: "AI-powered writing workspace with live SEO scoring" },
+  seoassistant:       { C: SEOAssistant,           title: "SEO Assistant",           sub: "AI-powered SEO chat — ask anything, get answers" },
+  reports:            { C: Reports,                title: "Reports & Insights",      sub: "Branded client reports — PDF export & auto-send" },
+  messages:           { C: Messages,               title: "Messages",                sub: "Team chat · AI Chat-to-Task · Always-on Copilot" },
+  tasks:              { C: Tasks,                  title: "Project Tasks",           sub: "Kanban board — plan, assign, track & ship" },
+  clients:            { C: Clients,                title: "Clients",                 sub: "Manage all client projects and relationships" },
+  team:               { C: TeamMembers,            title: "Team Members",            sub: "Manage your team, roles & permissions" },
+  calendar:           { C: CalendarView,           title: "Campaign Planner",        sub: "Campaign calendar, social queue & scheduler" },
+  settings:           { C: SettingsView,           title: "Settings",                sub: "Account, workspace & integrations" },
+  admin:              { C: AdminDashboard,         title: "Admin Dashboard",         sub: "Platform overview, users & revenue analytics" },
+  usermanagement:     { C: UserManagement,         title: "User Management",         sub: "View, upgrade, and manage all platform users" },
+  paymentlogs:        { C: PaymentLogs,            title: "Payment Logs",            sub: "Transaction history, filters & subscription status" },
+  nlpanalytics:       { C: NLPAnalytics,           title: "NLP Analytics",           sub: "Keywords, AI articles & most active users" },
+  pushnotifications:  { C: PushNotifications,      title: "Push Notifications",      sub: "Broadcast messages to all or targeted users" },
 };
 
 // ── App ───────────────────────────────────────────────────────────────
