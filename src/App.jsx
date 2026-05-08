@@ -3033,21 +3033,24 @@ function AICopilot({ onClose }) {
 // ── Updated Sidebar with all nav items ────────────────────────────────
 function SidebarFull({ active, setActive, sub, setSub, openAI, setOpenAI }) {
   const seoNav = [
-    { id:"crawl",              icon:LayoutDashboard, label:"SEO Dashboard" },
-    { id:"progress",           icon:Activity,        label:"Progress" },
-    { id:"siteaudit",          icon:FileSearch,      label:"Site Audit" },
-    { id:"onpage",             icon:Shield,          label:"On-Page Audit" },
-    { id:"seotasks",           icon:CheckSquare,     label:"SEO Tasks", badge:15 },
-    { id:"aisuggestions",      icon:Sparkles,        label:"AI Suggestions", badge:"AI" },
-    { id:"competitive",        icon:Globe,           label:"Competitive Research", subs:[{id:"domain-overview",l:"Domain Overview"},{id:"keyword-gap",l:"Keyword Gap"}] },
-    { id:"competitoranalyzer", icon:Target,          label:"Competitor Analyzer" },
-    { id:"keyword",            icon:Search,          label:"Keyword Research" },
-    { id:"advancedkeywords",   icon:TrendingUp,      label:"Advanced Keywords", badge:"PRO" },
-    { id:"backlink",           icon:Link2,           label:"Backlink Research" },
-    { id:"rank",               icon:BarChart2,       label:"Rank Tracking" },
-    { id:"ranktracker",        icon:Activity,        label:"Domain Tracker" },
-    { id:"trafficanalytics",   icon:BarChart,        label:"Traffic Analytics" },
-    { id:"localseo",           icon:Globe,           label:"Local SEO" },
+    { id:"crawl",               icon:LayoutDashboard, label:"SEO Dashboard" },
+    { id:"projectsdashboard",   icon:Briefcase,       label:"Projects Dashboard" },
+    { id:"progress",            icon:Activity,        label:"Progress" },
+    { id:"siteaudit",           icon:FileSearch,      label:"Site Audit" },
+    { id:"onpage",              icon:Shield,          label:"On-Page Audit" },
+    { id:"seotasks",            icon:CheckSquare,     label:"SEO Tasks", badge:15 },
+    { id:"aisuggestions",       icon:Sparkles,        label:"AI Suggestions", badge:"AI" },
+    { id:"articlechecker",      icon:FileText,        label:"Article Checker" },
+    { id:"competitive",         icon:Globe,           label:"Competitive Research", subs:[{id:"domain-overview",l:"Domain Overview"},{id:"keyword-gap",l:"Keyword Gap"}] },
+    { id:"competitoranalyzer",  icon:Target,          label:"Competitor Analyzer" },
+    { id:"keyword",             icon:Search,          label:"Keyword Research" },
+    { id:"advancedkeywords",    icon:TrendingUp,      label:"Advanced Keywords", badge:"PRO" },
+    { id:"keywordsperformance", icon:BarChart2,        label:"Keywords Performance" },
+    { id:"backlink",            icon:Link2,           label:"Backlink Research" },
+    { id:"rank",                icon:BarChart2,       label:"Rank Tracking" },
+    { id:"ranktracker",         icon:Activity,        label:"Domain Tracker" },
+    { id:"trafficanalytics",    icon:BarChart,        label:"Traffic Analytics" },
+    { id:"localseo",            icon:Globe,           label:"Local SEO" },
   ];
   const contentNav = [
     { id:"contentlab",   icon:Edit2,      label:"Content Lab", badge:"AI" },
@@ -3980,38 +3983,566 @@ function DomainRankTracker() {
     </div>
   );
 }
+// ── Projects Dashboard ────────────────────────────────────────────────
+function ProjectsDashboard() {
+  const projects = [
+    {
+      name:"jiohealth.com",
+      auditScore:92,auditTrend:"up",
+      pages:1024,trackers:6,avgRank:2.3,rankTrend:"down",
+      trackerItems:[
+        {label:"JIO HEALTH",rank:82.1,kw:1500,freq:"Daily Update"},
+        {label:"JIO HEALTH (1)",rank:50.7,kw:850,freq:"Weekly Update"},
+        {label:"JIO HEALTH (Int...)",rank:98.4,kw:2500,freq:"Daily Update"},
+        {label:"JIO HEALTH (2)",rank:54.3,kw:1234,freq:"Monthly Update"},
+        {label:"JIO HEALTH (Cate)",rank:65.6,kw:2500,freq:"Daily Update"},
+      ]
+    },
+    {name:"topon.tech",      auditScore:92,auditTrend:"up",pages:1024,trackers:6,avgRank:2.3,rankTrend:"down",trackerItems:[]},
+    {name:"toponseek.com",   auditScore:92,auditTrend:"up",pages:1024,trackers:6,avgRank:2.3,rankTrend:"down",trackerItems:[]},
+    {name:"tinhte.vn",       auditScore:92,auditTrend:"up",pages:1024,trackers:6,avgRank:2.3,rankTrend:"down",trackerItems:[]},
+    {name:"genk.vn",         auditScore:92,auditTrend:"up",pages:1024,trackers:6,avgRank:2.3,rankTrend:"down",trackerItems:[]},
+    {name:"seoengineboost.com",auditScore:76,auditTrend:"up",pages:19,trackers:3,avgRank:8.2,rankTrend:"up",trackerItems:[]},
+  ];
+  const [expanded, setExpanded] = useState("jiohealth.com");
+  const [newProject, setNewProject] = useState("");
+
+  return (
+    <div className="fade" style={{overflowY:"auto",height:"calc(100vh - 57px)",background:C.bg}}>
+      {/* Add Project banner */}
+      <div style={{background:`linear-gradient(135deg,${C.blueL},${C.blue})`,padding:"22px 28px 18px",position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",top:-40,right:-40,width:180,height:180,borderRadius:"50%",background:"rgba(255,255,255,.06)",pointerEvents:"none"}}/>
+        <h2 className="sg" style={{color:"#fff",fontSize:16,fontWeight:800,marginBottom:14}}>Home › Project › Rank Checker</h2>
+        <div style={{display:"flex",gap:10,maxWidth:640}}>
+          <input value={newProject} onChange={e=>setNewProject(e.target.value)} placeholder="Enter domain to track"
+            style={{flex:1,padding:"10px 16px",border:"none",borderRadius:10,fontSize:14,fontFamily:"inherit",outline:"none",color:C.text}}/>
+          <button style={{background:C.orange,color:"#fff",border:"none",cursor:"pointer",padding:"10px 28px",borderRadius:10,fontSize:14,fontWeight:700,fontFamily:"inherit",boxShadow:`0 3px 10px ${C.orange}44`}}>Add Project</button>
+        </div>
+        <p style={{color:"rgba(255,255,255,.65)",fontSize:12,marginTop:8,lineHeight:1.6}}>
+          Create a campaign for any website and get keyword rankings, technical issues, social activity, and on-page recommendations.
+        </p>
+        {/* Expiry warning */}
+        <div style={{background:C.orange,borderRadius:8,padding:"8px 14px",marginTop:12,fontSize:12,color:"#fff",fontWeight:500}}>
+          ⚠️ Your projects will expire in 24 hours since created! <span style={{fontWeight:800,textDecoration:"underline",cursor:"pointer"}}>Sign in</span> to save projects up to 7 days, get keywords ranking auto updated daily and much more!
+        </div>
+      </div>
+
+      {/* Projects list */}
+      <div style={{padding:"20px 28px"}}>
+        {projects.map((proj,pi) => (
+          <div key={proj.name} className="card" style={{marginBottom:14,overflow:"hidden"}}>
+            {/* Project header */}
+            <div onClick={()=>setExpanded(expanded===proj.name?null:proj.name)}
+              style={{padding:"16px 20px",cursor:"pointer",display:"flex",alignItems:"center",gap:12,borderBottom:expanded===proj.name&&proj.trackerItems.length>0?`1px solid ${C.border}`:"none"}}>
+              <div style={{width:36,height:36,borderRadius:10,background:`linear-gradient(135deg,${C.blueL},${C.blue})`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                <Target size={16} color="#fff"/>
+              </div>
+              <div style={{flex:1}}>
+                <div className="sg" style={{color:C.blueL,fontSize:15,fontWeight:800}}>{proj.name}</div>
+                <div style={{color:C.textDim,fontSize:11}}>https://www.{proj.name}</div>
+              </div>
+              {/* Metrics */}
+              <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:24,marginRight:16}}>
+                {[
+                  {l:"Audit Score",v:proj.auditScore,c:proj.auditScore>=80?C.green:proj.auditScore>=60?C.orange:C.red,trend:proj.auditTrend},
+                  {l:"Pages",v:proj.pages.toLocaleString(),c:C.blueL,trend:null},
+                  {l:"Rank Trackers",v:proj.trackers,c:C.blueL,trend:null},
+                  {l:"Average Ranking",v:proj.avgRank,c:proj.avgRank<=5?C.green:proj.avgRank<=15?C.orange:C.red,trend:proj.rankTrend},
+                ].map(({l,v,c,trend}) => (
+                  <div key={l} style={{textAlign:"center"}}>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:4}}>
+                      <span className="sg" style={{color:c,fontSize:22,fontWeight:900}}>{v}</span>
+                      {trend && <span style={{color:trend==="up"?C.green:C.red,fontSize:12}}>{trend==="up"?"↑":"↓"}</span>}
+                    </div>
+                    <div style={{color:C.textDim,fontSize:10.5,fontWeight:600}}>{l}</div>
+                  </div>
+                ))}
+              </div>
+              <ChevronDown size={15} color={C.textDim} style={{transform:expanded===proj.name?"rotate(180deg)":"none",transition:"transform .2s"}}/>
+            </div>
+
+            {/* Rank tracker rows */}
+            {expanded===proj.name && proj.trackerItems.length>0 && (
+              <div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 120px 140px 160px 120px",padding:"8px 20px",background:C.bg,borderBottom:`1px solid ${C.border}`}}>
+                  {["Rank tracker","","Avg. rank","No. of keyword","Frequency"].map(h => (
+                    <div key={h} style={{color:C.textDim,fontSize:10.5,fontWeight:700,letterSpacing:.4}}>{h.toUpperCase()}</div>
+                  ))}
+                </div>
+                {proj.trackerItems.map((item,i) => (
+                  <div key={i} className="td" style={{display:"grid",gridTemplateColumns:"1fr 120px 140px 160px 120px",padding:"11px 20px",borderBottom:i<proj.trackerItems.length-1?`1px solid ${C.border}`:"none",alignItems:"center"}}>
+                    <span style={{color:C.blueL,fontSize:13,fontWeight:600,cursor:"pointer"}}>{item.label}</span>
+                    <div style={{display:"flex",gap:6}}>
+                      <button style={{width:26,height:26,borderRadius:6,background:C.bgLight,border:`1px solid ${C.border}`,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><Users size={11} color={C.textDim}/></button>
+                      <button style={{width:26,height:26,borderRadius:6,background:C.redL,border:`1px solid ${C.red}30`,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><X size={11} color={C.red}/></button>
+                    </div>
+                    <div style={{display:"flex",alignItems:"center",gap:5}}>
+                      <span className="sg" style={{color:item.rank<60?C.green:C.orange,fontSize:14,fontWeight:800}}>{item.rank}</span>
+                      <span style={{color:C.green,fontSize:11}}>↑</span>
+                    </div>
+                    <span style={{color:C.textMid,fontSize:13}}>{item.kw.toLocaleString()}</span>
+                    <span className="chip" style={{color:C.blueL,background:C.bluePale,fontSize:10.5}}>{item.freq}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+
+        {/* Add new project card */}
+        <div style={{border:`2px dashed ${C.border}`,borderRadius:14,padding:"24px",textAlign:"center",cursor:"pointer",background:"transparent",transition:"all .2s"}}
+          className="td">
+          <Plus size={20} color={C.textDim} style={{margin:"0 auto 8px"}}/>
+          <div style={{color:C.textDim,fontSize:13,fontWeight:600}}>Add new project</div>
+          <div style={{color:C.textDim,fontSize:11,marginTop:3}}>Track another domain's rankings</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Article Checker ────────────────────────────────────────────────────
+function ArticleChecker() {
+  const [url, setUrl] = useState("");
+  const [kw, setKw] = useState("dich vu seo");
+  const [checked, setChecked] = useState(true);
+  const [activeTab, setActiveTab] = useState("On-Page");
+  const onPageTabs = ["On-Page","Diagnosis","Mobile"];
+  const opportunities = [
+    "Reduce server response times (TTFB) ← 0.95 s",
+    "Preconnect to required origins ← 0.75 s",
+    "Eliminate render-blocking resources ← 0.4 s",
+    "Properly size images",
+    "Serve images in next-gen formats",
+    "Efficiently encode images",
+    "Enable text compression",
+    "Avoid multiple page redirects",
+  ];
+  const passedAudits = [
+    "First Contentful Paint ← 2.1 s",
+    "First Meaningful Paint ← 2.1 s",
+    "Speed Index ← 4.7 s",
+    "Time to Interactive ← 6.9 s",
+  ];
+  return (
+    <div className="fade" style={{overflowY:"auto",height:"calc(100vh - 57px)",background:C.bg}}>
+      {/* Header */}
+      <div style={{background:C.white,borderBottom:`1px solid ${C.border}`,padding:"16px 28px"}}>
+        <div style={{color:C.textDim,fontSize:12,marginBottom:8}}>Home › Article Checker</div>
+        <h2 className="sg" style={{color:C.text,fontSize:16,fontWeight:800,marginBottom:14}}>
+          You want to track keywords (free up to 100) on your page? Enter your URL
+        </h2>
+        <div style={{display:"flex",gap:10}}>
+          <div style={{flex:2,display:"flex",alignItems:"center",gap:8,background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,padding:"8px 14px"}}>
+            <Search size={13} color={C.textDim}/>
+            <input value={url} onChange={e=>setUrl(e.target.value)} placeholder="Enter your URL and keyword to check"
+              style={{flex:1,background:"transparent",border:"none",outline:"none",color:C.text,fontSize:13,fontFamily:"inherit"}}/>
+          </div>
+          <div style={{flex:1,display:"flex",alignItems:"center",gap:8,background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,padding:"8px 14px"}}>
+            <input value={kw} onChange={e=>setKw(e.target.value)} placeholder="Use keyword"
+              style={{flex:1,background:"transparent",border:"none",outline:"none",color:C.text,fontSize:13,fontFamily:"inherit"}}/>
+          </div>
+          <button onClick={()=>setChecked(true)} style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"10px 28px",borderRadius:9,fontSize:13,fontWeight:700,fontFamily:"inherit"}}>CHECK</button>
+        </div>
+      </div>
+
+      {checked && (
+        <div style={{display:"grid",gridTemplateColumns:"1fr 360px",gap:0,height:"calc(100% - 90px)"}}>
+          {/* Left: Page info + audit */}
+          <div style={{overflowY:"auto",padding:"20px 28px",borderRight:`1px solid ${C.border}`}}>
+            {/* Page Info */}
+            <div className="card" style={{padding:"14px 18px",marginBottom:14}}>
+              <div style={{color:C.textDim,fontSize:10.5,fontWeight:700,letterSpacing:.5,marginBottom:8}}>PAGE INFO</div>
+              <div style={{color:C.textDim,fontSize:11,marginBottom:2}}>June 23, 2020 • 12:00 AM</div>
+              <div style={{color:C.blueL,fontSize:13,fontWeight:600,marginBottom:4,cursor:"pointer"}}>
+                https://www.toponseek.com/dich-vu-seo/
+              </div>
+            </div>
+
+            {/* Keyword to check */}
+            <div className="card" style={{padding:"14px 18px",marginBottom:14}}>
+              <div style={{color:C.textDim,fontSize:10.5,fontWeight:700,letterSpacing:.5,marginBottom:8}}>KEYWORDS TO CHECK</div>
+              <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 12px",background:C.blueL+"15",borderRadius:8,border:`1px solid ${C.blueL}30`}}>
+                <div style={{width:7,height:7,borderRadius:"50%",background:C.blueL}}/>
+                <span style={{color:C.blueL,fontSize:13,fontWeight:600}}>{kw || "dich vu seo"}</span>
+              </div>
+            </div>
+
+            {/* SEO Audit Scores */}
+            <div className="card" style={{padding:"14px 18px",marginBottom:14}}>
+              <div style={{color:C.textDim,fontSize:10.5,fontWeight:700,letterSpacing:.5,marginBottom:12}}>SEO AUDIT SCORES</div>
+              <div style={{display:"flex",alignItems:"center",gap:16,justifyContent:"center"}}>
+                {[{l:"Performance",v:95,c:C.green},{l:"Accessibility",v:100,c:C.green},{l:"Best Practices",v:77,c:C.orange},{l:"SEO",v:92,c:C.green}].map(({l,v,c}) => (
+                  <div key={l} style={{textAlign:"center"}}>
+                    <div style={{width:48,height:48,borderRadius:"50%",border:`4px solid ${c}`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 6px"}}>
+                      <span className="sg" style={{color:c,fontSize:14,fontWeight:900}}>{v}</span>
+                    </div>
+                    <div style={{color:C.textDim,fontSize:10}}>{l}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Diagnostics */}
+            <div className="card" style={{padding:"14px 18px",marginBottom:14}}>
+              <div style={{color:C.textDim,fontSize:10.5,fontWeight:700,letterSpacing:.5,marginBottom:10}}>DIAGNOSIS</div>
+              <div style={{display:"flex",gap:16,marginBottom:14}}>
+                <div style={{display:"flex",alignItems:"center",gap:6}}><Check size={13} color={C.green}/><span style={{color:C.textMid,fontSize:12}}>Passed: <strong>10</strong></span></div>
+                <div style={{display:"flex",alignItems:"center",gap:6}}><AlertCircle size={13} color={C.red}/><span style={{color:C.textMid,fontSize:12}}>Error: <strong>2</strong></span></div>
+                <div style={{display:"flex",alignItems:"center",gap:6}}><AlertCircle size={13} color={C.yellow}/><span style={{color:C.textMid,fontSize:12}}>Warning: <strong>4</strong></span></div>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10}}>
+                {[{l:"Current Rank",v:"3"},{l:"Density",v:"3%"},{l:"Total Words",v:"3,948"},{l:"Plagiarism",v:"18"}].map(({l,v}) => (
+                  <div key={l} style={{background:C.bg,borderRadius:8,padding:"10px 12px",border:`1px solid ${C.border}`,textAlign:"center"}}>
+                    <div className="sg" style={{color:C.text,fontSize:18,fontWeight:900}}>{v}</div>
+                    <div style={{color:C.textDim,fontSize:10,marginTop:2}}>{l}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* On-Page Analysis */}
+            <div className="card" style={{overflow:"hidden"}}>
+              <div style={{padding:"12px 18px",borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                <div className="sg" style={{color:C.text,fontSize:13,fontWeight:700}}>ON-PAGE</div>
+                <button style={{color:C.blueL,background:"none",border:`1px solid ${C.blueL}`,cursor:"pointer",padding:"4px 12px",borderRadius:6,fontSize:11,fontWeight:600,fontFamily:"inherit"}}>View all ideas to rank →</button>
+              </div>
+              {/* Performance section */}
+              <div style={{padding:"14px 18px",borderBottom:`1px solid ${C.border}`}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
+                  <div style={{color:C.text,fontSize:13,fontWeight:700}}>PERFORMANCE</div>
+                  <span style={{color:C.orange,fontSize:11}}>🔥</span>
+                </div>
+                <div style={{color:C.textDim,fontSize:10.5,fontWeight:700,letterSpacing:.5,marginBottom:8}}>METRIC</div>
+                {[
+                  {l:"First Contentful Paint",v:"0.1 s",c:C.green},
+                  {l:"First Meaningful Paint",v:"2.1 s",c:C.green},
+                  {l:"Speed Index",v:"4.7 s",c:C.orange},
+                  {l:"Time to Interactive",v:"6.9 s",c:C.red},
+                ].map(({l,v,c}) => (
+                  <div key={l} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"6px 0",borderBottom:`1px solid ${C.border}`}}>
+                    <div style={{display:"flex",alignItems:"center",gap:6}}>
+                      <div style={{width:8,height:8,borderRadius:"50%",background:c,flexShrink:0}}/>
+                      <span style={{color:C.textMid,fontSize:12}}>{l}</span>
+                    </div>
+                    <span style={{color:c,fontSize:12,fontWeight:700}}>{v}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{padding:"14px 18px"}}>
+                <div style={{color:C.textDim,fontSize:10.5,fontWeight:700,letterSpacing:.5,marginBottom:8}}>OPPORTUNITIES</div>
+                {opportunities.slice(0,4).map((o,i) => (
+                  <div key={i} style={{display:"flex",alignItems:"flex-start",gap:6,marginBottom:7}}>
+                    <AlertCircle size={12} color={C.orange} style={{flexShrink:0,marginTop:2}}/>
+                    <span style={{color:C.textMid,fontSize:12,lineHeight:1.4}}>{o}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right: On-Page / Diagnosis / Mobile tabs */}
+          <div style={{overflowY:"auto",background:C.white}}>
+            <div style={{padding:"14px 18px",borderBottom:`1px solid ${C.border}`}}>
+              <div style={{color:C.textDim,fontSize:10.5,fontWeight:700,letterSpacing:.5,marginBottom:10}}>ON-PAGE</div>
+              <div style={{display:"flex",gap:4}}>
+                {onPageTabs.map(t => (
+                  <button key={t} onClick={()=>setActiveTab(t)} style={{padding:"5px 12px",borderRadius:6,border:"none",cursor:"pointer",fontSize:12,fontWeight:activeTab===t?700:500,fontFamily:"inherit",background:activeTab===t?C.blueL:"rgba(0,0,0,.05)",color:activeTab===t?"#fff":C.textDim}}>{t}</button>
+                ))}
+              </div>
+            </div>
+            <div style={{padding:"14px 18px"}}>
+              {/* Performance section */}
+              <div style={{marginBottom:14}}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 12px",background:C.bg,borderRadius:8,border:`1px solid ${C.border}`,cursor:"pointer",marginBottom:6}}>
+                  <span style={{color:C.text,fontSize:12.5,fontWeight:700}}>Performance</span>
+                  <ChevronDown size={13} color={C.textDim}/>
+                </div>
+                <div style={{paddingLeft:8}}>
+                  {["First Contentful Paint","First Meaningful Paint","Speed Index","Time To First Byte","Time To Interactive","Total Blocking Time"].map((m,i) => (
+                    <div key={i} style={{padding:"6px 10px",borderBottom:`1px solid ${C.border}`,fontSize:11.5,color:C.textMid,display:"flex",justifyContent:"space-between"}}>
+                      <span>{m}</span>
+                      <span style={{color:i<2?C.green:i<4?C.orange:C.red,fontWeight:600}}>{["2.1s","2.1s","4.7s","0.7s","6.9s","0.4s"][i]}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div style={{marginBottom:14}}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 12px",background:C.bg,borderRadius:8,border:`1px solid ${C.border}`,cursor:"pointer",marginBottom:6}}>
+                  <span style={{color:C.text,fontSize:12.5,fontWeight:700}}>Opportunities</span>
+                  <ChevronDown size={13} color={C.textDim}/>
+                </div>
+                {opportunities.slice(0,5).map((o,i) => (
+                  <div key={i} style={{padding:"7px 10px",borderBottom:`1px solid ${C.border}`,fontSize:11.5,color:C.textMid,display:"flex",alignItems:"flex-start",gap:6}}>
+                    <AlertCircle size={11} color={C.orange} style={{flexShrink:0,marginTop:2}}/>
+                    <span>{o}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{marginBottom:14}}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 12px",background:C.bg,borderRadius:8,border:`1px solid ${C.border}`,cursor:"pointer",marginBottom:6}}>
+                  <span style={{color:C.text,fontSize:12.5,fontWeight:700}}>Diagnostics</span>
+                  <ChevronDown size={13} color={C.textDim}/>
+                </div>
+              </div>
+              <div>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 12px",background:C.bg,borderRadius:8,border:`1px solid ${C.border}`,cursor:"pointer",marginBottom:6}}>
+                  <span style={{color:C.text,fontSize:12.5,fontWeight:700}}>Passed Audits ({passedAudits.length})</span>
+                  <ChevronDown size={13} color={C.textDim}/>
+                </div>
+                {passedAudits.map((a,i) => (
+                  <div key={i} style={{padding:"6px 10px",borderBottom:`1px solid ${C.border}`,fontSize:11.5,display:"flex",alignItems:"center",gap:6}}>
+                    <Check size={11} color={C.green}/>
+                    <span style={{color:C.textMid}}>{a}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Keywords Performance ───────────────────────────────────────────────
+function KeywordsPerformance() {
+  const [period, setPeriod] = useState("Last 7 days");
+  const [search, setSearch] = useState("");
+  const avgData = [{n:"W1",pos:10},{n:"W2",pos:9},{n:"W3",pos:8},{n:"W4",pos:8.2},{n:"W5",pos:7.8},{n:"W6",pos:8.2}];
+  const last24 = [{l:"Top 1",v:46},{l:"Top 5",v:32},{l:"Top 10",v:97},{l:"Top 20",v:46},{l:"Top 100",v:32},{l:">100",v:97}];
+  const pieD2 = [{name:"Top 3",v:280,color:C.green},{name:"Top 10",v:400,color:C.blueL},{name:"Top 20",v:300,color:C.orange},{name:"Top 100",v:295,color:C.yellow},{name:">100",v:200,color:"#CBD5E1"}];
+  const winners = [
+    {kw:"gym tai nha",domain:"cfly.com.vn",cur:3,prev:34},
+    {kw:"abcve",domain:"abcve.com.vn",cur:3,prev:34},
+    {kw:"gym lien Ba",domain:"def.com",cur:3,prev:34},
+    {kw:"tap gem",domain:"abc.com.vn",cur:3,prev:34},
+    {kw:"Phong tap",domain:"abc.com.vn",cur:3,prev:34},
+    {kw:"Phong tap thanh pho Ho Chi Minh",domain:"abc.com.vn",cur:3,prev:34},
+    {kw:"Cach tri tap gem",domain:"abc.com.vn",cur:3,prev:34},
+    {kw:"Danxe nhem",domain:"abc.com.vn",cur:3,prev:34},
+    {kw:"Yoga 7 ngay",domain:"abc.com.vn",cur:3,prev:34},
+  ];
+  const losers = [
+    {kw:"Gym tai nha",domain:"cfly.com.vn",cur:3,prev:34},
+    {kw:"alo.vn",domain:"alo.vn",cur:3,prev:34},
+    {kw:"gym lien Ba",domain:"def.com",cur:5,prev:34},
+    {kw:"Tap gem",domain:"abc.com.vn",cur:3,prev:34},
+    {kw:"Phong tap",domain:"abc.com.vn",cur:3,prev:34},
+    {kw:"Yoga 7 ngay",domain:"abc.com.vn",cur:3,prev:34},
+  ];
+  return (
+    <div className="fade" style={{overflowY:"auto",height:"calc(100vh - 57px)",background:C.bg}}>
+      {/* Domain header */}
+      <div style={{background:C.white,borderBottom:`1px solid ${C.border}`,padding:"16px 28px"}}>
+        <div style={{color:C.textDim,fontSize:12,marginBottom:4}}>Home › Project › Dep365 › Rank report</div>
+        <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14}}>
+          <div style={{width:32,height:32,borderRadius:8,background:`linear-gradient(135deg,${C.blueL},${C.blue})`,display:"flex",alignItems:"center",justifyContent:"center"}}><Target size={14} color="#fff"/></div>
+          <div>
+            <div className="sg" style={{color:C.text,fontSize:16,fontWeight:800}}>seoengineboost.com</div>
+            <div style={{display:"flex",gap:10,marginTop:2}}>
+              <span className="chip" style={{color:"#fff",background:C.blueL,fontSize:10}}>125 client</span>
+              <span style={{color:C.textDim,fontSize:11}}>seoengineboost.com</span>
+              <span style={{color:C.textDim,fontSize:11}}>Total terms: 2294</span>
+              <span style={{color:C.textDim,fontSize:11}}>Search engine: google.com.vn</span>
+              <span style={{color:C.textDim,fontSize:11}}>Language: Vietnamese</span>
+            </div>
+          </div>
+          <button style={{marginLeft:"auto",background:"transparent",border:`1px solid ${C.border}`,color:C.textMid,cursor:"pointer",padding:"6px 14px",borderRadius:8,fontSize:12,fontFamily:"inherit"}}>Share</button>
+        </div>
+        {/* Tabs */}
+        <div style={{display:"flex",gap:0}}>
+          {["Keywords Performance","Competitors","SEO Audit"].map((t,i) => (
+            <button key={t} style={{padding:"10px 20px",border:"none",borderBottom:i===0?`2.5px solid ${C.blueL}`:"2.5px solid transparent",cursor:"pointer",fontSize:13,fontWeight:i===0?700:500,fontFamily:"inherit",background:"transparent",color:i===0?C.blueL:C.textMid}}>{t}</button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{padding:"20px 28px"}}>
+        {/* Top stats */}
+        <div style={{display:"grid",gridTemplateColumns:"1fr 220px 200px",gap:16,marginBottom:20}}>
+          {/* Average position */}
+          <div className="card" style={{padding:"18px 22px"}}>
+            <div style={{color:C.textDim,fontSize:10.5,fontWeight:700,letterSpacing:.5,marginBottom:10}}>AVERAGE POSITION</div>
+            <div style={{display:"flex",gap:8,marginBottom:10}}>
+              {[["Today",""],["Last 7 days","active"],["Last 30 days",""]].map(([l,a]) => (
+                <button key={l} onClick={()=>setPeriod(l)} style={{padding:"4px 10px",borderRadius:6,border:"none",cursor:"pointer",fontSize:11,fontWeight:period===l?700:400,fontFamily:"inherit",background:period===l?C.blueL:"rgba(0,0,0,.05)",color:period===l?"#fff":C.textDim}}>{l}</button>
+              ))}
+            </div>
+            <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:4}}>
+              <span className="sg" style={{color:C.text,fontSize:34,fontWeight:900}}>8.2</span>
+              <span style={{background:C.green,color:"#fff",fontSize:11,fontWeight:700,padding:"2px 7px",borderRadius:5}}>↑ 1.9</span>
+            </div>
+            <ResponsiveContainer width="100%" height={80}>
+              <LineChart data={avgData} margin={{top:0,right:0,left:0,bottom:0}}>
+                <Line type="monotone" dataKey="pos" stroke={C.blueL} strokeWidth={2.5} dot={{fill:C.blueL,r:3}} legendType="none"/>
+                <Tooltip contentStyle={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:8,fontSize:11}} formatter={v=>[`#${v}`,"Position"]}/>
+              </LineChart>
+            </ResponsiveContainer>
+            <div style={{borderTop:`1px solid ${C.border}`,paddingTop:10,marginTop:8}}>
+              <div style={{color:C.textDim,fontSize:10,fontWeight:700,letterSpacing:.5,marginBottom:6}}>RANKING CHANGE</div>
+              {[["Last 24 hours"],["Last 7 days"],["Last 30 days"]].map(([l],i) => (
+                <div key={i} style={{display:"flex",gap:12,padding:"4px 0",borderBottom:i<2?`1px solid ${C.border}`:"none",alignItems:"center"}}>
+                  <span style={{color:C.textDim,fontSize:11,flex:1}}>{l}</span>
+                  <span style={{color:C.green,fontSize:11,fontWeight:600}}>123 ↑</span>
+                  <span style={{color:C.red,fontSize:11,fontWeight:600}}>123 ↓</span>
+                  <span style={{color:C.textMid,fontSize:11}}>123</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Last 24 hours */}
+          <div className="card" style={{padding:"16px 18px"}}>
+            <div style={{color:C.textDim,fontSize:10.5,fontWeight:700,letterSpacing:.5,marginBottom:10}}>LAST 24 HOURS</div>
+            {last24.map(({l,v},i) => (
+              <div key={i} style={{display:"flex",gap:8,marginBottom:7,alignItems:"center"}}>
+                <span style={{color:C.textMid,fontSize:11.5,flex:1}}>{l}</span>
+                <span style={{color:C.blueL,fontWeight:800,fontSize:13}}>{v}</span>
+                <span style={{color:C.green,fontSize:11}}>↑</span>
+                <span style={{color:C.red,fontSize:11}}>↓</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Pie */}
+          <div className="card" style={{padding:"16px 18px",display:"flex",flexDirection:"column",alignItems:"center"}}>
+            <div style={{color:C.textDim,fontSize:10.5,fontWeight:700,letterSpacing:.5,marginBottom:8}}>DISTRIBUTION</div>
+            <ResponsiveContainer width="100%" height={140}>
+              <PieChart>
+                <Pie data={pieD2} cx="50%" cy="50%" innerRadius={36} outerRadius={58} paddingAngle={2} dataKey="v">
+                  {pieD2.map((pd,i) => <Cell key={i} fill={pd.color}/>)}
+                </Pie>
+                <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" style={{fontSize:16,fontWeight:900,fill:C.text,fontFamily:"Space Grotesk"}}>1475</text>
+                <Tooltip contentStyle={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:8,fontSize:11}}/>
+              </PieChart>
+            </ResponsiveContainer>
+            {pieD2.map(({name,color}) => (
+              <div key={name} style={{display:"flex",alignItems:"center",gap:6,marginBottom:3,width:"100%"}}>
+                <div style={{width:8,height:8,borderRadius:2,background:color}}/>
+                <span style={{color:C.textMid,fontSize:10.5}}>{name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Keyword search + Add */}
+        <div style={{display:"flex",gap:10,marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,background:C.white,border:`1px solid ${C.border}`,borderRadius:9,padding:"7px 12px",flex:1}}>
+            <Search size={13} color={C.textDim}/>
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search for keywords" style={{flex:1,border:"none",outline:"none",fontSize:13,color:C.text,fontFamily:"inherit"}}/>
+          </div>
+          <button style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"7px 16px",borderRadius:9,fontSize:13,fontWeight:700,fontFamily:"inherit",display:"flex",alignItems:"center",gap:6}}>
+            <Plus size={13}/> Add new keyword
+          </button>
+          <button style={{background:"transparent",border:`1px solid ${C.border}`,color:C.textMid,cursor:"pointer",padding:"7px 14px",borderRadius:9,fontSize:13,fontFamily:"inherit"}}>Export</button>
+          <div style={{display:"flex",alignItems:"center",gap:6}}>
+            <span style={{color:C.textDim,fontSize:12}}>View mode</span>
+            <select style={{border:`1px solid ${C.border}`,borderRadius:7,padding:"5px 10px",fontSize:12,fontFamily:"inherit",outline:"none",background:C.white}}>
+              <option>Normal</option><option>Compact</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Winner / Loser tables */}
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+          {/* Winners */}
+          <div className="card" style={{overflow:"hidden"}}>
+            <div style={{padding:"12px 18px",borderBottom:`1px solid ${C.border}`,background:`${C.green}10`}}>
+              <div style={{display:"flex",alignItems:"center",gap:8}}>
+                <TrendingUp size={15} color={C.green}/>
+                <span className="sg" style={{color:C.green,fontSize:14,fontWeight:700}}>Winner: {winners.length} keywords</span>
+              </div>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 1fr",padding:"8px 14px",background:C.bg,borderBottom:`1px solid ${C.border}`}}>
+              {["Keyword","Domain","Current","Yesterday"].map(h => <div key={h} style={{color:C.textDim,fontSize:10,fontWeight:700,letterSpacing:.4}}>{h.toUpperCase()}</div>)}
+            </div>
+            {winners.filter(w => !search || w.kw.toLowerCase().includes(search.toLowerCase())).map((w,i) => (
+              <div key={i} className="td" style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 1fr",padding:"9px 14px",borderBottom:i<winners.length-1?`1px solid ${C.border}`:"none",alignItems:"center"}}>
+                <span style={{color:C.text,fontSize:12,fontWeight:500,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{w.kw}</span>
+                <span style={{color:C.blueL,fontSize:11,cursor:"pointer"}}>{w.domain}</span>
+                <span style={{color:C.green,fontWeight:700,fontSize:12}}>{w.cur}</span>
+                <span style={{color:C.textDim,fontSize:12}}>{w.prev}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Losers */}
+          <div className="card" style={{overflow:"hidden"}}>
+            <div style={{padding:"12px 18px",borderBottom:`1px solid ${C.border}`,background:`${C.red}08`}}>
+              <div style={{display:"flex",alignItems:"center",gap:8}}>
+                <TrendingDown size={15} color={C.red}/>
+                <span className="sg" style={{color:C.red,fontSize:14,fontWeight:700}}>Loser: {losers.length} keywords</span>
+              </div>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 1fr",padding:"8px 14px",background:C.bg,borderBottom:`1px solid ${C.border}`}}>
+              {["Keyword","Domain","Current","Yesterday"].map(h => <div key={h} style={{color:C.textDim,fontSize:10,fontWeight:700,letterSpacing:.4}}>{h.toUpperCase()}</div>)}
+            </div>
+            {losers.filter(l => !search || l.kw.toLowerCase().includes(search.toLowerCase())).map((l,i) => (
+              <div key={i} className="td" style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 1fr",padding:"9px 14px",borderBottom:i<losers.length-1?`1px solid ${C.border}`:"none",alignItems:"center"}}>
+                <span style={{color:C.text,fontSize:12,fontWeight:500}}>{l.kw}</span>
+                <span style={{color:C.blueL,fontSize:11,cursor:"pointer"}}>{l.domain}</span>
+                <span style={{color:C.red,fontWeight:700,fontSize:12}}>{l.cur}</span>
+                <span style={{color:C.textDim,fontSize:12}}>{l.prev}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Pagination */}
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:8}}>
+            <select style={{border:`1px solid ${C.border}`,borderRadius:7,padding:"5px 10px",fontSize:12,fontFamily:"inherit",outline:"none",background:C.white}}>
+              <option>50</option><option>25</option><option>100</option>
+            </select>
+            <span style={{color:C.textDim,fontSize:12}}>terms per page</span>
+          </div>
+          <div style={{display:"flex",gap:4}}>
+            <button style={{padding:"5px 12px",border:`1px solid ${C.border}`,borderRadius:5,background:"transparent",cursor:"pointer",fontSize:12,fontFamily:"inherit"}}>‹</button>
+            <button style={{padding:"5px 10px",border:"none",borderRadius:5,background:C.blueL,color:"#fff",cursor:"pointer",fontSize:12,fontWeight:700,fontFamily:"inherit"}}>1</button>
+            {[2,3,"...",7].map((p,i) => <button key={i} style={{padding:"5px 10px",border:`1px solid ${C.border}`,borderRadius:5,background:"transparent",cursor:"pointer",fontSize:12,fontFamily:"inherit",color:C.textMid}}>{p}</button>)}
+            <button style={{padding:"5px 12px",border:`1px solid ${C.border}`,borderRadius:5,background:"transparent",cursor:"pointer",fontSize:12,fontFamily:"inherit"}}>›</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 // ── Screen Map ────────────────────────────────────────────────────────
 const SCREENS = {
-  crawl:              { C: CrawlDashboard,         title: "Dashboard",               sub: "Welcome to Boostly — your SEO command center" },
-  dashboard:          { C: Dashboard,              title: "Analytics Overview",      sub: "SEO Engine Boost · Full platform metrics" },
-  keyword:            { C: KeywordResearch,        title: "Keyword Research",        sub: "Discover high-value keywords & opportunities" },
-  advancedkeywords:   { C: AdvancedKeywordResearch,title: "Advanced Keywords",       sub: "Filter by Long-tail, Low competition, High CPC" },
-  competitive:        { C: CompetitiveResearch,    title: "Competitive Research",    sub: "Domain overview, keyword gaps & backlink comparison" },
-  competitoranalyzer: { C: CompetitorAnalyzer,     title: "Competitor Analyzer",     sub: "Traffic, keywords, pages & gap analysis" },
-  backlink:           { C: BacklinkResearch,       title: "Backlink Research",       sub: "Monitor and grow your full backlink profile" },
-  onpage:             { C: OnPageAudit,            title: "On Page & Tech Audit",    sub: "Full technical SEO analysis with AI-powered fixes" },
-  siteaudit:          { C: SiteAudit,              title: "Site Audit",              sub: "Site health, crawl errors, warnings & page speed" },
-  rank:               { C: RankTracking,           title: "Rank Tracking",           sub: "Track keyword positions across devices and regions" },
-  ranktracker:        { C: DomainRankTracker,      title: "Domain Rank Tracker",     sub: "Track multiple domains with position history" },
-  trafficanalytics:   { C: TrafficAnalytics,       title: "Traffic Analytics",       sub: "Organic traffic, top keywords & competitor position map" },
-  localseo:           { C: LocalSEO,               title: "Local SEO Manager",       sub: "Google My Business, reviews & local optimization" },
-  seotasks:           { C: SEOTaskManagement,      title: "SEO Task Management",     sub: "Fix SEO issues — On-Page · Technical · Content" },
-  progress:           { C: ProgressScreen,         title: "SEO Progress",            sub: "Crawl results, outstanding issues & task completion" },
-  aisuggestions:      { C: AISuggestions,          title: "AI Suggestions",          sub: "Critical issues, improvements & content insights" },
-  contentlab:         { C: ContentLab,             title: "Content Lab",             sub: "AI-powered writing workspace with live SEO scoring" },
-  seoassistant:       { C: SEOAssistant,           title: "SEO Assistant",           sub: "AI-powered SEO chat — ask anything, get answers" },
-  reports:            { C: Reports,                title: "Reports & Insights",      sub: "Branded client reports — PDF export & auto-send" },
-  messages:           { C: Messages,               title: "Messages",                sub: "Team chat · AI Chat-to-Task · Always-on Copilot" },
-  tasks:              { C: Tasks,                  title: "Project Tasks",           sub: "Kanban board — plan, assign, track & ship" },
-  clients:            { C: Clients,                title: "Clients",                 sub: "Manage all client projects and relationships" },
-  team:               { C: TeamMembers,            title: "Team Members",            sub: "Manage your team, roles & permissions" },
-  calendar:           { C: CalendarView,           title: "Campaign Planner",        sub: "Campaign calendar, social queue & scheduler" },
-  settings:           { C: SettingsView,           title: "Settings",                sub: "Account, workspace & integrations" },
-  admin:              { C: AdminDashboard,         title: "Admin Dashboard",         sub: "Platform overview, users & revenue analytics" },
-  usermanagement:     { C: UserManagement,         title: "User Management",         sub: "View, upgrade, and manage all platform users" },
-  paymentlogs:        { C: PaymentLogs,            title: "Payment Logs",            sub: "Transaction history, filters & subscription status" },
-  nlpanalytics:       { C: NLPAnalytics,           title: "NLP Analytics",           sub: "Keywords, AI articles & most active users" },
-  pushnotifications:  { C: PushNotifications,      title: "Push Notifications",      sub: "Broadcast messages to all or targeted users" },
+  crawl:               { C: CrawlDashboard,          title: "Dashboard",               sub: "Welcome to Boostly — your SEO command center" },
+  dashboard:           { C: Dashboard,               title: "Analytics Overview",      sub: "SEO Engine Boost · Full platform metrics" },
+  keyword:             { C: KeywordResearch,         title: "Keyword Research",        sub: "Discover high-value keywords & opportunities" },
+  advancedkeywords:    { C: AdvancedKeywordResearch, title: "Advanced Keywords",       sub: "Filter by Long-tail, Low competition, High CPC" },
+  competitive:         { C: CompetitiveResearch,     title: "Competitive Research",    sub: "Domain overview, keyword gaps & backlink comparison" },
+  competitoranalyzer:  { C: CompetitorAnalyzer,      title: "Competitor Analyzer",     sub: "Traffic, keywords, pages & gap analysis" },
+  backlink:            { C: BacklinkResearch,        title: "Backlink Research",       sub: "Monitor and grow your full backlink profile" },
+  onpage:              { C: OnPageAudit,             title: "On Page & Tech Audit",    sub: "Full technical SEO analysis with AI-powered fixes" },
+  siteaudit:           { C: SiteAudit,               title: "Site Audit",              sub: "Site health, crawl errors, warnings & page speed" },
+  rank:                { C: RankTracking,            title: "Rank Tracking",           sub: "Track keyword positions across devices and regions" },
+  ranktracker:         { C: DomainRankTracker,       title: "Domain Rank Tracker",     sub: "Track multiple domains with position history" },
+  projectsdashboard:   { C: ProjectsDashboard,       title: "Projects Dashboard",      sub: "All tracked domains with audit scores & rank trackers" },
+  keywordsperformance: { C: KeywordsPerformance,     title: "Keywords Performance",    sub: "Winner & loser keywords, ranking changes & position charts" },
+  articlechecker:      { C: ArticleChecker,          title: "Article Checker",         sub: "URL & keyword tracking — SEO scores, diagnostics, on-page" },
+  trafficanalytics:    { C: TrafficAnalytics,        title: "Traffic Analytics",       sub: "Organic traffic, top keywords & competitor position map" },
+  localseo:            { C: LocalSEO,                title: "Local SEO Manager",       sub: "Google My Business, reviews & local optimization" },
+  seotasks:            { C: SEOTaskManagement,       title: "SEO Task Management",     sub: "Fix SEO issues — On-Page · Technical · Content" },
+  progress:            { C: ProgressScreen,          title: "SEO Progress",            sub: "Crawl results, outstanding issues & task completion" },
+  aisuggestions:       { C: AISuggestions,           title: "AI Suggestions",          sub: "Critical issues, improvements & content insights" },
+  contentlab:          { C: ContentLab,              title: "Content Lab",             sub: "AI-powered writing workspace with live SEO scoring" },
+  seoassistant:        { C: SEOAssistant,            title: "SEO Assistant",           sub: "AI-powered SEO chat — ask anything, get answers" },
+  reports:             { C: Reports,                 title: "Reports & Insights",      sub: "Branded client reports — PDF export & auto-send" },
+  messages:            { C: Messages,                title: "Messages",                sub: "Team chat · AI Chat-to-Task · Always-on Copilot" },
+  tasks:               { C: Tasks,                   title: "Project Tasks",           sub: "Kanban board — plan, assign, track & ship" },
+  clients:             { C: Clients,                 title: "Clients",                 sub: "Manage all client projects and relationships" },
+  team:                { C: TeamMembers,             title: "Team Members",            sub: "Manage your team, roles & permissions" },
+  calendar:            { C: CalendarView,            title: "Campaign Planner",        sub: "Campaign calendar, social queue & scheduler" },
+  settings:            { C: SettingsView,            title: "Settings",                sub: "Account, workspace & integrations" },
+  admin:               { C: AdminDashboard,          title: "Admin Dashboard",         sub: "Platform overview, users & revenue analytics" },
+  usermanagement:      { C: UserManagement,          title: "User Management",         sub: "View, upgrade, and manage all platform users" },
+  paymentlogs:         { C: PaymentLogs,             title: "Payment Logs",            sub: "Transaction history, filters & subscription status" },
+  nlpanalytics:        { C: NLPAnalytics,            title: "NLP Analytics",           sub: "Keywords, AI articles & most active users" },
+  pushnotifications:   { C: PushNotifications,       title: "Push Notifications",      sub: "Broadcast messages to all or targeted users" },
 };
 
 // ── App ───────────────────────────────────────────────────────────────
