@@ -1169,35 +1169,536 @@ function SettingsView() {
   );
 }
 
+// ── Competitive Research Screen ───────────────────────────────────────
+function CompetitiveResearch() {
+  return (
+    <div className="fade" style={{ overflowY: "auto", height: "calc(100vh - 57px)" }}>
+      <div style={{ padding: "16px 24px", borderBottom: `1px solid ${C.border}`, background: C.white, display: "flex", gap: 10 }}>
+        <div style={{ flex: 1, display: "flex", background: C.bg, border: `1px solid ${C.border}`, borderRadius: 9, overflow: "hidden" }}>
+          <input defaultValue="designer.com" style={{ flex: 1, padding: "9px 14px", background: "transparent", border: "none", outline: "none", color: C.text, fontSize: 13, fontFamily: "inherit" }} />
+          <select style={{ background: "transparent", border: "none", outline: "none", color: C.textMid, fontSize: 12, padding: "0 12px", borderLeft: `1px solid ${C.border}`, cursor: "pointer", fontFamily: "inherit" }}>
+            <option>Global</option><option>Philippines</option><option>United States</option>
+          </select>
+        </div>
+        <button style={{ background: C.blueL, color: "#fff", border: "none", cursor: "pointer", padding: "10px 22px", borderRadius: 9, fontSize: 13, fontWeight: 700, fontFamily: "inherit" }}>Compare</button>
+        <button style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.textMid, cursor: "pointer", padding: "10px 14px", borderRadius: 9, fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6, fontFamily: "inherit" }}>
+          <Plus size={13} /> Add Competitor
+        </button>
+      </div>
+      <div style={{ padding: "20px 24px" }}>
+        {/* Overview */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 220px", gap: 14, marginBottom: 16 }}>
+          <div className="card" style={{ padding: "18px 20px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                  <span style={{ color: C.orange, fontWeight: 800, fontSize: 16, fontFamily: "Space Grotesk" }}>Organic Traffic</span>
+                  <span style={{ color: C.textDim, fontSize: 13 }}>81,346/month</span>
+                </div>
+                <div style={{ color: C.textDim, fontSize: 12 }}>designer.com · Date: 12 September 2025</div>
+              </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, marginBottom: 14 }}>
+              {[["Visits","333K","+4%"],["Unique Visitors","33K","+3%"],["Pages/Visit","4.2",""],["Avg Duration","3:21",""]].map(([l,v,ch]) => (
+                <div key={l} style={{ padding: "10px 12px", background: C.bg, borderRadius: 8, border: `1px solid ${C.border}` }}>
+                  <div style={{ color: C.textDim, fontSize: 10.5, marginBottom: 4 }}>{l}</div>
+                  <div className="sg" style={{ color: C.text, fontSize: 18, fontWeight: 800 }}>{v}</div>
+                  {ch && <div style={{ color: C.green, fontSize: 10.5, fontWeight: 700 }}>{ch}</div>}
+                </div>
+              ))}
+            </div>
+            <ResponsiveContainer width="100%" height={130}>
+              <AreaChart data={trafficData} margin={{ top: 0, right: 0, left: -22, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="cg1" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={C.blueL} stopOpacity={.18} />
+                    <stop offset="95%" stopColor={C.blueL} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                <XAxis dataKey="m" tick={{ fill: C.textDim, fontSize: 9 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: C.textDim, fontSize: 9 }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={{ background: "#fff", border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 11 }} />
+                <Area type="monotone" dataKey="organic" stroke={C.blueL} fill="url(#cg1)" strokeWidth={2} />
+                <Area type="monotone" dataKey="paid" stroke={C.orange} fill="none" strokeWidth={1.5} strokeDasharray="4 2" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {[["Backlinks","1.2K","+5%",C.blueL],["Page/Visitors","552.5K","+2%",C.green],["Avg Duration","61K","-4%",C.orange],["Authority Score","61","+2",C.purple],["Paid Traffic","621K","+8%",C.blueL]].map(([l,v,ch,col]) => (
+              <div key={l} className="card" style={{ padding: "10px 14px", flex: 1 }}>
+                <div style={{ color: C.textDim, fontSize: 10.5 }}>{l}</div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 2 }}>
+                  <div className="sg" style={{ color: C.text, fontSize: 18, fontWeight: 800 }}>{v}</div>
+                  <span className="chip" style={{ color: C.green, background: C.greenL, fontSize: 9.5 }}>{ch}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Keywords table */}
+        <div className="card" style={{ overflow: "hidden" }}>
+          <div style={{ padding: "12px 18px", borderBottom: `1px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span style={{ color: C.orange, fontWeight: 700, fontSize: 14, fontFamily: "Space Grotesk" }}>Keywords</span>
+            <button style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.textMid, cursor: "pointer", padding: "4px 10px", borderRadius: 7, fontSize: 11, fontFamily: "inherit" }}>View All →</button>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "2fr .7fr .7fr .5fr .5fr", padding: "8px 18px", background: C.bg, borderBottom: `1px solid ${C.border}` }}>
+            {["Keyword","Trend","CPC","SERP","KD"].map(h => (
+              <div key={h} style={{ color: C.textDim, fontSize: 10, fontWeight: 700, letterSpacing: .4 }}>{h.toUpperCase()}</div>
+            ))}
+          </div>
+          {keywords.slice(0, 6).map(({ kw, cpc, kd }, i) => (
+            <div key={i} className="td" style={{ display: "grid", gridTemplateColumns: "2fr .7fr .7fr .5fr .5fr", padding: "10px 18px", borderBottom: i < 5 ? `1px solid ${C.border}` : "none", alignItems: "center" }}>
+              <div style={{ color: C.text, fontSize: 12, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{kw}</div>
+              <div style={{ color: C.green, fontSize: 11, fontWeight: 700 }}>↑</div>
+              <div style={{ color: C.textMid, fontSize: 12 }}>{cpc}</div>
+              <div style={{ color: C.textMid, fontSize: 12 }}>31</div>
+              <div style={{ color: C.textMid, fontSize: 12 }}>{kd}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Rank Tracking Screen ───────────────────────────────────────────────
+function RankTracking() {
+  const rankRows = [
+    { kw: "dental implants near me", pos: 4, prev: 7, vol: "8,200", url: "/dental-implants", device: "Desktop" },
+    { kw: "best SEO tools 2026", pos: 7, prev: 12, vol: "5,100", url: "/seo-tools", device: "Desktop" },
+    { kw: "agency project management", pos: 11, prev: 9, vol: "3,400", url: "/project-mgmt", device: "Mobile" },
+    { kw: "marketing collaboration", pos: 15, prev: 19, vol: "2,900", url: "/collaboration", device: "Desktop" },
+    { kw: "SEO reporting dashboard", pos: 6, prev: 14, vol: "4,100", url: "/reports", device: "Desktop" },
+    { kw: "content marketing software", pos: 19, prev: 18, vol: "6,700", url: "/content", device: "Mobile" },
+    { kw: "task management agencies", pos: 9, prev: 11, vol: "3,800", url: "/tasks", device: "Desktop" },
+  ];
+  return (
+    <div className="fade" style={{ overflowY: "auto", height: "calc(100vh - 57px)" }}>
+      <div style={{ padding: "16px 24px", borderBottom: `1px solid ${C.border}`, background: C.white, display: "flex", gap: 10, alignItems: "center" }}>
+        <div style={{ display: "flex", background: C.bg, border: `1px solid ${C.border}`, borderRadius: 9, overflow: "hidden", flex: 1 }}>
+          <input defaultValue="seoengineboost.com" style={{ flex: 1, padding: "9px 14px", background: "transparent", border: "none", outline: "none", color: C.text, fontSize: 13, fontFamily: "inherit" }} />
+        </div>
+        <button style={{ background: C.blueL, color: "#fff", border: "none", cursor: "pointer", padding: "10px 22px", borderRadius: 9, fontSize: 13, fontWeight: 700, fontFamily: "inherit" }}>Track</button>
+        <button style={{ background: "transparent", border: `1px solid ${C.border}`, color: C.textMid, cursor: "pointer", padding: "10px 14px", borderRadius: 9, fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", gap: 6, fontFamily: "inherit" }}>
+          <Plus size={13} /> Add Keywords
+        </button>
+      </div>
+      <div style={{ padding: "20px 24px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 20 }}>
+          {[
+            { l: "Tracked Keywords", v: "200", c: C.blueL, icon: Target },
+            { l: "Top 3 Positions", v: "12", c: C.green, icon: TrendingUp },
+            { l: "Top 10 Positions", v: "38", c: C.orange, icon: BarChart2 },
+            { l: "Avg. Position", v: "14.2", c: C.purple, icon: Activity },
+          ].map(({ l, v, c, icon: Icon }) => (
+            <div key={l} className="card ch" style={{ padding: "16px 18px" }}>
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: `${c}18`, display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 10 }}>
+                <Icon size={14} color={c} />
+              </div>
+              <div className="sg" style={{ color: C.text, fontSize: 22, fontWeight: 800 }}>{v}</div>
+              <div style={{ color: C.textDim, fontSize: 11, marginTop: 2 }}>{l}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 14, marginBottom: 16 }}>
+          <div className="card" style={{ padding: "18px 20px" }}>
+            <div className="sg" style={{ color: C.text, fontSize: 14, fontWeight: 700, marginBottom: 14 }}>Ranking History</div>
+            <ResponsiveContainer width="100%" height={180}>
+              <LineChart data={rankData} margin={{ top: 0, right: 0, left: -22, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+                <XAxis dataKey="n" tick={{ fill: C.textDim, fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis reversed tick={{ fill: C.textDim, fontSize: 9 }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={{ background: "#fff", border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 11 }} />
+                <Line type="monotone" dataKey="pos" stroke={C.green} strokeWidth={2.5} dot={{ fill: C.green, r: 3 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="card" style={{ padding: "18px 20px" }}>
+            <div className="sg" style={{ color: C.text, fontSize: 14, fontWeight: 700, marginBottom: 14 }}>Ranking Distribution</div>
+            <ResponsiveContainer width="100%" height={140}>
+              <PieChart>
+                <Pie data={pieData} cx="50%" cy="50%" innerRadius={40} outerRadius={58} paddingAngle={3} dataKey="v">
+                  {pieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i]} />)}
+                </Pie>
+                <Tooltip contentStyle={{ background: "#fff", border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 11 }} />
+              </PieChart>
+            </ResponsiveContainer>
+            {pieData.map((d, i) => (
+              <div key={d.name} style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 5 }}>
+                <div style={{ width: 7, height: 7, borderRadius: 2, background: PIE_COLORS[i] }} />
+                <span style={{ color: C.textMid, fontSize: 11, flex: 1 }}>{d.name}</span>
+                <span style={{ color: C.text, fontWeight: 700, fontSize: 12 }}>{d.v}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="card" style={{ overflow: "hidden" }}>
+          <div style={{ padding: "12px 18px", borderBottom: `1px solid ${C.border}` }}>
+            <span className="sg" style={{ color: C.text, fontSize: 14, fontWeight: 700 }}>Keyword Rankings</span>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "2fr .5fr .5fr .5fr .8fr .7fr .7fr", padding: "9px 18px", background: C.bg, borderBottom: `1px solid ${C.border}` }}>
+            {["Keyword","Pos","Prev","Change","Volume","URL","Device"].map(h => (
+              <div key={h} style={{ color: C.textDim, fontSize: 10.5, fontWeight: 700, letterSpacing: .4 }}>{h.toUpperCase()}</div>
+            ))}
+          </div>
+          {rankRows.map(({ kw, pos, prev, vol, url, device }, i) => {
+            const improved = pos < prev;
+            const change = prev - pos;
+            return (
+              <div key={i} className="td" style={{ display: "grid", gridTemplateColumns: "2fr .5fr .5fr .5fr .8fr .7fr .7fr", padding: "11px 18px", borderBottom: i < rankRows.length - 1 ? `1px solid ${C.border}` : "none", alignItems: "center" }}>
+                <div style={{ color: C.text, fontSize: 12.5, fontWeight: 500 }}>{kw}</div>
+                <div><span style={{ background: pos <= 3 ? C.greenL : pos <= 10 ? C.bluePale : C.bg, color: pos <= 3 ? C.green : pos <= 10 ? C.blueL : C.textMid, padding: "2px 8px", borderRadius: 20, fontSize: 12, fontWeight: 800 }}>#{pos}</span></div>
+                <div style={{ color: C.textDim, fontSize: 12 }}>#{prev}</div>
+                <div style={{ color: improved ? C.green : C.red, fontSize: 12, fontWeight: 700 }}>{improved ? `↑ +${change}` : `↓ ${change}`}</div>
+                <div style={{ color: C.textMid, fontSize: 12 }}>{vol}/mo</div>
+                <div style={{ color: C.blueL, fontSize: 11, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{url}</div>
+                <div style={{ color: C.textDim, fontSize: 11 }}>{device}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Calendar Screen ────────────────────────────────────────────────────
+function CalendarView() {
+  const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const events = {
+    2:[{l:"Team Sync",c:C.blueL}],5:[{l:"Client Call",c:C.orange}],
+    7:[{l:"Q2 Launch",c:C.green}],10:[{l:"Content Due",c:C.red}],
+    14:[{l:"SEO Report",c:C.green}],18:[{l:"Team Meeting",c:C.purple}],
+    21:[{l:"Client Review",c:C.yellow}],25:[{l:"Blog Batch",c:C.blueL}],
+    28:[{l:"Sprint Retro",c:C.orange}],
+  };
+  const upcoming = [
+    {l:"Team Sync",d:"Today, 10:00 AM",c:C.blueL,t:"Meeting"},
+    {l:"Client Call",d:"Today, 2:00 PM",c:C.orange,t:"Call"},
+    {l:"Q2 Campaign Launch",d:"May 7, 9:00 AM",c:C.green,t:"Launch"},
+    {l:"Content Deadline",d:"May 10, 5:00 PM",c:C.red,t:"Deadline"},
+    {l:"SEO Report Due",d:"May 14, EOD",c:C.green,t:"Report"},
+  ];
+  return (
+    <div className="fade" style={{ display: "flex", height: "calc(100vh - 57px)", overflow: "hidden" }}>
+      <div style={{ flex: 1, padding: "20px 24px", overflowY: "auto" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <button style={{ background: "transparent", border: `1px solid ${C.border}`, cursor: "pointer", padding: "6px 9px", borderRadius: 8, display: "flex" }}><ChevronLeft size={14} /></button>
+            <h2 className="sg" style={{ color: C.text, fontSize: 18, fontWeight: 800 }}>May 2026</h2>
+            <button style={{ background: "transparent", border: `1px solid ${C.border}`, cursor: "pointer", padding: "6px 9px", borderRadius: 8, display: "flex" }}><ChevronRight size={13} /></button>
+          </div>
+          <div style={{ display: "flex", gap: 5 }}>
+            {["Day","Week","Month"].map((v,i) => (
+              <button key={v} style={{ padding: "6px 14px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 12, fontWeight: 600, fontFamily: "inherit", background: i===2?C.blueL:"rgba(0,0,0,.05)", color: i===2?"#fff":C.textDim }}>{v}</button>
+            ))}
+          </div>
+        </div>
+        <div className="card" style={{ overflow: "hidden" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", borderBottom: `1px solid ${C.border}` }}>
+            {days.map(d => <div key={d} style={{ padding: "10px 0", textAlign: "center", color: C.textDim, fontSize: 11, fontWeight: 700, letterSpacing: .5 }}>{d.toUpperCase()}</div>)}
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)" }}>
+            {[...Array(37)].map((_,i) => {
+              const day = i - 1;
+              const isToday = day === 2;
+              const hasEvt = events[day];
+              return (
+                <div key={i} style={{ minHeight: 80, padding: "7px", borderBottom: `1px solid ${C.border}`, borderRight: (i+1)%7!==0?`1px solid ${C.border}`:"none", background: isToday?"rgba(37,99,235,0.04)":"transparent", cursor: "pointer" }}>
+                  {day > 0 && day <= 31 && (
+                    <>
+                      <div style={{ width: 26, height: 26, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: isToday?800:400, color: isToday?"#fff":C.textMid, background: isToday?C.blueL:"transparent", marginBottom: 3 }}>{day}</div>
+                      {hasEvt && hasEvt.map((ev,ei) => (
+                        <div key={ei} style={{ background:`${ev.c}15`, color:ev.c, fontSize:9.5, fontWeight:700, padding:"2px 5px", borderRadius:4, marginBottom:2, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", borderLeft:`2px solid ${ev.c}` }}>{ev.l}</div>
+                      ))}
+                    </>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+      <div style={{ width: 260, background: C.white, borderLeft: `1px solid ${C.border}`, padding: 18, overflowY: "auto", flexShrink: 0 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+          <div className="sg" style={{ color: C.text, fontWeight: 700, fontSize: 14 }}>Upcoming</div>
+          <button style={{ background: C.blueL, color: "#fff", border: "none", cursor: "pointer", padding: "5px 10px", borderRadius: 7, fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", gap: 4, fontFamily: "inherit" }}><Plus size={11}/>New</button>
+        </div>
+        {upcoming.map(({ l, d, c, t }) => (
+          <div key={l} style={{ background: C.bg, borderLeft: `3px solid ${c}`, border: `1px solid ${C.border}`, borderRadius: 10, padding: "11px 12px", marginBottom: 9 }}>
+            <span className="chip" style={{ color: c, background: `${c}18`, marginBottom: 5, display: "inline-flex" }}>{t.toUpperCase()}</span>
+            <div style={{ color: C.text, fontSize: 12.5, fontWeight: 600, marginBottom: 3 }}>{l}</div>
+            <div style={{ display: "flex", gap: 5, color: C.textDim, fontSize: 11, alignItems: "center" }}><Clock size={10}/>{d}</div>
+          </div>
+        ))}
+        <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 14, marginTop: 4 }}>
+          <div className="sg" style={{ color: C.text, fontWeight: 700, fontSize: 14, marginBottom: 10 }}>Social Queue</div>
+          {[{p:"LinkedIn",t:"Today 10AM",s:"scheduled"},{p:"Instagram",t:"Today 2PM",s:"draft"},{p:"Twitter / X",t:"May 4 9AM",s:"scheduled"},{p:"Facebook",t:"May 5 12PM",s:"pending"}].map(({p,t,s}) => (
+            <div key={p} style={{ display: "flex", alignItems: "center", gap: 9, padding: "8px 10px", background: C.bg, borderRadius: 8, marginBottom: 6, border: `1px solid ${C.border}` }}>
+              <Globe size={12} color={C.blueL}/>
+              <div style={{ flex: 1 }}>
+                <div style={{ color: C.text, fontSize: 12, fontWeight: 600 }}>{p}</div>
+                <div style={{ color: C.textDim, fontSize: 10 }}>{t}</div>
+              </div>
+              <span className="chip" style={{ color: s==="scheduled"?C.green:s==="draft"?C.textDim:C.yellow, background: s==="scheduled"?C.greenL:s==="draft"?"#F1F5F9":C.yellowL }}>{s.toUpperCase()}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Pricing Page ───────────────────────────────────────────────────────
+function PricingPage({ goBack }) {
+  const [billing, setBilling] = useState("monthly");
+  const pricingPlans = [
+    { id:"individual", name:"Individual", mo:12, yr:9,  desc:"Perfect for freelancers and solo SEO professionals.", current:true },
+    { id:"business",   name:"Business",   mo:20, yr:15, desc:"For growing agencies managing multiple clients.", popular:true },
+    { id:"enterprise", name:"Enterprise", mo:40, yr:30, desc:"Full power for large teams and enterprises." },
+    { id:"enterprise2",name:"Enterprise", mo:40, yr:30, desc:"Lorem ipsum dolor sit amet, consectetur" },
+  ];
+  const feats = ["SEO Training & Support","Reports Per Day","Projects","Chrome Extension Search Limits","Rank Tracking","Site Audit","Keyword Research","Competitive Analysis","Backlinks"];
+  const fMatrix = {
+    individual:["✓","5/day","3","100/day","100 kw","500 pages","✓","Basic","100"],
+    business:["✓","20/day","15","500/day","1,000 kw","5,000 pages","✓","Advanced","1,000"],
+    enterprise:["Priority","Unlimited","Unlimited","Unlimited","Unlimited","Unlimited","✓","Full","Unlimited"],
+  };
+  return (
+    <div style={{ minHeight: "100vh", background: "#fff", overflowY: "auto" }}>
+      {/* Nav */}
+      <nav style={{ background: "#fff", borderBottom: "1px solid #E5E7EB", padding: "0 40px", display: "flex", alignItems: "center", height: 56, position: "sticky", top: 0, zIndex: 50 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginRight: 36, cursor: "pointer" }} onClick={goBack}>
+          <div style={{ width: 28, height: 28, borderRadius: 6, background: `linear-gradient(135deg, ${C.orange}, ${C.blueL})`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Zap size={15} color="#fff" fill="#fff" />
+          </div>
+          <span style={{ color: C.text, fontWeight: 800, fontSize: 15 }}>Boostly</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 24, flex: 1 }}>
+          {["Tools","Pricing","Results","Training","Consulting","Contact"].map(l => (
+            <span key={l} style={{ color: l==="Pricing"?C.blueL:C.textMid, fontSize: 13.5, fontWeight: l==="Pricing"?700:500, cursor: "pointer" }}>{l}</span>
+          ))}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <span style={{ fontSize: 13, color: C.textMid, cursor: "pointer" }}>🇳🇬 Nigeria ▾</span>
+          <button onClick={goBack} style={{ background: C.blueL, color: "#fff", border: "none", cursor: "pointer", padding: "7px 16px", borderRadius: 7, fontSize: 13, fontWeight: 600, fontFamily: "inherit" }}>← Back to App</button>
+        </div>
+      </nav>
+
+      {/* Cards */}
+      <section style={{ padding: "50px 40px 40px", maxWidth: 1100, margin: "0 auto" }}>
+        <h1 style={{ fontSize: 30, fontWeight: 800, color: C.text, marginBottom: 40 }}>Pricing</h1>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 18 }}>
+          {pricingPlans.map(plan => {
+            const price = billing === "monthly" ? plan.mo : plan.yr;
+            return (
+              <div key={plan.id} style={{ background: "#fff", border: `1px solid ${plan.popular ? C.blueL : "#E5E7EB"}`, borderRadius: 12, padding: "26px 22px", position: "relative", overflow: "hidden", boxShadow: plan.popular ? `0 4px 20px rgba(37,99,235,.15)` : "0 1px 4px rgba(0,0,0,.06)", transition: "all .2s" }}>
+                <div style={{ position: "absolute", top: -18, right: -18, width: 60, height: 60, borderRadius: "50%", background: C.orange }} />
+                <div style={{ position: "relative" }}>
+                  <div style={{ color: C.text, fontWeight: 700, fontSize: 15, marginBottom: 10 }}>{plan.name}</div>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 3, marginBottom: 8 }}>
+                    <span style={{ fontSize: 26, fontWeight: 800, color: C.text }}>${price}</span>
+                    <span style={{ fontSize: 12, color: C.textDim }}>/ month</span>
+                  </div>
+                  <p style={{ color: C.textMid, fontSize: 12, lineHeight: 1.6, marginBottom: 16 }}>{plan.desc}</p>
+                  {plan.current
+                    ? <button style={{ width: "100%", padding: "9px 0", fontSize: 13, borderRadius: 7, border: "1.5px solid #D1D5DB", background: "transparent", color: "#374151", cursor: "pointer", fontFamily: "inherit", fontWeight: 600, marginBottom: 18 }}>Current Plan</button>
+                    : <button style={{ width: "100%", padding: "9px 0", fontSize: 13, borderRadius: 7, border: "none", background: C.blueL, color: "#fff", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, marginBottom: 18 }}>Upgrade</button>
+                  }
+                  {[...Array(7)].map((_,i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 7 }}>
+                      <div style={{ width: 15, height: 15, borderRadius: "50%", background: "#DCFCE7", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <Check size={8} color={C.green} strokeWidth={3} />
+                      </div>
+                      <span style={{ color: C.textMid, fontSize: 12 }}>sit amet, consectetur</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Toggle */}
+      <div style={{ display: "flex", justifyContent: "center", padding: "16px 0 44px" }}>
+        <div style={{ display: "flex", background: "#F3F4F6", borderRadius: 6, padding: 4, gap: 2 }}>
+          {["monthly","yearly"].map(b => (
+            <button key={b} onClick={() => setBilling(b)} style={{ padding: "8px 28px", border: "none", cursor: "pointer", fontSize: 14, fontWeight: 600, fontFamily: "inherit", borderRadius: 4, background: billing===b?"#111827":"transparent", color: billing===b?"#fff":"#374151" }}>
+              {b === "monthly" ? "Monthly" : "Annually"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Comparison table */}
+      <section style={{ background: "#F9FAFB", padding: "0 40px 80px" }}>
+        <div style={{ maxWidth: 900, margin: "0 auto" }}>
+          <div style={{ background: "#fff", border: "1px solid #E5E7EB", borderRadius: 16, overflow: "hidden", padding: "40px" }}>
+            <div style={{ textAlign: "center", marginBottom: 36 }}>
+              <h2 style={{ fontSize: 24, fontWeight: 900, color: C.text, fontStyle: "italic", fontFamily: "Georgia, serif" }}>
+                Shoot for the stars with your SEO performance
+              </h2>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1.8fr 1fr 1fr 1fr" }}>
+              <div style={{ paddingBottom: 20 }}>
+                <p style={{ color: C.textMid, fontSize: 12.5, lineHeight: 1.7 }}>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor consectetur</p>
+              </div>
+              {["individual","business","enterprise"].map(pid => {
+                const pl = pricingPlans.find(p => p.id === pid);
+                const pr = billing === "monthly" ? pl.mo : pl.yr;
+                return (
+                  <div key={pid} style={{ padding: "0 16px 20px", borderLeft: "1px solid #E5E7EB", textAlign: "center" }}>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: C.text, marginBottom: 4 }}>{pl.name}</div>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 3, justifyContent: "center", marginBottom: 5 }}>
+                      <span style={{ fontSize: 19, fontWeight: 800, color: C.text }}>${pr}</span>
+                      <span style={{ fontSize: 11, color: C.textDim }}>/ month</span>
+                    </div>
+                    <p style={{ color: C.textMid, fontSize: 11, lineHeight: 1.5 }}>Lorem ipsum dolor sit amet</p>
+                  </div>
+                );
+              })}
+              {feats.map((feat, i) => (
+                <>
+                  <div key={`f${i}`} style={{ padding: "12px 0", borderTop: "1px solid #E5E7EB", fontSize: 13, color: C.text, fontWeight: 500 }}>{feat}</div>
+                  {["individual","business","enterprise"].map(pid => (
+                    <div key={`${pid}${i}`} style={{ padding: "12px 16px", borderTop: "1px solid #E5E7EB", borderLeft: "1px solid #E5E7EB", textAlign: "center", fontSize: 12, color: C.textMid }}>
+                      {fMatrix[pid][i] === "✓"
+                        ? <div style={{ display: "flex", justifyContent: "center" }}><div style={{ width: 15, height: 15, borderRadius: "50%", background: "#DCFCE7", display: "flex", alignItems: "center", justifyContent: "center" }}><Check size={8} color={C.green} strokeWidth={3} /></div></div>
+                        : <span style={{ color: C.blueL, fontWeight: 600, fontSize: 11 }}>{fMatrix[pid][i]}</span>
+                      }
+                    </div>
+                  ))}
+                </>
+              ))}
+              <div style={{ padding: "20px 0 0", borderTop: "1px solid #E5E7EB" }} />
+              {["individual","business","enterprise"].map(pid => {
+                const pl = pricingPlans.find(p => p.id === pid);
+                return (
+                  <div key={`cta${pid}`} style={{ padding: "20px 16px 0", borderTop: "1px solid #E5E7EB", borderLeft: "1px solid #E5E7EB", textAlign: "center" }}>
+                    {pl.current
+                      ? <button style={{ padding: "7px 18px", borderRadius: 7, border: "1.5px solid #D1D5DB", background: "transparent", color: "#374151", cursor: "pointer", fontSize: 12, fontWeight: 600, fontFamily: "inherit" }}>Current Plan</button>
+                      : <button style={{ padding: "7px 18px", borderRadius: 7, border: "none", background: C.blueL, color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 700, fontFamily: "inherit" }}>Upgrade</button>
+                    }
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer style={{ background: "#111827", color: "#fff", padding: "44px 40px 28px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 28, marginBottom: 36 }}>
+            <div>
+              <div style={{ color: "#9CA3AF", fontSize: 11, fontWeight: 700, letterSpacing: 1, marginBottom: 14 }}>CONTACT US</div>
+              <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+                <input placeholder="Enter Email" style={{ flex: 1, background: "#1F2937", border: "1px solid #374151", borderRadius: 6, padding: "7px 10px", color: "#fff", fontSize: 12, fontFamily: "inherit", outline: "none" }} />
+                <button style={{ background: C.blueL, color: "#fff", border: "none", cursor: "pointer", padding: "7px 12px", borderRadius: 6, fontSize: 12, fontWeight: 600, fontFamily: "inherit" }}>Search</button>
+              </div>
+              <p style={{ color: "#6B7280", fontSize: 11.5, lineHeight: 1.7 }}>10:00 AM - 6:00 PM (EST/EDT), Monday - Friday<br/>USA, 25 ayo idiaghe Street Suite 2475 Boston, MA 02199</p>
+              <div style={{ color: "#9CA3AF", fontSize: 12, marginTop: 10 }}>✉ Mail@example.com</div>
+              <div style={{ color: "#9CA3AF", fontSize: 12, marginTop: 4 }}>🇳🇬 Nigeria · +2348069035122</div>
+            </div>
+            {[
+              { t:"COMPANY", ls:["About Us","Legal Info","Privacy Policy","Cookie Settings","Security Info","Contact Us"] },
+              { t:"FEATURES", ls:["Pricing","Success Stories","Stats and Facts","Data Studies","News","Custom Report"] },
+              { t:"TOOLS",    ls:["Keyword research","Domain analysis","On page analysis","backlinks"] },
+            ].map(({ t, ls }) => (
+              <div key={t}>
+                <div style={{ color: "#9CA3AF", fontSize: 11, fontWeight: 700, letterSpacing: 1, marginBottom: 14 }}>{t}</div>
+                {ls.map(l => <div key={l} style={{ color: "#6B7280", fontSize: 13, marginBottom: 9, cursor: "pointer" }}>{l}</div>)}
+              </div>
+            ))}
+          </div>
+          <div style={{ borderTop: "1px solid #1F2937", paddingTop: 20, display: "flex", justifyContent: "flex-end" }}>
+            <button style={{ background: C.blueL, color: "#fff", border: "none", cursor: "pointer", padding: "9px 20px", borderRadius: 7, fontSize: 13, fontWeight: 700, fontFamily: "inherit" }}>Get Started</button>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
 // ── Screen Map ────────────────────────────────────────────────────────
 const SCREENS = {
-  dashboard:   { C: Dashboard,         title: "Dashboard",               sub: "SEO Engine Boost · Boostly Platform" },
-  keyword:     { C: KeywordResearch,   title: "Keyword Research",        sub: "Discover high-value keywords" },
-  competitive: { C: Dashboard,         title: "Competitive Research",    sub: "Domain overview & keyword gaps" },
-  backlink:    { C: BacklinkResearch,  title: "Backlink Research",       sub: "Monitor your full backlink profile" },
-  onpage:      { C: OnPageAudit,       title: "On Page & Tech Audit",    sub: "AI-powered SEO health check" },
-  rank:        { C: Dashboard,         title: "Rank Tracking",           sub: "Track keyword positions" },
-  messages:    { C: Messages,          title: "Messages",                sub: "Team chat · AI-powered" },
-  tasks:       { C: Tasks,             title: "Tasks & Projects",        sub: "Kanban board — plan and ship" },
-  clients:     { C: Clients,           title: "Clients",                 sub: "Manage all client projects" },
-  calendar:    { C: Dashboard,         title: "Calendar",                sub: "Campaign planner" },
-  settings:    { C: SettingsView,      title: "Settings",                sub: "Account & integrations" },
+  dashboard:   { C: Dashboard,           title: "Dashboard",            sub: "SEO Engine Boost · Boostly Platform" },
+  keyword:     { C: KeywordResearch,     title: "Keyword Research",     sub: "Discover high-value keywords" },
+  competitive: { C: CompetitiveResearch, title: "Competitive Research", sub: "Domain overview & keyword gaps" },
+  backlink:    { C: BacklinkResearch,    title: "Backlink Research",    sub: "Monitor your full backlink profile" },
+  onpage:      { C: OnPageAudit,         title: "On Page & Tech Audit", sub: "AI-powered SEO health check" },
+  rank:        { C: RankTracking,        title: "Rank Tracking",        sub: "Track keyword positions across devices" },
+  messages:    { C: Messages,            title: "Messages",             sub: "Team chat · AI-powered" },
+  tasks:       { C: Tasks,               title: "Tasks & Projects",     sub: "Kanban board — plan and ship" },
+  clients:     { C: Clients,             title: "Clients",              sub: "Manage all client projects" },
+  calendar:    { C: CalendarView,        title: "Calendar",             sub: "Campaign planner & social queue" },
+  settings:    { C: SettingsView,        title: "Settings",             sub: "Account & integrations" },
 };
 
 // ── App ───────────────────────────────────────────────────────────────
 export default function App() {
   const [active, setActive] = useState("dashboard");
   const [sub, setSub] = useState(null);
+  const [view, setView] = useState("app"); // "app" | "pricing"
+
   const screen = SCREENS[active] || SCREENS.dashboard;
   const Screen = screen.C;
+
+  // Show full pricing page
+  if (view === "pricing") {
+    return (
+      <>
+        <style>{CSS}</style>
+        <PricingPage goBack={() => setView("app")} />
+      </>
+    );
+  }
 
   return (
     <>
       <style>{CSS}</style>
       <div style={{ display: "flex", height: "100vh", background: C.bg, fontFamily: "'Manrope',sans-serif", overflow: "hidden" }}>
-        <Sidebar active={active} setActive={setActive} sub={sub} setSub={setSub} />
+        <Sidebar active={active} setActive={(id) => { setActive(id); setSub(null); }} sub={sub} setSub={setSub} />
         <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-          <Topbar title={screen.title} sub={screen.sub} />
+          {/* Enhanced Topbar with nav links */}
+          <div style={{ padding: "0 24px", borderBottom: `1px solid ${C.border}`, display: "flex", alignItems: "center", gap: 12, background: C.white, position: "sticky", top: 0, zIndex: 20, flexShrink: 0, height: 57 }}>
+            <div style={{ flex: 1 }}>
+              <h1 className="sg" style={{ color: C.text, fontSize: 15, fontWeight: 700 }}>{screen.title}</h1>
+              <p style={{ color: C.textDim, fontSize: 10.5, marginTop: 0 }}>{screen.sub}</p>
+            </div>
+            {/* Nav links in topbar */}
+            <div style={{ display: "flex", gap: 2 }}>
+              {[
+                { id:"dashboard", l:"Dashboard" },
+                { id:"keyword",   l:"Tools" },
+                { id:"pricing",   l:"Pricing", isPricing: true },
+                { id:"clients",   l:"Clients" },
+                { id:"settings",  l:"Settings" },
+              ].map(({ id, l, isPricing }) => (
+                <button key={id} onClick={() => isPricing ? setView("pricing") : setActive(id)}
+                  style={{ padding: "5px 11px", borderRadius: 7, border: "none", cursor: "pointer", fontSize: 12, fontWeight: active===id||isPricing?600:500, fontFamily: "inherit",
+                    background: active===id && !isPricing ? C.bluePale : "transparent",
+                    color: active===id && !isPricing ? C.blueL : C.textDim }}>
+                  {l}
+                </button>
+              ))}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 7, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 9, padding: "6px 11px", width: 185 }}>
+              <Search size={12} color={C.textDim} />
+              <input placeholder="Search..." style={{ background: "transparent", border: "none", outline: "none", color: C.textMid, fontSize: 12, width: "100%", fontFamily: "inherit" }} />
+            </div>
+            <button onClick={() => setView("pricing")} style={{ background: C.orange, color: "#fff", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 5, padding: "7px 14px", borderRadius: 8, fontSize: 12, fontWeight: 700, fontFamily: "inherit" }}>
+              ⚡ Upgrade
+            </button>
+            <div style={{ position: "relative", cursor: "pointer" }}>
+              <Bell size={17} color={C.textDim} />
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: C.orange, position: "absolute", top: -1, right: -1, border: "1.5px solid #fff" }} />
+            </div>
+            <Av l="Y" size={30} />
+          </div>
           <Screen />
         </div>
       </div>
