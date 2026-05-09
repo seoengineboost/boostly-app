@@ -393,112 +393,319 @@ function Dashboard() {
 
 // ── Keyword Research ─────────────────────────────────────────────────
 function KeywordResearch() {
-  const [tab, setTab] = useState("keywords");
-  const [query, setQuery] = useState("seo");
-  const [domain, setDomain] = useState("seoengineboost.com");
-  const [country, setCountry] = useState("United States (US)");
-  const [lang, setLang] = useState("English");
+  const [mainTab, setMainTab] = useState("overview");
+  const [kwTab, setKwTab] = useState("variations");
+  const [query, setQuery] = useState("UX");
+  const [country, setCountry] = useState("🇳🇬 Nigeria");
+  const [lang, setLang] = useState("EN");
   const [searched, setSearched] = useState(true);
-  const [page, setPage] = useState(1);
-  const perPage = 10;
+  const [searchChips, setSearchChips] = useState(["Designer"]);
+
   const Spark = ({ data, col }) => {
     const max = Math.max(...data), min = Math.min(...data);
     const pts = data.map((v, i) => { const x = (i/(data.length-1))*58, y = 16-((v-min)/(max-min+1))*14; return `${x},${y}`; }).join(" ");
     return <svg width={60} height={18} viewBox="0 0 60 18"><polyline points={pts} fill="none" stroke={col} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"/></svg>;
   };
-  const kwResults = [
-    {kw:"seo",vol:"135,000",cpc:"$4.50",comp:"High",last:"Aug 15, 2025",trend:[60,55,70,65,80,75,90]},
-    {kw:"search engine optimisation seo",vol:"135,000",cpc:"$4.50",comp:"High",last:"Aug 15, 2025",trend:[40,50,45,60,55,70,65]},
-    {kw:"seo search engine optimization",vol:"135,000",cpc:"$4.50",comp:"High",last:"Aug 15, 2025",trend:[70,65,80,75,85,80,90]},
-    {kw:"what is seo",vol:"135,000",cpc:"$4.50",comp:"High",last:"Aug 15, 2025",trend:[50,60,55,65,60,70,65]},
-    {kw:"seo key words",vol:"74,000",cpc:"$3.20",comp:"Medium",last:"Aug 15, 2025",trend:[30,35,40,38,45,42,48]},
-    {kw:"seo services",vol:"74,000",cpc:"$3.20",comp:"Medium",last:"Aug 15, 2025",trend:[55,50,60,58,65,62,68]},
-    {kw:"off page seo",vol:"14,000",cpc:"$1.80",comp:"Medium",last:"Aug 15, 2025",trend:[20,18,22,20,25,23,28]},
-    {kw:"seo services marketing",vol:"14,000",cpc:"$1.20",comp:"Medium",last:"Aug 15, 2025",trend:[15,18,16,20,18,22,20]},
-    {kw:"dental seo services",vol:"9,900",cpc:"$6.80",comp:"Medium",last:"Aug 15, 2025",trend:[25,28,30,27,32,30,35]},
-    {kw:"local seo services",vol:"9,900",cpc:"$5.40",comp:"Medium",last:"Aug 15, 2025",trend:[35,38,40,37,42,40,45]},
-    {kw:"free seo tools",vol:"8,100",cpc:"$2.10",comp:"Low",last:"Aug 15, 2025",trend:[60,65,62,70,68,72,75]},
-    {kw:"seo analytics",vol:"6,600",cpc:"$3.90",comp:"Low",last:"Aug 15, 2025",trend:[20,22,25,23,28,26,30]},
-    {kw:"rank tracking tool",vol:"5,500",cpc:"$4.10",comp:"Low",last:"Aug 15, 2025",trend:[30,35,40,38,45,42,48]},
-    {kw:"backlink checker",vol:"12,000",cpc:"$3.60",comp:"Medium",last:"Aug 15, 2025",trend:[45,50,55,53,60,57,65]},
+
+  const volumeData = [
+    {m:"Sep",v:8200},{m:"Oct",v:8800},{m:"Nov",v:9100},{m:"Dec",v:9400},
+    {m:"Jan",v:9600},{m:"Feb",v:9900},{m:"Mar",v:10100},{m:"Apr",v:10320},
   ];
-  const CompBadge = ({comp}) => { const map={High:[C.red,C.redL],Medium:[C.yellow,C.yellowL],Low:[C.green,C.greenL]}; const[c,bg]=map[comp]||map.Low; return <span className="chip" style={{color:c,background:bg,fontSize:10.5}}>{comp}</span>; };
-  const ExportBar = () => (<div style={{display:"flex",gap:4}}>{["Copy","CSV","Excel","PDF","Print"].map(btn=>(<button key={btn} style={{padding:"4px 10px",border:`1px solid ${C.border}`,borderRadius:5,background:C.bg,cursor:"pointer",fontSize:11,fontWeight:600,color:C.textMid,fontFamily:"inherit"}}>{btn}</button>))}</div>);
-  const totalPages = Math.ceil(kwResults.length / perPage);
-  const pageData = kwResults.slice((page-1)*perPage, page*perPage);
+  const trendData = [
+    {m:"1",v:20},{m:"2",v:25},{m:"3",v:18},{m:"4",v:30},{m:"5",v:35},{m:"6",v:28},{m:"7",v:40},{m:"8",v:45},
+  ];
+  const kwIdeas = [
+    {kw:"Designer",  ad:54, trend:[3,4,2,5,4,3,5,4], cpc:"$46", paid:31, sd:54},
+    {kw:"Designs",   ad:54, trend:[2,3,4,3,5,4,3,4], cpc:"$46", paid:31, sd:54},
+    {kw:"Design",    ad:94, trend:[5,4,3,4,3,5,4,3], cpc:"$46", paid:33, sd:54},
+    {kw:"Designing", ad:64, trend:[3,2,4,5,4,3,4,5], cpc:"$46", paid:33, sd:54},
+    {kw:"Designer",  ad:50, trend:[4,5,3,4,5,4,3,4], cpc:"$46", paid:33, sd:54},
+    {kw:"Designs",   ad:54, trend:[2,3,4,3,2,4,3,5], cpc:"$46", paid:31, sd:54},
+    {kw:"Design",    ad:54, trend:[3,4,5,4,3,4,5,4], cpc:"$46", paid:31, sd:54},
+    {kw:"Designing", ad:54, trend:[4,3,2,4,5,3,4,3], cpc:"$46", paid:31, sd:54},
+  ];
+  const serpData = [
+    {url:"http://wordpress.com/", page:41, bl:"20K", traffic:"126.93K", kws:900},
+    {url:"http://wordpress.org/", page:61, bl:"20K", traffic:"135.93K", kws:900},
+    {url:"http://wpbeginners.com/", page:44, bl:"20K", traffic:"135.93K", kws:900},
+    {url:"http://wordpress.com/", page:44, bl:"20K", traffic:"135.93K", kws:900},
+    {url:"http://wordpress.org/", page:45, bl:"20K", traffic:"135.93K", kws:900},
+    {url:"http://wpbeginners.com/", page:44, bl:"20K", traffic:"135.93K", kws:900},
+  ];
+  const contentIdeas = [
+    {title:"Get With The Ultimate Goal Of Digital Marketing - Topics", fit:4, bl:3,  f:0, p:0, g:0},
+    {title:"Get With The Mail Delivery World Of Digital Marketing - Topics", fit:11, bl:3, f:0, p:8, g:8},
+    {title:"Get With The Ultimate Goal Of Digital Marketing - Topics", fit:11, bl:0, f:0, p:3, g:8},
+    {title:"Get With The Mail Delivery World Of Marketing - Topics", fit:12, bl:0, f:0, p:2, g:0},
+    {title:"Get With The Ultimate Goal Of Digital Marketing - Topics", fit:11, bl:0, f:0, p:3, g:8},
+    {title:"Get With The Mail Delivery Digital Marketing - Topics", fit:7,  bl:0, f:0, p:0, g:0},
+  ];
+  const kwTabCounts = { variations:42, suggestions:99, related:53, questions:10 };
+  const kd = 100;
+  const r=36; const circ=2*Math.PI*r; const off=circ*(1-kd/100);
+
   return (
     <div className="fade" style={{overflowY:"auto",height:"calc(100vh - 57px)",background:C.bg}}>
-      <div style={{padding:"22px 28px 0",background:C.white,borderBottom:`1px solid ${C.border}`}}>
-        <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:16}}>
-          <div><h2 className="sg" style={{color:C.text,fontSize:20,fontWeight:800,marginBottom:4}}>Keyword Research</h2><p style={{color:C.textDim,fontSize:13}}>See detailed keyword or domain data for any page.</p></div>
-          <span style={{background:"#D1FAE5",color:"#065F46",fontSize:11,fontWeight:700,padding:"4px 10px",borderRadius:6,flexShrink:0}}>40 Searches Remaining</span>
-        </div>
-        <div style={{display:"flex",gap:0}}>
-          {[["keywords","Search By Keywords"],["domain","Search By Domain"]].map(([id,label])=>(
-            <button key={id} onClick={()=>setTab(id)} style={{padding:"10px 20px",border:"none",borderBottom:tab===id?`2.5px solid ${C.blueL}`:"2.5px solid transparent",cursor:"pointer",fontSize:13,fontWeight:tab===id?700:500,fontFamily:"inherit",background:"transparent",color:tab===id?C.blueL:C.textMid,marginBottom:-1}}>{label}</button>
-          ))}
+      {/* Top search bar */}
+      <div style={{padding:"14px 24px",background:C.white,borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center",gap:10}}>
+        <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search keyword..." style={{flex:1,background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 14px",color:C.text,fontSize:13,fontFamily:"inherit",outline:"none"}}/>
+        <select value={country} onChange={e=>setCountry(e.target.value)} style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,padding:"8px 10px",color:C.text,fontSize:12,fontFamily:"inherit"}}>
+          <option>🇳🇬 Nigeria</option><option>🇺🇸 USA</option><option>🇬🇧 UK</option><option>🇵🇭 PHL</option>
+        </select>
+        <select value={lang} onChange={e=>setLang(e.target.value)} style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,padding:"8px 10px",color:C.text,fontSize:12,fontFamily:"inherit"}}>
+          <option>EN</option><option>FR</option><option>ES</option>
+        </select>
+        <button onClick={()=>setSearched(true)} style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"9px 24px",borderRadius:8,fontSize:13,fontWeight:700,fontFamily:"inherit"}}>Search</button>
+      </div>
+
+      {/* Main tabs */}
+      <div style={{background:C.white,borderBottom:`1px solid ${C.border}`,padding:"0 24px",display:"flex",gap:0}}>
+        {[["overview","Keyword Overview"],["ideas","Keyword Ideas"],["content","Content Ideas"]].map(([id,label])=>(
+          <button key={id} onClick={()=>setMainTab(id)} style={{padding:"11px 20px",border:"none",borderBottom:mainTab===id?`2.5px solid ${C.blueL}`:"2.5px solid transparent",cursor:"pointer",fontSize:13,fontWeight:mainTab===id?700:500,fontFamily:"inherit",background:"transparent",color:mainTab===id?C.blueL:C.textMid,marginBottom:-1}}>{label}</button>
+        ))}
+        <div style={{marginLeft:"auto",display:"flex",alignItems:"center",padding:"8px 0"}}>
+          <span style={{background:C.greenL,color:C.green,fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:6}}>Language: {lang}</span>
         </div>
       </div>
-      <div style={{padding:"20px 28px",background:C.white,borderBottom:`1px solid ${C.border}`}}>
-        <div style={{display:"flex",gap:10,alignItems:"flex-end"}}>
-          <div style={{flex:1}}>
-            <label style={{display:"block",color:C.textMid,fontSize:12,fontWeight:600,marginBottom:6}}>{tab==="keywords"?"Enter keywords separated by comma":"Enter domain name"}</label>
-            {tab==="keywords"
-              ? <textarea value={query} onChange={e=>setQuery(e.target.value)} rows={2} style={{width:"100%",padding:"9px 12px",border:`1px solid ${C.border}`,borderRadius:8,fontSize:13,color:C.text,fontFamily:"inherit",outline:"none",resize:"none",lineHeight:1.5}} placeholder="e.g. seo, best seo tools"/>
-              : <input value={domain} onChange={e=>setDomain(e.target.value)} style={{width:"100%",padding:"9px 12px",border:`1px solid ${C.border}`,borderRadius:8,fontSize:13,color:C.text,fontFamily:"inherit",outline:"none"}}/>
-            }
-          </div>
-          <div style={{display:"flex",gap:8}}>
-            <div><label style={{display:"block",color:C.textMid,fontSize:12,fontWeight:600,marginBottom:6}}>Country</label>
-              <select value={country} onChange={e=>setCountry(e.target.value)} style={{padding:"9px 12px",border:`1px solid ${C.border}`,borderRadius:8,fontSize:12,fontFamily:"inherit",outline:"none",background:"white",color:C.text}}>
-                <option>🇺🇸 United States (US)</option><option>🇵🇭 Philippines</option><option>🇬🇧 United Kingdom (UK)</option><option>🇦🇺 Australia</option><option>🇨🇦 Canada</option><option>🇳🇬 Nigeria</option>
-              </select>
+
+      <div style={{padding:"20px 24px"}}>
+
+        {/* ── KEYWORD OVERVIEW TAB ── */}
+        {mainTab==="overview" && searched && (
+          <>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
+              <div>
+                <div style={{color:C.textDim,fontSize:12,marginBottom:2}}>Last fetched Aug 10, 2022</div>
+                <div className="sg" style={{color:C.text,fontSize:18,fontWeight:800}}>Searched Keyword: <span style={{color:C.blueL}}>{query}</span></div>
+              </div>
             </div>
-            <div><label style={{display:"block",color:C.textMid,fontSize:12,fontWeight:600,marginBottom:6}}>Language</label>
-              <select value={lang} onChange={e=>setLang(e.target.value)} style={{padding:"9px 12px",border:`1px solid ${C.border}`,borderRadius:8,fontSize:12,fontFamily:"inherit",outline:"none",background:"white",color:C.text}}>
-                <option>English</option><option>Spanish</option><option>French</option><option>Arabic</option>
-              </select>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 200px",gap:16,marginBottom:20}}>
+              <div className="card" style={{padding:"18px 22px"}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                  <span style={{color:C.textDim,fontSize:12}}>Search Volume</span>
+                </div>
+                <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:14}}>
+                  <span className="sg" style={{color:C.text,fontSize:28,fontWeight:800}}>10,320</span>
+                  <span style={{background:C.greenL,color:C.green,fontSize:11,fontWeight:700,padding:"2px 7px",borderRadius:5}}>↑8%</span>
+                </div>
+                <ResponsiveContainer width="100%" height={100}>
+                  <AreaChart data={volumeData} margin={{top:0,right:0,left:-28,bottom:0}}>
+                    <defs><linearGradient id="vg" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={C.orange} stopOpacity={.25}/><stop offset="95%" stopColor={C.orange} stopOpacity={0}/></linearGradient></defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke={C.border}/>
+                    <XAxis dataKey="m" tick={{fill:C.textDim,fontSize:9}} axisLine={false} tickLine={false}/>
+                    <YAxis tick={{fill:C.textDim,fontSize:9}} axisLine={false} tickLine={false} tickFormatter={v=>`${v/1000}k`}/>
+                    <Tooltip contentStyle={{background:C.white,border:`1px solid ${C.border}`,borderRadius:6,fontSize:10}}/>
+                    <Area type="monotone" dataKey="v" stroke={C.orange} fill="url(#vg)" strokeWidth={2}/>
+                  </AreaChart>
+                </ResponsiveContainer>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginTop:16}}>
+                  <div className="card" style={{padding:"12px 14px",background:C.bg}}>
+                    <div style={{color:C.textDim,fontSize:11,marginBottom:4}}>Keyword Difficulty</div>
+                    <div style={{display:"flex",alignItems:"center",gap:10}}>
+                      <div style={{position:"relative",width:60,height:60}}>
+                        <svg width={60} height={60} style={{transform:"rotate(-90deg)"}}>
+                          <circle cx={30} cy={30} r={22} fill="none" stroke={C.border} strokeWidth={7}/>
+                          <circle cx={30} cy={30} r={22} fill="none" stroke={C.orange} strokeWidth={7} strokeDasharray={2*Math.PI*22} strokeDashoffset={2*Math.PI*22*(1-kd/100)} strokeLinecap="round"/>
+                        </svg>
+                        <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
+                          <span className="sg" style={{fontSize:14,fontWeight:800,color:C.text}}>{kd}%</span>
+                        </div>
+                      </div>
+                      <div>
+                        <div style={{color:C.red,fontWeight:700,fontSize:12}}>Very Hard</div>
+                        <div style={{color:C.textDim,fontSize:10}}>SEO Difficulty</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="card" style={{padding:"12px 14px",background:C.bg}}>
+                    <div style={{color:C.textDim,fontSize:11,marginBottom:4}}>Trend (12 months)</div>
+                    <ResponsiveContainer width="100%" height={50}>
+                      <RBarChart data={trendData} barSize={6}>
+                        <Bar dataKey="v" fill={C.blueL} radius={[2,2,0,0]}/>
+                        <Tooltip contentStyle={{background:C.white,border:`1px solid ${C.border}`,borderRadius:6,fontSize:9}} cursor={{fill:C.bluePale}}/>
+                      </RBarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </div>
+              <div style={{display:"flex",flexDirection:"column",gap:12}}>
+                {[
+                  {label:"SEO Difficulty",    value:"80",   c:C.orange},
+                  {label:"New traffic",        value:"23",   c:C.blueL},
+                  {label:"Cost per click",     value:"$234", c:C.green},
+                  {label:"Paid difficulty",    value:"24",   c:C.purple},
+                ].map(s=>(
+                  <div key={s.label} className="card" style={{padding:"12px 14px",flex:1}}>
+                    <div style={{color:C.textDim,fontSize:11,marginBottom:4}}>{s.label}</div>
+                    <div className="sg" style={{color:s.c,fontSize:20,fontWeight:800}}>{s.value}</div>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div style={{display:"flex",alignItems:"flex-end"}}><button onClick={()=>setSearched(true)} style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"9px 24px",borderRadius:8,fontSize:13,fontWeight:700,fontFamily:"inherit"}}>Research</button></div>
-          </div>
-        </div>
+
+            {/* Keyword Ideas preview */}
+            <div className="card" style={{overflow:"hidden",marginBottom:20}}>
+              <div style={{padding:"12px 18px",borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center",gap:8}}>
+                <span className="sg" style={{color:C.text,fontWeight:700,fontSize:14,flex:1}}>Keyword Ideas</span>
+                {[["Variations",42],["Suggestions",99],["Related",53],["Questions",10]].map(([t,c])=>(
+                  <button key={t} style={{background:t==="Suggestions"?C.blueL:"transparent",color:t==="Suggestions"?"#fff":C.textMid,border:`1px solid ${t==="Suggestions"?C.blueL:C.border}`,cursor:"pointer",padding:"4px 10px",borderRadius:6,fontSize:11,fontFamily:"inherit"}}>{t}</button>
+                ))}
+              </div>
+              <table style={{width:"100%",borderCollapse:"collapse"}}>
+                <thead><tr style={{background:C.bg}}>
+                  {["Keyword","Trend","CPC","PD","SD"].map(h=>(
+                    <th key={h} style={{padding:"8px 14px",textAlign:"left",color:C.textDim,fontSize:10,fontWeight:700,borderBottom:`1px solid ${C.border}`}}>{h}</th>
+                  ))}
+                </tr></thead>
+                <tbody>
+                  {kwIdeas.slice(0,5).map((k,i)=>(
+                    <tr key={i} className="td">
+                      <td style={{padding:"9px 14px",color:C.blueL,fontWeight:600,fontSize:13,borderBottom:`1px solid ${C.border}`}}>{k.kw}</td>
+                      <td style={{padding:"9px 14px",borderBottom:`1px solid ${C.border}`}}><Spark data={k.trend} col={C.textDim}/></td>
+                      <td style={{padding:"9px 14px",color:C.textMid,fontSize:12,borderBottom:`1px solid ${C.border}`}}>{k.cpc}</td>
+                      <td style={{padding:"9px 14px",color:C.textMid,fontSize:12,borderBottom:`1px solid ${C.border}`}}>{k.paid}</td>
+                      <td style={{padding:"9px 14px",color:C.textMid,fontSize:12,borderBottom:`1px solid ${C.border}`}}>{k.sd}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div style={{padding:"10px 14px",borderTop:`1px solid ${C.border}`}}>
+                <button onClick={()=>setMainTab("ideas")} style={{background:"transparent",border:"none",color:C.blueL,cursor:"pointer",fontSize:12,fontWeight:700,fontFamily:"inherit"}}>View all keyword ideas →</button>
+              </div>
+            </div>
+
+            {/* SERP Analysis */}
+            <div className="card" style={{overflow:"hidden"}}>
+              <div style={{padding:"12px 18px",borderBottom:`1px solid ${C.border}`}}>
+                <span className="sg" style={{color:C.text,fontWeight:700,fontSize:14}}>SERP Analysis</span>
+              </div>
+              <table style={{width:"100%",borderCollapse:"collapse"}}>
+                <thead><tr style={{background:C.bg}}>
+                  {["","URL","Page Rank","Backlinks","Search Traffic","Keywords"].map(h=>(
+                    <th key={h} style={{padding:"8px 12px",textAlign:"left",color:C.textDim,fontSize:10,fontWeight:700,borderBottom:`1px solid ${C.border}`}}>{h}</th>
+                  ))}
+                </tr></thead>
+                <tbody>
+                  {serpData.map((r,i)=>(
+                    <tr key={i} className="td">
+                      <td style={{padding:"9px 12px",color:C.textDim,fontSize:12,borderBottom:`1px solid ${C.border}`}}>{i+1}.</td>
+                      <td style={{padding:"9px 12px",borderBottom:`1px solid ${C.border}`}}><a href="#" style={{color:C.blueL,fontSize:12,textDecoration:"underline"}} onClick={e=>e.preventDefault()}>{r.url}</a></td>
+                      <td style={{padding:"9px 12px",color:C.textMid,fontSize:12,borderBottom:`1px solid ${C.border}`}}>{r.page}</td>
+                      <td style={{padding:"9px 12px",color:C.textMid,fontSize:12,borderBottom:`1px solid ${C.border}`}}>{r.bl}</td>
+                      <td style={{padding:"9px 12px",color:C.textMid,fontSize:12,borderBottom:`1px solid ${C.border}`}}>{r.traffic}</td>
+                      <td style={{padding:"9px 12px",color:C.textMid,fontSize:12,borderBottom:`1px solid ${C.border}`}}>{r.kws}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div style={{padding:"10px 14px",borderTop:`1px solid ${C.border}`,textAlign:"right"}}>
+                <button style={{background:"transparent",border:"none",color:C.blueL,cursor:"pointer",fontSize:12,fontFamily:"inherit"}}>view all →</button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* ── KEYWORD IDEAS TAB ── */}
+        {mainTab==="ideas" && (
+          <>
+            <div style={{marginBottom:16}}>
+              <div className="sg" style={{color:C.text,fontSize:18,fontWeight:800,marginBottom:4}}>Keyword Ideas</div>
+              <div style={{color:C.textDim,fontSize:13,marginBottom:14}}>Lorem ipsum dolor sit amet, consectetur adipiscing</div>
+              {/* Search with chips */}
+              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}>
+                <div style={{display:"flex",alignItems:"center",gap:6,flex:1,background:C.white,border:`1px solid ${C.border}`,borderRadius:8,padding:"8px 12px"}}>
+                  {searchChips.map((chip,i)=>(
+                    <span key={i} style={{background:C.bluePale,color:C.blueL,fontSize:12,fontWeight:700,padding:"2px 8px",borderRadius:20,display:"flex",alignItems:"center",gap:4}}>
+                      {chip}
+                      <span onClick={()=>setSearchChips(c=>c.filter((_,j)=>j!==i))} style={{cursor:"pointer",color:C.blueL,fontSize:12}}>×</span>
+                    </span>
+                  ))}
+                  <input placeholder="Add keyword..." style={{border:"none",outline:"none",background:"transparent",color:C.text,fontSize:13,fontFamily:"inherit",flex:1}} onKeyDown={e=>{if(e.key==="Enter"&&e.target.value){setSearchChips(c=>[...c,e.target.value]);e.target.value=""}}}/>
+                </div>
+                <select style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 10px",color:C.textMid,fontSize:12,fontFamily:"inherit"}}><option>🇳🇬 Nigeria</option><option>🇺🇸 USA</option></select>
+                <button style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"9px 24px",borderRadius:8,fontSize:13,fontWeight:700,fontFamily:"inherit"}}>Search</button>
+              </div>
+              <div className="sg" style={{color:C.blueL,fontSize:16,fontWeight:800}}>Keyword Ideas: <span style={{color:C.text}}>{searchChips.join(", ")}</span></div>
+            </div>
+            {/* Keyword Ideas panel */}
+            <div className="card" style={{overflow:"hidden"}}>
+              <div style={{padding:"12px 18px",borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center",gap:10}}>
+                <span style={{background:C.bluePale,color:C.blueL,padding:"6px 16px",borderRadius:8,fontSize:13,fontWeight:700}}>Keyword Ideas</span>
+                <div style={{display:"flex",gap:6,marginLeft:8}}>
+                  {Object.entries(kwTabCounts).map(([id,count])=>(
+                    <button key={id} onClick={()=>setKwTab(id)} style={{background:kwTab===id?C.blueL:"transparent",color:kwTab===id?"#fff":C.textMid,border:`1px solid ${kwTab===id?C.blueL:C.border}`,cursor:"pointer",padding:"5px 12px",borderRadius:6,fontSize:12,fontFamily:"inherit",textTransform:"capitalize"}}>{id.charAt(0).toUpperCase()+id.slice(1)} ({count})</button>
+                  ))}
+                </div>
+                <button style={{marginLeft:"auto",background:"transparent",border:`1px solid ${C.border}`,color:C.blueL,cursor:"pointer",padding:"5px 12px",borderRadius:6,fontSize:11,fontFamily:"inherit",display:"flex",alignItems:"center",gap:4}}>
+                  View all keyword ideas <ChevronRight size={11}/>
+                </button>
+              </div>
+              <div style={{padding:"10px 18px",borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center",gap:6}}>
+                <span style={{color:C.textMid,fontSize:12,fontWeight:600}}>Suggestions</span>
+                <span style={{color:C.blueL,fontWeight:700,fontSize:12,background:C.bluePale,padding:"1px 7px",borderRadius:5}}>View all keyword ideas →</span>
+              </div>
+              <div style={{padding:"0 0 0 0"}}>
+                <div style={{display:"grid",gridTemplateColumns:"36px 1fr 160px 100px 130px 130px",padding:"9px 14px",background:C.bg,borderBottom:`1px solid ${C.border}`,gap:8}}>
+                  {["","Keyword","Trend","CPC","Paid difficulty","SEO Difficulty"].map(h=>(
+                    <div key={h} style={{color:C.textDim,fontSize:10,fontWeight:700}}>{h}</div>
+                  ))}
+                </div>
+                {kwIdeas.map((k,i)=>(
+                  <div key={i} className="td" style={{display:"grid",gridTemplateColumns:"36px 1fr 160px 100px 130px 130px",padding:"10px 14px",borderBottom:`1px solid ${C.border}`,alignItems:"center",gap:8}}>
+                    <input type="checkbox" style={{accentColor:C.blueL}}/>
+                    <a href="#" style={{color:C.blueL,fontWeight:600,fontSize:13,textDecoration:"none"}} onClick={e=>e.preventDefault()}>{k.kw}</a>
+                    <Spark data={k.trend} col={C.textDim}/>
+                    <span style={{color:C.textMid,fontSize:12}}>{k.cpc}</span>
+                    <span style={{color:C.textMid,fontSize:12}}>{k.paid}</span>
+                    <span style={{color:C.textMid,fontSize:12}}>{k.sd}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* ── CONTENT IDEAS TAB ── */}
+        {mainTab==="content" && (
+          <>
+            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}>
+              <input defaultValue="mail delivery" style={{flex:1,background:C.white,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 14px",color:C.text,fontSize:13,fontFamily:"inherit",outline:"none"}} placeholder="Discover popular content on the Web..."/>
+              <select style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 10px",color:C.textMid,fontSize:12,fontFamily:"inherit"}}><option>🇳🇬 English/Nigeria</option></select>
+              <button style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"9px 22px",borderRadius:8,fontSize:13,fontWeight:700,fontFamily:"inherit"}}>Search</button>
+            </div>
+            <div style={{background:`${C.yellowL}`,border:`1px solid ${C.yellow}`,borderRadius:8,padding:"8px 14px",marginBottom:16,display:"flex",alignItems:"center",gap:8}}>
+              <span style={{color:C.yellow,fontSize:12}}>⚠ You are on Free version —</span>
+              <span style={{color:C.blueL,fontSize:12,fontWeight:700,cursor:"pointer",textDecoration:"underline"}}>UPGRADE</span>
+            </div>
+            <div className="card" style={{overflow:"hidden"}}>
+              <div style={{padding:"12px 18px",borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center"}}>
+                <span className="sg" style={{color:C.text,fontWeight:700,fontSize:14,flex:1}}>Content Ideas</span>
+                <button style={{background:"transparent",border:`1px solid ${C.border}`,color:C.blueL,cursor:"pointer",padding:"5px 12px",borderRadius:6,fontSize:11,fontFamily:"inherit"}}>EXPORT TO CSV ↑</button>
+              </div>
+              <div style={{padding:"8px 18px",borderBottom:`1px solid ${C.border}`}}>
+                <span className="sg" style={{color:C.blueL,fontSize:14,fontWeight:700}}>Content Ideas : mail delivery</span>
+                <button style={{float:"right",background:C.bg,border:`1px solid ${C.border}`,color:C.textMid,cursor:"pointer",padding:"4px 10px",borderRadius:5,fontSize:11,fontFamily:"inherit"}}>Sort ↕</button>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"36px 1fr 100px 120px 60px 60px 60px",padding:"8px 14px",background:C.bg,borderBottom:`1px solid ${C.border}`,gap:8}}>
+                {["","Page Title URL","FIT Score","Backlinks","F","P","G"].map(h=>(
+                  <div key={h} style={{color:C.textDim,fontSize:10,fontWeight:700}}>{h}</div>
+                ))}
+              </div>
+              {contentIdeas.map((c,i)=>(
+                <div key={i} className="td" style={{display:"grid",gridTemplateColumns:"36px 1fr 100px 120px 60px 60px 60px",padding:"10px 14px",borderBottom:`1px solid ${C.border}`,alignItems:"center",gap:8}}>
+                  <input type="checkbox" style={{accentColor:C.blueL}}/>
+                  <span style={{color:C.text,fontSize:12,lineHeight:1.4}}>{c.title}</span>
+                  <span style={{color:C.textMid,fontSize:12}}>{c.fit}</span>
+                  <span style={{color:C.textMid,fontSize:12}}>{c.bl}</span>
+                  <span style={{color:C.textMid,fontSize:12}}>{c.f}</span>
+                  <span style={{color:c.p>0?C.red:C.textMid,fontSize:12}}>{c.p}</span>
+                  <span style={{color:c.g>0?C.orange:C.textMid,fontSize:12}}>{c.g}</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
-      {searched && (
-        <div style={{padding:"20px 28px"}}>
-          <div style={{marginBottom:10,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-            <div className="sg" style={{color:C.text,fontSize:14,fontWeight:700}}>Results <span style={{color:C.textDim,fontWeight:400,fontSize:12}}>— {kwResults.length} keywords found</span></div>
-            <div style={{display:"flex",alignItems:"center",gap:10}}>
-              <span style={{color:C.textDim,fontSize:12}}>Show</span>
-              <select style={{padding:"4px 8px",border:`1px solid ${C.border}`,borderRadius:6,fontSize:12,fontFamily:"inherit",outline:"none",background:"white"}}><option>10</option><option>25</option><option>50</option></select>
-              <span style={{color:C.textDim,fontSize:12}}>entries</span>
-            </div>
-          </div>
-          <div style={{background:C.white,border:`1px solid ${C.border}`,borderRadius:12,overflow:"hidden"}}>
-            <div style={{display:"grid",gridTemplateColumns:"2.5fr 130px 100px 110px 130px 80px 60px",padding:"10px 16px",background:C.bg,borderBottom:`1px solid ${C.border}`,gap:8}}>
-              {["KEYWORD","MONTHLY SEARCHES","CPC","COMPETITION","LAST UPDATED","TREND","ADD"].map(h=>(<div key={h} style={{color:C.textDim,fontSize:9.5,fontWeight:700,letterSpacing:.4}}>{h}</div>))}
-            </div>
-            {pageData.map((row,i)=>(
-              <div key={i} className="td" style={{display:"grid",gridTemplateColumns:"2.5fr 130px 100px 110px 130px 80px 60px",padding:"10px 16px",borderBottom:i<pageData.length-1?`1px solid ${C.border}`:"none",alignItems:"center",gap:8}}>
-                <div style={{color:C.text,fontSize:13,fontWeight:500}}>{row.kw}</div>
-                <div style={{color:C.text,fontSize:12.5,fontWeight:600}}>{row.vol}</div>
-                <div style={{color:C.textMid,fontSize:12.5}}>{row.cpc}</div>
-                <div><CompBadge comp={row.comp}/></div>
-                <div style={{color:C.textDim,fontSize:12}}>{row.last}</div>
-                <Spark data={row.trend} col={row.comp==="High"?C.orange:row.comp==="Medium"?C.blueL:C.green}/>
-                <button style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"5px 10px",borderRadius:6,fontSize:11,fontWeight:700,fontFamily:"inherit"}}>Add</button>
-              </div>
-            ))}
-            <div style={{padding:"12px 16px",background:C.bg,borderTop:`1px solid ${C.border}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <div style={{display:"flex",flexDirection:"column",gap:8}}><ExportBar/><span style={{color:C.textDim,fontSize:12}}>Showing {(page-1)*perPage+1} to {Math.min(page*perPage,kwResults.length)} of {kwResults.length} entries</span></div>
-              <div style={{display:"flex",gap:4}}>
-                <button onClick={()=>setPage(p=>Math.max(1,p-1))} style={{padding:"5px 12px",border:`1px solid ${C.border}`,borderRadius:5,background:"transparent",cursor:"pointer",fontSize:12,fontFamily:"inherit"}}>Previous</button>
-                {[...Array(totalPages)].map((_,i)=>(<button key={i} onClick={()=>setPage(i+1)} style={{padding:"5px 10px",border:"none",borderRadius:5,background:page===i+1?C.blueL:"transparent",color:page===i+1?"#fff":C.textMid,cursor:"pointer",fontSize:12,fontWeight:page===i+1?700:400,fontFamily:"inherit"}}>{i+1}</button>))}
-                <button onClick={()=>setPage(p=>Math.min(totalPages,p+1))} style={{padding:"5px 12px",border:`1px solid ${C.border}`,borderRadius:5,background:"transparent",cursor:"pointer",fontSize:12,fontFamily:"inherit"}}>Next</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -555,121 +762,259 @@ function OnPageAudit() {
 
 // ── Backlink Research ─────────────────────────────────────────────────
 function BacklinkResearch() {
+  const [searched, setSearched] = useState(false);
+  const [url, setUrl] = useState("");
   const [tab, setTab] = useState("overview");
-  const [url, setUrl] = useState("https://seoengineboost.com/");
-  const TABS = ["Overview","Backlinks","Referring Domains","Top Pages","Anchors","TLDs","Countries"];
+  const TABS = ["Overview","Backlinks","Referring Domains","Anchors","Top Pages","TLDs","Countries"];
+
+  const refData = [
+    {m:"Jan",rd:84,bl:310},{m:"Feb",rd:78,bl:290},{m:"Mar",rd:80,bl:300},{m:"Apr",rd:76,bl:280},
+    {m:"May",rd:82,bl:320},{m:"Jun",rd:88,bl:350},{m:"Jul",rd:85,bl:340},{m:"Aug",rd:90,bl:360},
+  ];
+  const asBarData = [
+    {range:"80-89",your:2,comp:12},{range:"70-79",your:1,comp:8},{range:"60-69",your:0,comp:15},
+    {range:"50-59",your:3,comp:20},{range:"40-49",your:5,comp:18},{range:"30-39",your:8,comp:14},
+    {range:"20-29",your:12,comp:10},{range:"10-19",your:15,comp:6},{range:"0-9",your:10,comp:4},
+  ];
+  const blTypeData = [
+    {type:"Text",your:65,comp:58},{type:"Image",your:18,comp:22},{type:"Form",your:8,comp:12},{type:"Frame",your:9,comp:8},
+  ];
+  const topCountries = [
+    {c:"🇺🇸 USA",backlinks:8420,domains:142},{c:"🇬🇧 UK",backlinks:3210,domains:68},
+    {c:"🇨🇦 Canada",backlinks:2180,domains:44},{c:"🇦🇺 Australia",backlinks:1940,domains:38},
+    {c:"🇩🇪 Germany",backlinks:890,domains:21},
+  ];
+  const topPages = [
+    {url:"/",backlinks:234},{url:"/seo-audit-services/",backlinks:78},
+    {url:"/blog/seo-tools",backlinks:45},{url:"/pricing",backlinks:31},{url:"/blog/",backlinks:28},
+  ];
+  const tlsData = [
+    {tld:".com",count:82,c:C.orange},{tld:".org",count:18,c:C.blueL},{tld:".net",count:12,c:C.green},
+    {tld:".io",count:8,c:C.purple},{tld:"Other",count:24,c:C.textDim},
+  ];
+  const totalTLD = tlsData.reduce((s,d)=>s+d.count,0);
   const blData = [
-    {ds:33,ps:0,ref:"https://buzzakoo.com/search/hashtag/It_service/posts",target:"https://www.seoengineboost.com/seo-audit-services/",anchor:"SEO Audit Services",follow:"Follow",first:"2025-08-09",last:"2025-08-09"},
-    {ds:42,ps:0,ref:"https://ajax-directory.com/listings84521/international-seo-agency",target:"https://www.seoengineboost.com/",anchor:"seoengineboost.com",follow:"Nofollow",first:"2025-08-08",last:"2025-08-08"},
-    {ds:33,ps:0,ref:"https://buzzakoo.com/search/hashtag/It_service",target:"https://www.seoengineboost.com/seo-audit-services/",anchor:"SEO Audit Services",follow:"Follow",first:"2025-08-07",last:"2025-08-07"},
-    {ds:70,ps:0,ref:"https://ekcechat.com/seo-tools",target:"https://www.seoengineboost.com/",anchor:"seoengineboost.com",follow:"Nofollow",first:"2025-07-31",last:"2025-07-31"},
-    {ds:63,ps:0,ref:"https://your-directory.com/seo-engine-boost",target:"https://www.seoengineboost.com/",anchor:"SEO Engine Boost",follow:"Follow",first:"2025-07-31",last:"2025-07-31"},
+    {ds:33,ps:0,ref:"https://buzzakoo.com/search/hashtag/It_service/posts",target:"https://www.seoengineboost.com/seo-audit-services/",anchor:"SEO Audit Services",follow:"Follow",first:"2025-08-09"},
+    {ds:42,ps:0,ref:"https://ajax-directory.com/listings/international-seo-agency",target:"https://www.seoengineboost.com/",anchor:"seoengineboost.com",follow:"Nofollow",first:"2025-08-08"},
+    {ds:70,ps:0,ref:"https://ekcechat.com/seo-tools",target:"https://www.seoengineboost.com/",anchor:"seoengineboost.com",follow:"Nofollow",first:"2025-07-31"},
+    {ds:63,ps:0,ref:"https://your-directory.com/seo-engine-boost",target:"https://www.seoengineboost.com/",anchor:"SEO Engine Boost",follow:"Follow",first:"2025-07-31"},
   ];
-  const anchorsData = [
-    {anchor:"https://www.seoengineboost.com/",backlinks:29,domains:12},
-    {anchor:"seoengineboost.com",backlinks:13,domains:5},
-    {anchor:"SEO Audit Services",backlinks:6,domains:3},
-    {anchor:"About Us",backlinks:15,domains:6},
-  ];
-  const tldsData = [{tld:".com",count:10,color:"#F59E0B"},{tld:".in",count:2,color:"#10B981"},{tld:".biz",count:1,color:"#EF4444"},{tld:"Other",count:4,color:"#94A3B8"}];
-  const totalTLD = tldsData.reduce((s,d)=>s+d.count,0);
-  return (
-    <div className="fade" style={{overflowY:"auto",height:"calc(100vh - 57px)",background:C.bg}}>
-      <div style={{padding:"22px 28px 0",background:C.white,borderBottom:`1px solid ${C.border}`}}>
-        <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:16}}>
-          <div><h2 className="sg" style={{color:C.text,fontSize:20,fontWeight:800,marginBottom:4}}>Backlink Research</h2><p style={{color:C.textDim,fontSize:13}}>See detailed backlink data for any page by entering the URL below.</p></div>
-          <span style={{background:"#D1FAE5",color:"#065F46",fontSize:11,fontWeight:700,padding:"4px 10px",borderRadius:6,flexShrink:0}}>24 Searches Remaining</span>
+
+  // Landing state — Image 9
+  if (!searched) return (
+    <div className="fade" style={{overflowY:"auto",height:"calc(100vh - 57px)",background:C.bg,padding:"24px 28px"}}>
+      {/* Search box */}
+      <div className="card" style={{padding:"20px 24px",marginBottom:24,border:`2px solid ${C.blueL}`}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
+          <div className="sg" style={{color:C.text,fontSize:18,fontWeight:800}}>Backlink Analysis</div>
+          <div style={{display:"flex",alignItems:"center",gap:6,background:C.bg,border:`1px solid ${C.border}`,borderRadius:7,padding:"6px 10px"}}>
+            <span style={{color:C.textMid,fontSize:12}}>Language: EN</span>
+            <ChevronDown size={11} color={C.textDim}/>
+          </div>
         </div>
-        <div style={{display:"flex",gap:10,marginBottom:18}}>
-          <input value={url} onChange={e=>setUrl(e.target.value)} style={{flex:1,padding:"9px 14px",border:`1px solid ${C.border}`,borderRadius:8,fontSize:13,color:C.text,fontFamily:"inherit",outline:"none",background:C.white}} placeholder="https://example.com"/>
-          <button style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"9px 24px",borderRadius:8,fontSize:13,fontWeight:700,fontFamily:"inherit"}}>Research</button>
+        <div style={{color:C.textDim,fontSize:13,marginBottom:14}}>Lorem ipsum dolor sit amet, consectetur adipiscing</div>
+        <div style={{display:"flex",gap:10,marginBottom:10}}>
+          <input value={url} onChange={e=>setUrl(e.target.value)} style={{flex:1,background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,padding:"10px 14px",color:C.text,fontSize:13,fontFamily:"inherit",outline:"none"}} placeholder="Enter domain or URL..."/>
+          <select style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 10px",color:C.textMid,fontSize:12,fontFamily:"inherit"}}><option>Domain</option><option>URL</option></select>
+          <button onClick={()=>setSearched(true)} style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"10px 28px",borderRadius:8,fontSize:13,fontWeight:700,fontFamily:"inherit"}}>Search</button>
         </div>
-        <div style={{display:"flex",gap:0}}>
-          {TABS.map(t=>(<button key={t} onClick={()=>setTab(t.toLowerCase().replace(" ",""))} style={{padding:"10px 16px",border:"none",borderBottom:tab===t.toLowerCase().replace(" ","")?`2.5px solid ${C.blueL}`:"2.5px solid transparent",cursor:"pointer",fontSize:13,fontWeight:tab===t.toLowerCase().replace(" ","")? 700:500,fontFamily:"inherit",background:"transparent",color:tab===t.toLowerCase().replace(" ","")?C.blueL:C.textMid,marginBottom:-1}}>{t}</button>))}
+        <div style={{color:C.textDim,fontSize:11,marginTop:6}}>
+          Example: <span style={{color:C.blueL,cursor:"pointer",textDecoration:"underline"}}>kicaid.org</span>{" "}
+          <span style={{color:C.blueL,cursor:"pointer",textDecoration:"underline"}}>semrush.com/analytics/backlinks</span>
         </div>
       </div>
-      <div style={{padding:"24px 28px"}}>
-        {tab==="overview" && (
-          <div style={{background:C.white,border:`1px solid ${C.border}`,borderRadius:12,padding:"24px 28px",marginBottom:16}}>
-            <div style={{display:"flex",gap:40,alignItems:"center"}}>
-              {[{label:"Domain Strength",value:2},{label:"Page Strength",value:1}].map(({label,value})=>{
-                const r=36,circ=2*Math.PI*r;
-                return(<div key={label} style={{textAlign:"center"}}><div style={{position:"relative",width:90,height:90,margin:"0 auto 8px"}}><svg width={90} height={90} viewBox="0 0 90 90"><circle cx={45} cy={45} r={r} fill="none" stroke="#E2E8F0" strokeWidth={10}/><circle cx={45} cy={45} r={r} fill="none" stroke={C.red} strokeWidth={10} strokeDasharray={circ} strokeDashoffset={circ*(1-value/100)} strokeLinecap="round" style={{transform:"rotate(-90deg)",transformOrigin:"45px 45px"}}/></svg><div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{fontSize:22,fontWeight:800,color:C.text,fontFamily:"Space Grotesk"}}>{value}</span></div></div><div style={{color:C.textMid,fontSize:12,fontWeight:600}}>{label}</div></div>);
-              })}
-              <div style={{width:1,height:60,background:C.border}}/>
-              <div style={{display:"flex",gap:20}}>
-                {[{icon:"🔗",v:"136",l:"Backlinks"},{icon:"🌐",v:"17",l:"Referring Domains"},{icon:"📍",v:"19",l:"IPs"},{icon:"🖧",v:"19",l:"Subnets"}].map(({icon,v,l})=>(
-                  <div key={l} style={{textAlign:"center",padding:"12px 16px",background:C.bg,borderRadius:10,border:`1px solid ${C.border}`,minWidth:80}}>
-                    <div style={{fontSize:20,marginBottom:4}}>{icon}</div>
-                    <div className="sg" style={{color:C.text,fontSize:22,fontWeight:800,lineHeight:1}}>{v}</div>
-                    <div style={{color:C.textDim,fontSize:11,marginTop:2}}>{l}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-        {tab==="backlinks" && (
+      {/* Discover section */}
+      <div className="card" style={{padding:"22px 24px",marginBottom:20}}>
+        <div className="sg" style={{color:C.text,fontSize:16,fontWeight:700,marginBottom:16}}>Discover every detail about your and your competitors' backlinks</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 280px",gap:20,alignItems:"center"}}>
+          <ResponsiveContainer width="100%" height={160}>
+            <LineChart data={refData} margin={{top:4,right:4,left:-28,bottom:0}}>
+              <CartesianGrid strokeDasharray="3 3" stroke={C.border}/>
+              <XAxis dataKey="m" tick={{fill:C.textDim,fontSize:10}} axisLine={false}/>
+              <YAxis tick={{fill:C.textDim,fontSize:10}} axisLine={false}/>
+              <Tooltip contentStyle={{background:C.white,border:`1px solid ${C.border}`,borderRadius:6,fontSize:10}}/>
+              <Line type="monotone" dataKey="rd" stroke={C.blueL} strokeWidth={2} dot={{r:3,fill:C.blueL}} name="Referring Domains"/>
+              <Line type="monotone" dataKey="bl" stroke={C.orange} strokeWidth={2} dot={{r:3,fill:C.orange}} name="Backlinks"/>
+            </LineChart>
+          </ResponsiveContainer>
           <div>
-            <div style={{background:C.white,border:`1px solid ${C.border}`,borderRadius:12,overflow:"hidden"}}>
-              <div style={{display:"grid",gridTemplateColumns:"50px 50px 2fr 2fr 1.5fr 90px 100px 100px",padding:"9px 14px",background:C.bg,borderBottom:`1px solid ${C.border}`,gap:8}}>
-                {["DS","PS","REFERRING PAGE","TARGET PAGE","ANCHOR TEXT","FOLLOW","FIRST SEEN","LAST CRAWLED"].map(h=>(<div key={h} style={{color:C.textDim,fontSize:9.5,fontWeight:700,letterSpacing:.4}}>{h}</div>))}
-              </div>
-              {blData.map((row,i)=>(
-                <div key={i} className="td" style={{display:"grid",gridTemplateColumns:"50px 50px 2fr 2fr 1.5fr 90px 100px 100px",padding:"10px 14px",borderBottom:i<blData.length-1?`1px solid ${C.border}`:"none",alignItems:"center",gap:8}}>
-                  <div style={{background:row.ds>=60?"#FEF3C7":row.ds>=30?"#DBEAFE":"#FEE2E2",color:row.ds>=60?C.yellow:row.ds>=30?C.blueL:C.red,fontWeight:800,fontSize:11,padding:"2px 6px",borderRadius:5,textAlign:"center"}}>{row.ds}</div>
-                  <div style={{color:C.textDim,fontSize:11,textAlign:"center"}}>{row.ps}</div>
-                  <div style={{color:C.blueL,fontSize:11,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",cursor:"pointer"}}>{row.ref}</div>
-                  <div style={{color:C.blueL,fontSize:11,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",cursor:"pointer"}}>{row.target}</div>
-                  <div style={{color:C.textMid,fontSize:11,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{row.anchor}</div>
-                  <div><span style={{background:row.follow==="Follow"?C.greenL:C.redL,color:row.follow==="Follow"?C.green:C.red,fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:4}}>{row.follow}</span></div>
-                  <div style={{color:C.textDim,fontSize:11}}>{row.first}</div>
-                  <div style={{color:C.textDim,fontSize:11}}>{row.last}</div>
+            <div className="sg" style={{color:C.text,fontWeight:700,fontSize:15,marginBottom:8}}>Track Domain Backlinks</div>
+            <div style={{color:C.textMid,fontSize:13,lineHeight:1.6}}>Evaluate the link profile of a site or page URL. Lorem ipsum dolor sit amet, consectetur adipiscing</div>
+          </div>
+        </div>
+      </div>
+      {/* Top pages section */}
+      <div className="card" style={{padding:"22px 24px"}}>
+        <div className="sg" style={{color:C.text,fontSize:15,fontWeight:700,marginBottom:16}}>See Top Pages and Other charted rankings</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,alignItems:"center"}}>
+          <div style={{color:C.textMid,fontSize:13,lineHeight:1.7}}>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>
+          <ResponsiveContainer width="100%" height={120}>
+            <AreaChart data={[{v:40},{v:55},{v:48},{v:62},{v:50},{v:45},{v:60},{v:58}]} margin={{top:4,right:4,left:-28,bottom:0}}>
+              <defs>
+                <linearGradient id="blg1" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={C.blueL} stopOpacity={.25}/><stop offset="95%" stopColor={C.blueL} stopOpacity={0}/></linearGradient>
+                <linearGradient id="blg2" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={C.orange} stopOpacity={.2}/><stop offset="95%" stopColor={C.orange} stopOpacity={0}/></linearGradient>
+              </defs>
+              <Area type="monotone" dataKey="v" stroke={C.blueL} fill="url(#blg1)" strokeWidth={2}/>
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Results state — Image 8 detailed
+  return (
+    <div className="fade" style={{overflowY:"auto",height:"calc(100vh - 57px)",background:C.bg}}>
+      <div style={{padding:"12px 24px",background:C.white,borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center",gap:10}}>
+        <input value={url||"seoengineboost.com"} onChange={e=>setUrl(e.target.value)} style={{flex:1,background:C.bg,border:`1px solid ${C.border}`,borderRadius:7,padding:"7px 12px",fontSize:12,fontFamily:"inherit",outline:"none",color:C.text}}/>
+        <button style={{background:"transparent",border:`1px solid ${C.border}`,color:C.textMid,cursor:"pointer",padding:"6px 14px",borderRadius:7,fontSize:11,fontFamily:"inherit"}}>Advanced</button>
+        <select style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:7,padding:"6px 10px",color:C.textMid,fontSize:11,fontFamily:"inherit"}}><option>Newest ∨</option></select>
+        <button onClick={()=>setSearched(false)} style={{background:"transparent",border:`1px solid ${C.border}`,color:C.blueL,cursor:"pointer",padding:"6px 12px",borderRadius:7,fontSize:11,fontFamily:"inherit"}}>← Back</button>
+        <select style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:7,padding:"6px 10px",color:C.textMid,fontSize:11,fontFamily:"inherit"}}><option>Language: EN</option></select>
+      </div>
+
+      {/* Tab bar */}
+      <div style={{background:C.white,borderBottom:`1px solid ${C.border}`,padding:"0 24px",display:"flex",gap:0,overflowX:"auto"}}>
+        {TABS.map(t=>(
+          <button key={t} onClick={()=>setTab(t.toLowerCase().replace(/ /g,""))} style={{padding:"10px 14px",border:"none",borderBottom:tab===t.toLowerCase().replace(/ /g,"")?`2.5px solid ${C.blueL}`:"2.5px solid transparent",cursor:"pointer",fontSize:12,fontWeight:tab===t.toLowerCase().replace(/ /g,"")? 700:500,fontFamily:"inherit",background:"transparent",color:tab===t.toLowerCase().replace(/ /g,"")?C.blueL:C.textMid,marginBottom:-1,whiteSpace:"nowrap"}}>{t}</button>
+        ))}
+      </div>
+
+      <div style={{padding:"20px 24px"}}>
+        {/* Stats row */}
+        <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:20}}>
+          {[["44.2K","Backlinks"],["44.2K","Referring Domains"],["44.2K","Referring IPs"],["44.2K","Subnets"],["44.2K","TLDs"]].map(([v,l])=>(
+            <div key={l} className="card" style={{padding:"12px 14px",textAlign:"center"}}>
+              <div className="sg" style={{color:C.blueL,fontSize:18,fontWeight:800,marginBottom:2}}>{v}</div>
+              <div style={{color:C.textDim,fontSize:10}}>{l}</div>
+            </div>
+          ))}
+        </div>
+
+        {tab==="overview" && (
+          <>
+            {/* Referring Domains + Backlinks charts */}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:20}}>
+              {[["Referring Domains",C.blueL,"rd"],["Backlinks",C.orange,"bl"]].map(([title,color,key])=>(
+                <div key={title} className="card" style={{padding:"16px 18px"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}>
+                    <span className="sg" style={{color:C.text,fontWeight:700,fontSize:13}}>{title}</span>
+                    <button style={{background:"transparent",border:`1px solid ${C.border}`,color:C.blueL,cursor:"pointer",padding:"3px 8px",borderRadius:5,fontSize:10,fontFamily:"inherit"}}>View All →</button>
+                  </div>
+                  <ResponsiveContainer width="100%" height={120}>
+                    <AreaChart data={refData} margin={{top:4,right:4,left:-28,bottom:0}}>
+                      <defs><linearGradient id={`g${key}`} x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={color} stopOpacity={.2}/><stop offset="95%" stopColor={color} stopOpacity={0}/></linearGradient></defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke={C.border}/>
+                      <XAxis dataKey="m" tick={{fill:C.textDim,fontSize:9}} axisLine={false} tickLine={false}/>
+                      <YAxis tick={{fill:C.textDim,fontSize:9}} axisLine={false} tickLine={false}/>
+                      <Tooltip contentStyle={{background:C.white,border:`1px solid ${C.border}`,borderRadius:6,fontSize:9}}/>
+                      <Area type="monotone" dataKey={key} stroke={color} fill={`url(#g${key})`} strokeWidth={2}/>
+                    </AreaChart>
+                  </ResponsiveContainer>
                 </div>
               ))}
             </div>
-          </div>
-        )}
-        {tab==="anchors" && (
-          <div style={{background:C.white,border:`1px solid ${C.border}`,borderRadius:12,overflow:"hidden"}}>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 120px",padding:"9px 18px",background:C.bg,borderBottom:`1px solid ${C.border}`}}>
-              <div style={{color:C.textDim,fontSize:9.5,fontWeight:700,letterSpacing:.4}}>ANCHOR</div>
-              <div style={{color:C.textDim,fontSize:9.5,fontWeight:700,letterSpacing:.4,textAlign:"right"}}>BACKLINKS</div>
-            </div>
-            {anchorsData.map((row,i)=>(
-              <div key={i} className="td" style={{display:"grid",gridTemplateColumns:"1fr 120px",padding:"11px 18px",borderBottom:i<anchorsData.length-1?`1px solid ${C.border}`:"none",alignItems:"center"}}>
-                <div style={{color:C.blueL,fontSize:12.5,cursor:"pointer"}}>{row.anchor}</div>
-                <div style={{color:C.text,fontSize:13,fontWeight:700,textAlign:"right"}}>{row.backlinks}</div>
+
+            {/* Authority Score + Backlink Types */}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:20}}>
+              <div className="card" style={{padding:"16px 18px"}}>
+                <div className="sg" style={{color:C.text,fontWeight:700,fontSize:13,marginBottom:12}}>Authority Score by Domain</div>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+                  <span style={{background:C.bluePale,color:C.blueL,padding:"2px 8px",borderRadius:5,fontSize:11,fontWeight:700}}>80</span>
+                  <span style={{color:C.textDim,fontSize:11}}>Your domain score</span>
+                </div>
+                {asBarData.slice(0,6).map((d,i)=>(
+                  <div key={i} style={{marginBottom:8}}>
+                    <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
+                      <span style={{color:C.textDim,fontSize:10}}>{d.range}</span>
+                      <span style={{color:C.textMid,fontSize:10}}>{d.comp}</span>
+                    </div>
+                    <ProgBar v={d.comp/25*100} col={C.blueL} h={8}/>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
-        {tab==="tlds" && (
-          <div style={{background:C.white,border:`1px solid ${C.border}`,borderRadius:12,padding:"28px 32px"}}>
-            <div style={{display:"flex",alignItems:"center",gap:48}}>
-              <svg width={160} height={160} viewBox="0 0 160 160">
-                {(()=>{let cum=0;const r=60,cx=80,cy=80,circ=2*Math.PI*r;return tldsData.map(({count,color})=>{const pct=count/totalTLD,sl=pct*circ,rot=(cum/totalTLD)*360-90;cum+=count;return(<circle key={color} cx={cx} cy={cy} r={r} fill="none" stroke={color} strokeWidth={28} strokeDasharray={`${circ*pct} ${circ*(1-pct)}`} strokeDashoffset={0} style={{transform:`rotate(${rot}deg)`,transformOrigin:`${cx}px ${cy}px`}}/>);})})()}
-                <circle cx={80} cy={80} r={46} fill="white"/>
-                <text x={80} y={77} textAnchor="middle" style={{fontSize:18,fontWeight:800,fill:C.text,fontFamily:"Space Grotesk"}}>{totalTLD}</text>
-                <text x={80} y={91} textAnchor="middle" style={{fontSize:9,fill:C.textDim}}>Total</text>
-              </svg>
-              <div style={{flex:1}}>
-                {tldsData.map(({tld,count,color})=>(
-                  <div key={tld} style={{display:"flex",alignItems:"center",padding:"8px 0",borderBottom:`1px solid ${C.border}`}}>
-                    <div style={{width:10,height:10,borderRadius:"50%",background:color,marginRight:12,flexShrink:0}}/>
-                    <span style={{color:C.text,fontSize:13,flex:1}}>{tld}</span>
-                    <div style={{flex:2,margin:"0 16px"}}><ProgBar v={(count/totalTLD)*100} col={color} h={6}/></div>
-                    <span style={{color:C.text,fontSize:13,fontWeight:700,minWidth:30,textAlign:"right"}}>{count}</span>
+              <div className="card" style={{padding:"16px 18px"}}>
+                <div className="sg" style={{color:C.text,fontWeight:700,fontSize:13,marginBottom:12}}>Backlink Types</div>
+                <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:12}}>
+                  <span style={{background:`${C.blueL}18`,color:C.blueL,padding:"2px 8px",borderRadius:5,fontSize:11,fontWeight:700}}>Your domain</span>
+                  <span style={{color:C.textDim,fontSize:11}}>vs</span>
+                  <span style={{background:`${C.orange}18`,color:C.orange,padding:"2px 8px",borderRadius:5,fontSize:11,fontWeight:700}}>20%</span>
+                </div>
+                {blTypeData.map((d,i)=>(
+                  <div key={i} style={{marginBottom:10}}>
+                    <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
+                      <span style={{color:C.textMid,fontSize:11}}>{d.type}</span>
+                      <span style={{color:C.textDim,fontSize:11}}>{d.your}% / {d.comp}%</span>
+                    </div>
+                    <div style={{display:"flex",gap:2}}>
+                      <div style={{height:6,flex:d.your,background:C.blueL,borderRadius:3}}/>
+                      <div style={{height:6,flex:d.comp,background:C.orange,borderRadius:3,opacity:.6}}/>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
-          </div>
+
+            {/* Top Countries + Top Pages + TLD */}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:16}}>
+              <div className="card" style={{padding:"16px 18px"}}>
+                <div className="sg" style={{color:C.text,fontWeight:700,fontSize:13,marginBottom:10}}>Top Countries</div>
+                {topCountries.map((c,i)=>(
+                  <div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 0",borderBottom:i<topCountries.length-1?`1px solid ${C.border}`:"none"}}>
+                    <span style={{fontSize:13}}>{c.c}</span>
+                    <span style={{color:C.textMid,fontSize:11,marginLeft:"auto"}}>{(c.backlinks/1000).toFixed(1)}k</span>
+                  </div>
+                ))}
+              </div>
+              <div className="card" style={{padding:"16px 18px"}}>
+                <div className="sg" style={{color:C.text,fontWeight:700,fontSize:13,marginBottom:10}}>Top Pages</div>
+                {topPages.map((p,i)=>(
+                  <div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 0",borderBottom:i<topPages.length-1?`1px solid ${C.border}`:"none"}}>
+                    <span style={{color:C.blueL,fontSize:12,flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{p.url}</span>
+                    <span style={{color:C.textDim,fontSize:11,flexShrink:0}}>{p.backlinks} BL</span>
+                  </div>
+                ))}
+              </div>
+              <div className="card" style={{padding:"16px 18px"}}>
+                <div className="sg" style={{color:C.text,fontWeight:700,fontSize:13,marginBottom:14}}>TLD Distribution</div>
+                <div style={{position:"relative",width:90,height:90,margin:"0 auto 14px"}}>
+                  <svg width={90} height={90} viewBox="0 0 90 90">
+                    {tlsData.reduce((acc,d,i)=>{
+                      const total=totalTLD, start=acc.offset, sweep=(d.count/total)*Math.PI*2;
+                      const x1=45+40*Math.cos(start-Math.PI/2), y1=45+40*Math.sin(start-Math.PI/2);
+                      const x2=45+40*Math.cos(start+sweep-Math.PI/2), y2=45+40*Math.sin(start+sweep-Math.PI/2);
+                      acc.paths.push(<path key={i} d={`M 45 45 L ${x1} ${y1} A 40 40 0 ${sweep>Math.PI?1:0} 1 ${x2} ${y2} Z`} fill={d.c}/>);
+                      acc.offset+=sweep; return acc;
+                    },{paths:[],offset:0}).paths}
+                  </svg>
+                </div>
+                {tlsData.map((d,i)=>(
+                  <div key={i} style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
+                    <div style={{width:8,height:8,borderRadius:2,background:d.c,flexShrink:0}}/>
+                    <span style={{color:C.textMid,fontSize:11,flex:1}}>{d.tld}</span>
+                    <span style={{color:C.text,fontSize:11,fontWeight:600}}>{((d.count/totalTLD)*100).toFixed(0)}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
         )}
-        {(tab==="referringdomains"||tab==="toppages"||tab==="countries") && (
-          <div className="card" style={{padding:"40px",textAlign:"center"}}>
-            <div style={{fontSize:48,marginBottom:16}}>📊</div>
-            <div className="sg" style={{color:C.text,fontSize:16,fontWeight:700}}>Enter a URL and click Research to see {tab} data</div>
+        {tab==="backlinks" && (
+          <div className="card" style={{overflow:"hidden"}}>
+            <div style={{display:"grid",gridTemplateColumns:"50px 50px 2fr 2fr 1.5fr 90px 120px",padding:"9px 14px",background:C.bg,borderBottom:`1px solid ${C.border}`,gap:8}}>
+              {["DS","PS","REFERRING PAGE","TARGET PAGE","ANCHOR TEXT","FOLLOW","FIRST SEEN"].map(h=>(<div key={h} style={{color:C.textDim,fontSize:9.5,fontWeight:700}}>{h}</div>))}
+            </div>
+            {blData.map((row,i)=>(
+              <div key={i} className="td" style={{display:"grid",gridTemplateColumns:"50px 50px 2fr 2fr 1.5fr 90px 120px",padding:"10px 14px",borderBottom:`1px solid ${C.border}`,alignItems:"center",gap:8}}>
+                <div style={{background:row.ds>=60?"#FEF3C7":row.ds>=30?"#DBEAFE":"#FEE2E2",color:row.ds>=60?C.yellow:row.ds>=30?C.blueL:C.red,fontWeight:800,fontSize:11,padding:"2px 6px",borderRadius:5,textAlign:"center"}}>{row.ds}</div>
+                <div style={{background:"#FEE2E2",color:C.red,fontWeight:800,fontSize:11,padding:"2px 6px",borderRadius:5,textAlign:"center"}}>{row.ps}</div>
+                <div style={{color:C.blueL,fontSize:11,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{row.ref}</div>
+                <div style={{color:C.blueL,fontSize:11,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{row.target}</div>
+                <div style={{color:C.textMid,fontSize:11,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{row.anchor}</div>
+                <div><span style={{background:row.follow==="Follow"?C.greenL:C.redL,color:row.follow==="Follow"?C.green:C.red,padding:"2px 6px",borderRadius:4,fontSize:10,fontWeight:700}}>{row.follow}</span></div>
+                <div style={{color:C.textDim,fontSize:11}}>{row.first}</div>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -815,38 +1160,214 @@ function Messages() {
 
 // ── Clients ─────────────────────────────────────────────────────────────
 function Clients() {
+  const [tab, setTab] = useState("clients");
+  const [showAdd, setShowAdd] = useState(false);
+  const clients = [
+    { name:"Dental Pro Clinic",   contact:"Dr. Maria Santos",  email:"maria@dentalpro.com",   status:"Active",   plan:"Pro",   mrr:299,  health:92, projects:3, tasks:7,  lastContact:"2d ago" },
+    { name:"LegalEdge Partners",  contact:"James Okonkwo",     email:"james@legaledge.com",   status:"Active",   plan:"Starter",mrr:49, health:74, projects:1, tasks:3,  lastContact:"1w ago" },
+    { name:"FitLife Studio",      contact:"Aisha Nwosu",       email:"aisha@fitlife.io",      status:"At Risk",  plan:"Pro",   mrr:199,  health:58, projects:2, tasks:12, lastContact:"3w ago" },
+    { name:"TechFlow Agency",     contact:"Samuel Chen",       email:"sam@techflow.co",       status:"Active",   plan:"Agency",mrr:499, health:88, projects:6, tasks:4,  lastContact:"Today" },
+    { name:"Bloom Real Estate",   contact:"Fatima Al-Rashid",  email:"fatima@bloomre.com",    status:"Inactive", plan:"Free",  mrr:0,    health:32, projects:1, tasks:0,  lastContact:"1mo ago" },
+  ];
+  const invoices = [
+    { client:"Dental Pro Clinic",  amount:299, due:"May 15, 2026", status:"Paid",    inv:"INV-2026-042" },
+    { client:"TechFlow Agency",    amount:499, due:"May 20, 2026", status:"Pending", inv:"INV-2026-043" },
+    { client:"LegalEdge Partners", amount:49,  due:"May 22, 2026", status:"Overdue", inv:"INV-2026-040" },
+    { client:"FitLife Studio",     amount:199, due:"Jun 1, 2026",  status:"Pending", inv:"INV-2026-044" },
+    { client:"Bloom Real Estate",  amount:0,   due:"—",            status:"Free",    inv:"—" },
+  ];
+  const statusCol = s => s==="Active"?"#16A34A":s==="At Risk"?C.orange:s==="Inactive"?C.red:C.textDim;
+  const statusBg  = s => s==="Active"?C.greenL:s==="At Risk"?C.orangeL:s==="Inactive"?C.redL:C.bg;
+  const invCol    = s => s==="Paid"?C.green:s==="Overdue"?C.red:s==="Pending"?C.orange:C.textDim;
+  const invBg     = s => s==="Paid"?C.greenL:s==="Overdue"?C.redL:s==="Pending"?C.orangeL:C.bg;
+
+  const totalMRR = clients.reduce((s,c)=>s+c.mrr,0);
+  const activeCount = clients.filter(c=>c.status==="Active").length;
+  const atRisk = clients.filter(c=>c.status==="At Risk").length;
+
   return (
-    <div className="fade" style={{padding:"22px 24px",overflowY:"auto",height:"calc(100vh - 57px)"}}>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:20}}>
-        {[{l:"Total Clients",v:"18",icon:Users,c:C.blueL},{l:"Active Projects",v:"34",icon:Briefcase,c:C.orange},{l:"Pending Approvals",v:"6",icon:AlertCircle,c:C.yellow},{l:"Monthly Revenue",v:"$22.1K",icon:TrendingUp,c:C.green}].map(({l,v,icon:Icon,c})=>(
-          <div key={l} className="card ch" style={{padding:"16px 18px"}}>
-            <div style={{width:34,height:34,borderRadius:9,background:`${c}18`,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:10}}><Icon size={15} color={c}/></div>
-            <div className="sg" style={{color:C.text,fontSize:22,fontWeight:800}}>{v}</div>
-            <div style={{color:C.textDim,fontSize:11,marginTop:2}}>{l}</div>
+    <div className="fade" style={{ overflowY:"auto",height:"calc(100vh - 57px)",background:C.bg }}>
+      {/* Stats row */}
+      <div style={{ padding:"16px 24px 0" }}>
+        <div style={{ display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:20 }}>
+          {[
+            { l:"Total Clients",   v:clients.length,          c:C.blueL,  icon:Briefcase },
+            { l:"Active Clients",  v:activeCount,              c:C.green,  icon:CheckCircle2 },
+            { l:"At Risk",         v:atRisk,                   c:C.orange, icon:AlertCircle },
+            { l:"Monthly Revenue", v:`$${totalMRR.toLocaleString()}`,c:C.purple,icon:Activity },
+          ].map(({l,v,c,icon:Icon})=>(
+            <div key={l} className="card ch" style={{ padding:"14px 18px" }}>
+              <div style={{ display:"flex",alignItems:"center",gap:10,marginBottom:8 }}>
+                <div style={{ width:32,height:32,borderRadius:8,background:`${c}18`,display:"flex",alignItems:"center",justifyContent:"center" }}><Icon size={14} color={c}/></div>
+              </div>
+              <div className="sg" style={{ color:C.text,fontSize:22,fontWeight:800 }}>{v}</div>
+              <div style={{ color:C.textDim,fontSize:11,marginTop:2 }}>{l}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Sub-tabs */}
+        <div style={{ display:"flex",gap:0,borderBottom:`1px solid ${C.border}`,background:C.white,borderRadius:"10px 10px 0 0",overflow:"hidden",marginBottom:-1 }}>
+          {[["clients","Clients"],["invoices","Invoices & Billing"],["portal","Client Portal"]].map(([id,label])=>(
+            <button key={id} onClick={()=>setTab(id)} style={{ padding:"11px 20px",border:"none",borderBottom:tab===id?`2.5px solid ${C.blueL}`:"2.5px solid transparent",cursor:"pointer",fontSize:13,fontWeight:tab===id?700:500,fontFamily:"inherit",background:"transparent",color:tab===id?C.blueL:C.textMid,marginBottom:-1 }}>{label}</button>
+          ))}
+          <div style={{ marginLeft:"auto",display:"flex",alignItems:"center",paddingRight:12 }}>
+            <button onClick={()=>setShowAdd(true)} style={{ background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"7px 16px",borderRadius:7,fontSize:12,fontWeight:700,fontFamily:"inherit",display:"flex",alignItems:"center",gap:5 }}>
+              <Plus size={12}/> Add Client
+            </button>
           </div>
-        ))}
+        </div>
       </div>
-      <div className="card" style={{overflow:"hidden"}}>
-        <div style={{padding:"13px 20px",borderBottom:`1px solid ${C.border}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <span className="sg" style={{color:C.text,fontSize:14,fontWeight:700}}>All Clients</span>
-          <div style={{display:"flex",gap:7}}>
-            <button style={{background:"transparent",border:`1px solid ${C.border}`,color:C.textMid,cursor:"pointer",display:"flex",gap:5,padding:"6px 12px",borderRadius:8,fontSize:12,fontWeight:600,fontFamily:"inherit"}}><Filter size={12}/> Filter</button>
-            <button style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",display:"flex",gap:5,padding:"7px 14px",borderRadius:8,fontSize:12,fontWeight:700,fontFamily:"inherit"}}><Plus size={13}/> Add Client</button>
+
+      <div style={{ padding:"0 24px 24px" }}>
+        {/* ── CLIENTS TAB ── */}
+        {tab==="clients" && (
+          <div className="card" style={{ overflow:"hidden" }}>
+            <table style={{ width:"100%",borderCollapse:"collapse" }}>
+              <thead><tr style={{ background:C.bg }}>
+                {["Client","Contact","Status","Plan","MRR","Site Health","Projects","Tasks","Last Contact",""].map(h=>(
+                  <th key={h} style={{ padding:"10px 14px",textAlign:"left",color:C.textDim,fontSize:10,fontWeight:700,borderBottom:`1px solid ${C.border}` }}>{h}</th>
+                ))}
+              </tr></thead>
+              <tbody>
+                {clients.map((c,i)=>(
+                  <tr key={i} className="td">
+                    <td style={{ padding:"12px 14px",borderBottom:`1px solid ${C.border}` }}>
+                      <div style={{ display:"flex",alignItems:"center",gap:8 }}>
+                        <Av l={c.name[0]} size={30}/>
+                        <div>
+                          <div style={{ color:C.text,fontWeight:700,fontSize:13 }}>{c.name}</div>
+                          <div style={{ color:C.textDim,fontSize:11 }}>{c.email}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ padding:"12px 14px",color:C.textMid,fontSize:12,borderBottom:`1px solid ${C.border}` }}>{c.contact}</td>
+                    <td style={{ padding:"12px 14px",borderBottom:`1px solid ${C.border}` }}>
+                      <span className="chip" style={{ color:statusCol(c.status),background:statusBg(c.status) }}>{c.status}</span>
+                    </td>
+                    <td style={{ padding:"12px 14px",borderBottom:`1px solid ${C.border}` }}>
+                      <span className="chip" style={{ color:PLANS[c.plan?.toLowerCase()]?.color||C.textDim,background:`${PLANS[c.plan?.toLowerCase()]?.color||C.textDim}18` }}>{c.plan}</span>
+                    </td>
+                    <td style={{ padding:"12px 14px",borderBottom:`1px solid ${C.border}` }}>
+                      <span style={{ color:c.mrr>0?C.green:C.textDim,fontWeight:700,fontSize:13 }}>{c.mrr>0?`$${c.mrr}`:"Free"}</span>
+                    </td>
+                    <td style={{ padding:"12px 14px",borderBottom:`1px solid ${C.border}` }}>
+                      <div style={{ display:"flex",alignItems:"center",gap:6 }}>
+                        <div style={{ flex:1,background:C.border,borderRadius:10,height:5,overflow:"hidden",minWidth:50 }}>
+                          <div style={{ width:`${c.health}%`,height:"100%",background:c.health>=80?C.green:c.health>=60?C.yellow:C.red,borderRadius:10 }}/>
+                        </div>
+                        <span style={{ color:c.health>=80?C.green:c.health>=60?C.yellow:C.red,fontSize:11,fontWeight:700,flexShrink:0 }}>{c.health}</span>
+                      </div>
+                    </td>
+                    <td style={{ padding:"12px 14px",color:C.textMid,fontSize:12,borderBottom:`1px solid ${C.border}`,textAlign:"center" }}>{c.projects}</td>
+                    <td style={{ padding:"12px 14px",borderBottom:`1px solid ${C.border}`,textAlign:"center" }}>
+                      <span style={{ color:c.tasks>5?C.orange:C.textMid,fontWeight:c.tasks>5?700:400,fontSize:12 }}>{c.tasks}</span>
+                    </td>
+                    <td style={{ padding:"12px 14px",color:C.textDim,fontSize:11,borderBottom:`1px solid ${C.border}` }}>{c.lastContact}</td>
+                    <td style={{ padding:"12px 14px",borderBottom:`1px solid ${C.border}` }}>
+                      <div style={{ display:"flex",gap:5 }}>
+                        <button style={{ background:"transparent",border:`1px solid ${C.border}`,color:C.blueL,cursor:"pointer",padding:"4px 8px",borderRadius:5,fontSize:10,fontFamily:"inherit" }}>View →</button>
+                        <button style={{ background:"transparent",border:`1px solid ${C.border}`,color:C.textMid,cursor:"pointer",padding:"4px 8px",borderRadius:5,fontSize:10,fontFamily:"inherit" }}>Report</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {/* At-risk alert */}
+            {atRisk>0&&(
+              <div style={{ padding:"12px 16px",background:`${C.orange}0d`,borderTop:`1px solid ${C.orange}33`,display:"flex",alignItems:"center",gap:10 }}>
+                <AlertCircle size={14} color={C.orange}/>
+                <span style={{ color:C.orange,fontSize:12,fontWeight:600 }}>{atRisk} client{atRisk>1?"s":""} flagged as At Risk — last contacted over 2 weeks ago.</span>
+                <button style={{ marginLeft:"auto",background:C.orange,color:"#fff",border:"none",cursor:"pointer",padding:"5px 12px",borderRadius:6,fontSize:11,fontWeight:700,fontFamily:"inherit" }}>Schedule Check-in</button>
+              </div>
+            )}
           </div>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 1fr 1.2fr 100px",padding:"9px 20px",background:C.bg,borderBottom:`1px solid ${C.border}`}}>
-          {["Client","Status","Tasks","Revenue","Health Score","Actions"].map(h=>(<div key={h} style={{color:C.textDim,fontSize:10.5,fontWeight:700,letterSpacing:.4}}>{h.toUpperCase()}</div>))}
-        </div>
-        {clientList.map(({n,av,status,tasks,done,rev,health,last},i)=>(
-          <div key={n} className="td" style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 1fr 1.2fr 100px",padding:"13px 20px",borderBottom:i<clientList.length-1?`1px solid ${C.border}`:"none",alignItems:"center",cursor:"pointer"}}>
-            <div style={{display:"flex",alignItems:"center",gap:9}}><Av l={av} size={34}/><div><div style={{color:C.text,fontWeight:700,fontSize:13}}>{n}</div><div style={{color:C.textDim,fontSize:10.5}}>Last active {last}</div></div></div>
-            <div><span className="chip" style={{color:status==="active"?C.green:status==="review"?C.yellow:C.textDim,background:status==="active"?C.greenL:status==="review"?C.yellowL:"#F1F5F9"}}>{status.charAt(0).toUpperCase()+status.slice(1)}</span></div>
-            <div style={{color:C.textMid,fontSize:12.5}}><span style={{color:C.text,fontWeight:700}}>{done}</span>/{tasks}</div>
-            <div style={{color:C.green,fontWeight:700,fontSize:13.5}}>{rev}</div>
-            <div style={{display:"flex",alignItems:"center",gap:6}}><ProgBar v={health} col={health>75?C.green:health>50?C.yellow:C.red} h={5}/><span style={{color:health>75?C.green:health>50?C.yellow:C.red,fontSize:11,fontWeight:700,minWidth:28}}>{health}%</span></div>
-            <div style={{display:"flex",gap:4}}>{[Eye,MessageSquare,ExternalLink].map((Icon,j)=>(<button key={j} style={{background:"transparent",border:`1px solid ${C.border}`,color:C.textMid,cursor:"pointer",width:26,height:26,borderRadius:6,display:"flex",alignItems:"center",justifyContent:"center"}}><Icon size={11}/></button>))}</div>
+        )}
+
+        {/* ── INVOICES TAB ── */}
+        {tab==="invoices" && (
+          <>
+            <div style={{ display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14,marginBottom:20,marginTop:16 }}>
+              {[
+                { l:"Total Invoiced (May)", v:"$1,046", c:C.blueL },
+                { l:"Collected",            v:"$299",   c:C.green },
+                { l:"Outstanding",          v:"$748",   c:C.orange },
+              ].map(s=>(
+                <div key={s.l} className="card" style={{ padding:"14px 18px" }}>
+                  <div style={{ color:C.textDim,fontSize:11,marginBottom:4 }}>{s.l}</div>
+                  <div className="sg" style={{ fontSize:22,fontWeight:800,color:s.c }}>{s.v}</div>
+                </div>
+              ))}
+            </div>
+            <div className="card" style={{ overflow:"hidden" }}>
+              <div style={{ padding:"12px 16px",borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center" }}>
+                <span className="sg" style={{ color:C.text,fontWeight:700,fontSize:14,flex:1 }}>Invoice History</span>
+                <button style={{ background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"7px 14px",borderRadius:7,fontSize:12,fontWeight:700,fontFamily:"inherit",display:"flex",alignItems:"center",gap:5 }}>
+                  <Plus size={11}/> Create Invoice
+                </button>
+              </div>
+              <table style={{ width:"100%",borderCollapse:"collapse" }}>
+                <thead><tr style={{ background:C.bg }}>
+                  {["Invoice #","Client","Amount","Due Date","Status",""].map(h=>(
+                    <th key={h} style={{ padding:"9px 14px",textAlign:"left",color:C.textDim,fontSize:10,fontWeight:700,borderBottom:`1px solid ${C.border}` }}>{h}</th>
+                  ))}
+                </tr></thead>
+                <tbody>
+                  {invoices.map((inv,i)=>(
+                    <tr key={i} className="td">
+                      <td style={{ padding:"11px 14px",color:C.textMid,fontSize:12,borderBottom:`1px solid ${C.border}` }}>{inv.inv}</td>
+                      <td style={{ padding:"11px 14px",color:C.text,fontWeight:600,fontSize:13,borderBottom:`1px solid ${C.border}` }}>{inv.client}</td>
+                      <td style={{ padding:"11px 14px",borderBottom:`1px solid ${C.border}` }}>
+                        <span className="sg" style={{ color:inv.amount>0?C.text:C.textDim,fontWeight:700,fontSize:14 }}>{inv.amount>0?`$${inv.amount}`:"—"}</span>
+                      </td>
+                      <td style={{ padding:"11px 14px",color:C.textMid,fontSize:12,borderBottom:`1px solid ${C.border}` }}>{inv.due}</td>
+                      <td style={{ padding:"11px 14px",borderBottom:`1px solid ${C.border}` }}>
+                        <span className="chip" style={{ color:invCol(inv.status),background:invBg(inv.status) }}>{inv.status}</span>
+                      </td>
+                      <td style={{ padding:"11px 14px",borderBottom:`1px solid ${C.border}` }}>
+                        <div style={{ display:"flex",gap:5 }}>
+                          <button style={{ background:"transparent",border:`1px solid ${C.border}`,color:C.blueL,cursor:"pointer",padding:"4px 8px",borderRadius:5,fontSize:10,fontFamily:"inherit" }}>View</button>
+                          {inv.status==="Pending"&&<button style={{ background:C.orange,color:"#fff",border:"none",cursor:"pointer",padding:"4px 8px",borderRadius:5,fontSize:10,fontFamily:"inherit" }}>Remind</button>}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+
+        {/* ── CLIENT PORTAL TAB ── */}
+        {tab==="portal" && (
+          <div style={{ marginTop:16 }}>
+            <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:16 }}>
+              <div className="card" style={{ padding:20 }}>
+                <div className="sg" style={{ color:C.text,fontWeight:700,marginBottom:14 }}>Portal Access</div>
+                {clients.filter(c=>c.mrr>0).map((c,i)=>(
+                  <div key={i} style={{ display:"flex",alignItems:"center",gap:10,padding:"10px 0",borderBottom:`1px solid ${C.border}` }}>
+                    <Av l={c.name[0]} size={30}/>
+                    <div style={{ flex:1 }}>
+                      <div style={{ color:C.text,fontWeight:600,fontSize:13 }}>{c.name}</div>
+                      <div style={{ color:C.textDim,fontSize:11 }}>Portal: Active</div>
+                    </div>
+                    <button style={{ background:C.bluePale,color:C.blueL,border:"none",cursor:"pointer",padding:"5px 10px",borderRadius:6,fontSize:11,fontWeight:700,fontFamily:"inherit" }}>Open Portal</button>
+                  </div>
+                ))}
+              </div>
+              <div className="card" style={{ padding:20 }}>
+                <div className="sg" style={{ color:C.text,fontWeight:700,marginBottom:8 }}>What clients see</div>
+                <p style={{ color:C.textMid,fontSize:12,lineHeight:1.65,marginBottom:16 }}>Each client gets their own branded portal showing: SEO progress, rank tracking, reports, invoices, and task updates — all automatically.</p>
+                <div style={{ display:"flex",flexDirection:"column",gap:8 }}>
+                  {["📊 Live ranking dashboard","📄 Auto-generated reports","✅ Task & project progress","💳 Invoice history","💬 Direct messaging"].map(f=>(
+                    <div key={f} style={{ background:C.bg,borderRadius:7,padding:"9px 12px",color:C.text,fontSize:12 }}>{f}</div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
@@ -1062,94 +1583,215 @@ function CompetitiveResearch() {
 
 // ── Rank Tracking ─────────────────────────────────────────────────────
 function RankTracking() {
-  const [step, setStep] = useState("rankings");
-  const [device, setDevice] = useState("desktop");
-  const [engine, setEngine] = useState("Google");
-  const [country, setCountry] = useState("United States (US)");
-  const [kwInput, setKwInput] = useState("seo");
-  const [search, setSearch] = useState("");
-  const rankRows = [
-    {kw:"dental implants near me",pageRank:"/dental-implants",device:"Desktop",pos:4,notRanking:false,estTraffic:820,vol:"8,200",movement:+3},
-    {kw:"best SEO tools 2026",pageRank:"/seo-tools",device:"Desktop",pos:7,notRanking:false,estTraffic:280,vol:"5,100",movement:+5},
-    {kw:"agency project management",pageRank:"/project-mgmt",device:"Mobile",pos:11,notRanking:false,estTraffic:95,vol:"3,400",movement:-2},
-    {kw:"SEO reporting dashboard",pageRank:"/reports",device:"Desktop",pos:6,notRanking:false,estTraffic:180,vol:"4,100",movement:+8},
-    {kw:"content marketing software",pageRank:"/content",device:"Mobile",pos:19,notRanking:false,estTraffic:60,vol:"6,700",movement:+1},
-    {kw:"seo",pageRank:null,device:"Desktop",pos:null,notRanking:true,estTraffic:0,vol:"135,000",movement:null},
-    {kw:"task management agencies",pageRank:"/tasks",device:"Desktop",pos:9,notRanking:false,estTraffic:120,vol:"3,800",movement:-1},
+  const [hasProject, setHasProject] = useState(true);
+  const [showWizard, setShowWizard] = useState(false);
+  const [project, setProject] = useState("seoengineboost.com");
+  const [period, setPeriod] = useState("Last 30 days");
+  const [engine, setEngine] = useState("🇵🇭 Nigeria");
+
+  // Average position trend data
+  const avgData = [
+    {d:"Aug 1",pos:18},{d:"Aug 5",pos:16},{d:"Aug 8",pos:15},{d:"Aug 12",pos:13},
+    {d:"Aug 15",pos:12},{d:"Aug 18",pos:13},{d:"Aug 19",pos:12.94},
   ];
-  const filtered = rankRows.filter(r=>r.kw.toLowerCase().includes(search.toLowerCase()));
-  if (step==="settings") {
-    return (
-      <div className="fade" style={{overflowY:"auto",height:"calc(100vh - 57px)",background:C.bg,display:"flex",alignItems:"flex-start",justifyContent:"center",paddingTop:40}}>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 340px",gap:20,width:"100%",maxWidth:900,padding:"0 28px"}}>
-          <div>
-            <h2 className="sg" style={{color:C.text,fontSize:20,fontWeight:800,marginBottom:6}}>Keyword Tracking</h2>
-            <p style={{color:C.textDim,fontSize:13,marginBottom:16}}>for <strong>www.seoengineboost.com</strong> in {country} - {engine}</p>
-            <div style={{background:C.white,border:`1px solid ${C.border}`,borderRadius:12,padding:"20px 22px"}}>
-              <div style={{fontWeight:700,fontSize:14,color:C.text,marginBottom:10}}>Enter Keywords Manually</div>
-              <textarea value={kwInput} onChange={e=>setKwInput(e.target.value)} rows={4} style={{width:"100%",padding:"10px 12px",border:`1px solid ${C.border}`,borderRadius:8,fontSize:13,fontFamily:"inherit",outline:"none",resize:"none",color:C.text}} placeholder="seo, best seo tools, dental implants near me"/>
-              <button onClick={()=>setStep("rankings")} style={{marginTop:10,background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"8px 20px",borderRadius:8,fontSize:13,fontWeight:700,fontFamily:"inherit"}}>Add Keywords</button>
-            </div>
-          </div>
-          <div style={{background:C.white,border:`2px solid ${C.blueL}`,borderRadius:12,padding:"20px 22px"}}>
-            <div className="sg" style={{color:C.text,fontSize:15,fontWeight:800,marginBottom:8}}>Keyword Tracking Settings</div>
-            <div style={{marginBottom:14}}><label style={{display:"block",color:C.text,fontSize:13,fontWeight:600,marginBottom:6}}>Search Engine:</label><select value={engine} onChange={e=>setEngine(e.target.value)} style={{width:"100%",padding:"9px 12px",border:`1px solid ${C.border}`,borderRadius:8,fontSize:13,fontFamily:"inherit",outline:"none",background:"white"}}><option>🅖 Google</option><option>Bing</option><option>Yahoo</option></select></div>
-            <div style={{marginBottom:14}}><label style={{display:"block",color:C.text,fontSize:13,fontWeight:600,marginBottom:6}}>Country:</label><select value={country} onChange={e=>setCountry(e.target.value)} style={{width:"100%",padding:"9px 12px",border:`1px solid ${C.border}`,borderRadius:8,fontSize:13,fontFamily:"inherit",outline:"none",background:"white"}}><option>🇺🇸 United States (US)</option><option>🇵🇭 Philippines</option><option>🇬🇧 United Kingdom (UK)</option></select></div>
-            <div style={{marginBottom:20}}><label style={{display:"block",color:C.text,fontSize:13,fontWeight:600,marginBottom:10}}>Device:</label><div style={{display:"flex",gap:16}}>{[["desktop","🖥 Desktop"],["mobile","📱 Mobile"]].map(([id,label])=>(<label key={id} style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",fontSize:13,color:C.text}}><input type="checkbox" checked={device===id} onChange={()=>setDevice(id)} style={{width:16,height:16,accentColor:C.blueL,cursor:"pointer"}}/>{label}</label>))}</div></div>
-            <button onClick={()=>setStep("rankings")} style={{width:"100%",background:C.yellow,color:"#fff",border:"none",cursor:"pointer",padding:"10px",borderRadius:9,fontSize:14,fontWeight:700,fontFamily:"inherit"}}>Next →</button>
-          </div>
+  const pieData2 = [
+    { name:"Top 3",  value:48,  fill:C.blueL },
+    { name:"4-10",   value:166, fill:"#93C5FD" },
+    { name:"11-20",  value:89,  fill:"#BFDBFE" },
+    { name:"20+",    value:72,  fill:C.border },
+  ];
+  const tracked = [
+    { kw:"Designer",   pos:12, prev:15, change:[[2,1,3,2,1,2,3]], vol:"3244", sd:31, url:"https://www.facebook.com/page" },
+    { kw:"Designs",    pos:9,  prev:12, change:[[1,2,1,3,2,1,2]], vol:"1200", sd:31, url:"https://www.facebook.com/page" },
+    { kw:"Design",     pos:34, prev:34, change:[[2,1,2,1,2,2,1]], vol:"335",  sd:31, url:"https://www.facebook.com/page" },
+    { kw:"Designing",  pos:24, prev:28, change:[[3,2,1,2,3,2,1]], vol:"2357", sd:31, url:"https://www.facebook.com/page" },
+  ];
+  const serp = [
+    { url:"http://wordpress.com/", page:44, bl:"20K", traffic:"135.93K", kws:900 },
+    { url:"http://wordpress.org/", page:44, bl:"20K", traffic:"135.93K", kws:900 },
+    { url:"http://wpbeginners.com/", page:44, bl:"20K", traffic:"135.93K", kws:900 },
+    { url:"http://wordpress.com/", page:44, bl:"20K", traffic:"135.93K", kws:900 },
+    { url:"http://wordpress.org/", page:44, bl:"20K", traffic:"135.93K", kws:900 },
+    { url:"http://wpbeginners.com/", page:44, bl:"20K", traffic:"135.93K", kws:900 },
+  ];
+
+  if (showWizard) return <NewProjectWizard onDone={()=>setShowWizard(false)} />;
+
+  // Empty state
+  if (!hasProject) return (
+    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", padding:"16px 24px", background:C.bg }}>
+      <div style={{ marginBottom:14 }}>
+        <button onClick={()=>setShowWizard(true)} style={{ background:"transparent", border:`1px solid ${C.blueL}`, color:C.blueL, cursor:"pointer", padding:"7px 16px", borderRadius:7, fontSize:13, fontWeight:600, fontFamily:"inherit", display:"flex", alignItems:"center", gap:6 }}>
+          <Plus size={13}/> Add project
+        </button>
+      </div>
+      <div style={{ background:`linear-gradient(135deg, ${C.blueL} 0%, #4F46E5 60%, #6366F1 100%)`, borderRadius:16, padding:"40px 48px", position:"relative", overflow:"hidden" }}>
+        <div style={{ position:"absolute", right:-40, top:-40, width:240, height:240, borderRadius:"50%", background:"rgba(255,255,255,0.07)" }}/>
+        <div style={{ position:"absolute", right:60, bottom:-60, width:180, height:180, borderRadius:"50%", background:"rgba(255,255,255,0.04)" }}/>
+        <div style={{ position:"relative" }}>
+          <h2 className="sg" style={{ color:"#fff", fontSize:20, fontWeight:800, marginBottom:8 }}>Create a project you can track<br/>and improve SEO traffic</h2>
+          <p style={{ color:"rgba(255,255,255,.7)", fontSize:13, marginBottom:24 }}>Lorem ipsum dolor sit amet consectetur adipiscing</p>
+          <button onClick={()=>setShowWizard(true)} style={{ background:"rgba(255,255,255,.18)", border:"1px solid rgba(255,255,255,.4)", color:"#fff", cursor:"pointer", padding:"10px 20px", borderRadius:9, fontSize:13, fontWeight:700, fontFamily:"inherit", display:"flex", alignItems:"center", gap:8 }}>
+            Add your first project <span style={{ width:26, height:26, borderRadius:"50%", border:"2px solid rgba(255,255,255,.5)", display:"inline-flex", alignItems:"center", justifyContent:"center" }}>⊕</span>
+          </button>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+
   return (
-    <div className="fade" style={{overflowY:"auto",height:"calc(100vh - 57px)",background:C.bg}}>
-      <div style={{padding:"22px 28px",background:C.white,borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"flex-start",justifyContent:"space-between"}}>
-        <div><h2 className="sg" style={{color:C.text,fontSize:20,fontWeight:800,marginBottom:4}}>Keyword Rankings</h2><p style={{color:C.textDim,fontSize:13}}>for <strong>www.seoengineboost.com</strong> in {country} - {engine}</p></div>
-        <button onClick={()=>setStep("settings")} style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"9px 20px",borderRadius:9,fontSize:13,fontWeight:700,fontFamily:"inherit"}}>Update Your Keywords</button>
+    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", padding:"16px 24px", background:C.bg }}>
+      {/* Header bar */}
+      <div className="card" style={{ padding:"12px 16px", marginBottom:16, display:"flex", alignItems:"center", gap:12 }}>
+        <span className="sg" style={{ color:C.text, fontWeight:700, fontSize:15 }}>Rank Tracking</span>
+        <select value={project} onChange={e=>setProject(e.target.value)} style={{ background:C.bg, border:`1px solid ${C.border}`, borderRadius:7, padding:"5px 10px", color:C.textMid, fontSize:12, fontFamily:"inherit" }}>
+          <option>seoengineboost.com</option><option>dentalpro.com</option>
+        </select>
+        <button onClick={()=>setShowWizard(true)} style={{ background:"transparent", border:`1px solid ${C.border}`, color:C.blueL, cursor:"pointer", padding:"5px 12px", borderRadius:7, fontSize:11, fontFamily:"inherit" }}>+ Edit project</button>
+        <span style={{ color:C.textDim, fontSize:11, marginLeft:"auto" }}>Last fetched Aug 19, 2022</span>
       </div>
-      <div style={{padding:"16px 28px 0"}}>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:20}}>
-          {[{l:"Tracked Keywords",v:`${rankRows.length}`,c:C.blueL,icon:Target},{l:"Ranking (Top 3)",v:"2",c:C.green,icon:TrendingUp},{l:"Ranking (Top 10)",v:"4",c:C.orange,icon:BarChart2},{l:"Not Ranking",v:"1",c:C.red,icon:AlertCircle}].map(({l,v,c,icon:Icon})=>(
-            <div key={l} className="card ch" style={{padding:"14px 18px"}}><div style={{width:32,height:32,borderRadius:8,background:`${c}18`,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:8}}><Icon size={14} color={c}/></div><div className="sg" style={{color:C.text,fontSize:22,fontWeight:800}}>{v}</div><div style={{color:C.textDim,fontSize:11,marginTop:2}}>{l}</div></div>
-          ))}
-        </div>
+
+      {/* Filter row */}
+      <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:16 }}>
+        <span style={{ color:C.textDim, fontSize:12 }}>Showing rankings for:</span>
+        <select value={period} onChange={e=>setPeriod(e.target.value)} style={{ background:C.bg, border:`1px solid ${C.border}`, borderRadius:7, padding:"5px 10px", color:C.textMid, fontSize:12, fontFamily:"inherit" }}>
+          <option>Last 30 days</option><option>Last 7 days</option><option>Last 90 days</option>
+        </select>
+        <select value={engine} onChange={e=>setEngine(e.target.value)} style={{ background:C.bg, border:`1px solid ${C.border}`, borderRadius:7, padding:"5px 10px", color:C.textMid, fontSize:12, fontFamily:"inherit" }}>
+          <option>🇵🇭 Nigeria</option><option>🇺🇸 USA</option><option>🇬🇧 UK</option>
+        </select>
+        <button onClick={()=>setHasProject(false)} style={{ marginLeft:"auto", background:"transparent", border:`1px solid ${C.border}`, color:C.textDim, cursor:"pointer", padding:"5px 12px", borderRadius:7, fontSize:11, fontFamily:"inherit" }}>← Empty State</button>
       </div>
-      <div style={{padding:"0 28px 28px"}}>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
-          <div style={{display:"flex",alignItems:"center",gap:8}}><span style={{color:C.textDim,fontSize:12}}>Search:</span><input value={search} onChange={e=>setSearch(e.target.value)} style={{padding:"5px 10px",border:`1px solid ${C.border}`,borderRadius:6,fontSize:12,width:180,fontFamily:"inherit",outline:"none"}}/></div>
-        </div>
-        <div style={{background:C.white,border:`1px solid ${C.border}`,borderRadius:12,overflow:"hidden"}}>
-          <div style={{display:"grid",gridTemplateColumns:"2.2fr 1.5fr 90px 90px 140px 150px 140px",padding:"10px 18px",background:C.bg,borderBottom:`1px solid ${C.border}`,gap:8}}>
-            {["KEYWORD","PAGE RANKING","DEVICE","POSITION","EST. TRAFFIC","SEARCH VOLUME","RECENT MOVEMENT"].map(h=>(<div key={h} style={{color:C.textDim,fontSize:9.5,fontWeight:700,letterSpacing:.4}}>{h}</div>))}
+
+      {/* Main 2-col: chart + right stats */}
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 180px", gap:16, marginBottom:16 }}>
+        {/* Average Position */}
+        <div className="card" style={{ padding:"16px 20px" }}>
+          <div style={{ color:C.textDim, fontSize:12, marginBottom:4 }}>Average Position</div>
+          <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:14 }}>
+            <span className="sg" style={{ color:C.text, fontSize:28, fontWeight:800 }}>12.94</span>
+            <span style={{ color:C.red, fontSize:12, fontWeight:600 }}>▲</span>
           </div>
-          {filtered.map((row,i)=>(
-            <div key={i} className="td" style={{display:"grid",gridTemplateColumns:"2.2fr 1.5fr 90px 90px 140px 150px 140px",padding:"12px 18px",borderBottom:i<filtered.length-1?`1px solid ${C.border}`:"none",alignItems:"center",gap:8}}>
-              <div style={{color:C.text,fontSize:13,fontWeight:500}}>{row.kw}</div>
-              <div style={{color:C.blueL,fontSize:12,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",cursor:"pointer"}}>{row.pageRank||"—"}</div>
-              <div style={{color:C.textMid,fontSize:12}}>{row.device==="Desktop"?"🖥":"📱"} {row.device}</div>
-              <div>{row.notRanking?<span style={{background:"#FEF3C7",color:"#92400E",fontSize:10,fontWeight:700,padding:"3px 8px",borderRadius:5}}>Not Ranking</span>:<span style={{background:row.pos<=3?C.greenL:row.pos<=10?C.bluePale:"#F1F5F9",color:row.pos<=3?C.green:row.pos<=10?C.blueL:C.textMid,fontSize:12,fontWeight:800,padding:"2px 8px",borderRadius:5}}>#{row.pos}</span>}</div>
-              <div style={{color:C.textMid,fontSize:12.5}}>{row.estTraffic>0?row.estTraffic.toLocaleString():"0"}</div>
-              <div style={{color:C.textMid,fontSize:12.5}}>{row.vol}</div>
-              <div>{row.movement===null?<span style={{color:C.textDim,fontSize:12}}>—</span>:<span style={{color:row.movement>0?C.green:C.red,fontWeight:700,fontSize:13,display:"flex",alignItems:"center",gap:3}}>{row.movement>0?<TrendingUp size={13}/>:<TrendingDown size={13}/>}{row.movement>0?`+${row.movement}`:row.movement}</span>}</div>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+            {/* Line chart */}
+            <div>
+              <ResponsiveContainer width="100%" height={140}>
+                <LineChart data={avgData} margin={{top:4,right:4,left:-28,bottom:0}}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={C.border}/>
+                  <XAxis dataKey="d" tick={{fill:C.textDim,fontSize:9}} axisLine={false} tickLine={false}/>
+                  <YAxis reversed tick={{fill:C.textDim,fontSize:9}} axisLine={false} tickLine={false} domain={[8,22]}/>
+                  <Tooltip contentStyle={{background:C.white,border:`1px solid ${C.border}`,borderRadius:6,fontSize:10}} formatter={v=>[`#${v}`,""]}/>
+                  <Line type="monotone" dataKey="pos" stroke={C.blueL} strokeWidth={2} dot={false}/>
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            {/* Pie chart */}
+            <div>
+              <div style={{ color:C.textDim, fontSize:11, marginBottom:6 }}>Ranking Tracking</div>
+              <ResponsiveContainer width="100%" height={130}>
+                <RPieChart>
+                  <Pie data={pieData2} cx="50%" cy="50%" outerRadius={55} dataKey="value" paddingAngle={2}>
+                    {pieData2.map((e,i)=><Cell key={i} fill={e.fill}/>)}
+                  </Pie>
+                  <Tooltip contentStyle={{background:C.white,border:`1px solid ${C.border}`,borderRadius:6,fontSize:10}}/>
+                </RPieChart>
+              </ResponsiveContainer>
+              <div style={{ display:"flex", flexDirection:"column", gap:3 }}>
+                {pieData2.map(d=>(
+                  <div key={d.name} style={{ display:"flex", alignItems:"center", gap:5, fontSize:10 }}>
+                    <div style={{ width:8,height:8,borderRadius:2,background:d.fill,flexShrink:0 }}/>
+                    <span style={{ color:C.textMid }}>{d.name}</span>
+                    <span style={{ color:C.text,fontWeight:700,marginLeft:"auto" }}>{d.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Right stats */}
+        <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+          {[
+            { label:"Keywords Up", value:"0", sub:"4", c:C.green },
+            { label:"Keywords down", value:"0", sub:"4", c:C.red },
+            { label:"Keywords Unchanged", value:"0", sub:"4", c:C.textDim },
+          ].map(s=>(
+            <div key={s.label} className="card" style={{ padding:"12px 14px", flex:1, display:"flex", flexDirection:"column", justifyContent:"center" }}>
+              <div style={{ color:C.textDim, fontSize:11, marginBottom:4 }}>{s.label}</div>
+              <div className="sg" style={{ color:s.c, fontSize:24, fontWeight:800, lineHeight:1 }}>{s.value}</div>
+              <div style={{ color:C.textDim, fontSize:10, marginTop:3 }}>↑ {s.sub}</div>
             </div>
           ))}
-          <div style={{padding:"12px 18px",background:C.bg,borderTop:`1px solid ${C.border}`}}>
-            <span style={{color:C.textDim,fontSize:12}}>Showing 1 to {filtered.length} of {rankRows.length} entries</span>
-          </div>
         </div>
-        <div style={{background:C.white,border:`1px solid ${C.border}`,borderRadius:12,padding:"18px 22px",marginTop:16}}>
-          <div className="sg" style={{color:C.text,fontSize:14,fontWeight:700,marginBottom:14}}>Ranking History</div>
-          <ResponsiveContainer width="100%" height={180}>
-            <LineChart data={rankData} margin={{top:0,right:0,left:-22,bottom:0}}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9"/>
-              <XAxis dataKey="n" tick={{fill:C.textDim,fontSize:10}} axisLine={false} tickLine={false}/>
-              <YAxis reversed tick={{fill:C.textDim,fontSize:9}} axisLine={false} tickLine={false}/>
-              <Tooltip contentStyle={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:8,fontSize:11}} formatter={(v)=>[`Position #${v}`,""]}/>
-              <Line type="monotone" dataKey="pos" stroke={C.blueL} strokeWidth={2.5} dot={{fill:C.blueL,r:3}} activeDot={{r:5}}/>
-            </LineChart>
-          </ResponsiveContainer>
+      </div>
+
+      {/* Tracked Keywords */}
+      <div className="card" style={{ overflow:"hidden", marginBottom:16 }}>
+        <div style={{ padding:"12px 16px", borderBottom:`1px solid ${C.border}` }}>
+          <span className="sg" style={{ color:C.text, fontWeight:700, fontSize:14 }}>Tracked Keywords</span>
         </div>
+        <table style={{ width:"100%", borderCollapse:"collapse" }}>
+          <thead><tr style={{ background:C.bg }}>
+            <th style={{ width:36, padding:"8px 10px", borderBottom:`1px solid ${C.border}` }}></th>
+            {["Position","Keyword","Change","Vol","SD","URL"].map(h=>(
+              <th key={h} style={{ padding:"8px 12px", textAlign:"left", color:C.textDim, fontSize:10, fontWeight:700, borderBottom:`1px solid ${C.border}` }}>{h}</th>
+            ))}
+          </tr></thead>
+          <tbody>
+            {tracked.map((r,i)=>(
+              <tr key={i} className="td">
+                <td style={{ padding:"10px 10px", borderBottom:`1px solid ${C.border}` }}>
+                  <input type="checkbox" style={{ accentColor:C.blueL, cursor:"pointer" }}/>
+                </td>
+                <td style={{ padding:"10px 12px", borderBottom:`1px solid ${C.border}` }}>
+                  <span style={{ background:r.pos<=10?C.greenL:r.pos<=20?C.bluePale:C.bg, color:r.pos<=10?C.green:r.pos<=20?C.blueL:C.textMid, fontWeight:700, fontSize:12, padding:"2px 8px", borderRadius:5 }}>{r.pos}</span>
+                </td>
+                <td style={{ padding:"10px 12px", color:C.text, fontSize:13, borderBottom:`1px solid ${C.border}` }}>{r.kw}</td>
+                <td style={{ padding:"10px 12px", borderBottom:`1px solid ${C.border}` }}>
+                  {/* Mini sparkline using inline bars */}
+                  <div style={{ display:"flex", alignItems:"flex-end", gap:1, height:20 }}>
+                    {[2,1,3,2,1,2,3].map((v,j)=>(
+                      <div key={j} style={{ width:5, height:v*5+4, background:`${C.blueL}${50+j*20}`, borderRadius:1 }}/>
+                    ))}
+                  </div>
+                </td>
+                <td style={{ padding:"10px 12px", color:C.textMid, fontSize:12, borderBottom:`1px solid ${C.border}` }}>{r.vol}</td>
+                <td style={{ padding:"10px 12px", color:C.textMid, fontSize:12, borderBottom:`1px solid ${C.border}` }}>{r.sd}</td>
+                <td style={{ padding:"10px 12px", borderBottom:`1px solid ${C.border}` }}>
+                  <a href="#" style={{ color:C.blueL, fontSize:11, textDecoration:"underline" }} onClick={e=>e.preventDefault()}>{r.url}</a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* SERP Analysis */}
+      <div className="card" style={{ overflow:"hidden" }}>
+        <div style={{ padding:"12px 16px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center" }}>
+          <span className="sg" style={{ color:C.text, fontWeight:700, fontSize:14, flex:1 }}>SERP Analysis</span>
+          <button style={{ background:"transparent", border:`1px solid ${C.border}`, color:C.blueL, cursor:"pointer", padding:"5px 12px", borderRadius:6, fontSize:11, fontFamily:"inherit" }}>View all</button>
+        </div>
+        <table style={{ width:"100%", borderCollapse:"collapse" }}>
+          <thead><tr style={{ background:C.bg }}>
+            {["","URL","Page","Backlinks","Search Traffic","Keywords"].map(h=>(
+              <th key={h} style={{ padding:"8px 12px", textAlign:"left", color:C.textDim, fontSize:10, fontWeight:700, borderBottom:`1px solid ${C.border}` }}>{h}</th>
+            ))}
+          </tr></thead>
+          <tbody>
+            {serp.map((r,i)=>(
+              <tr key={i} className="td">
+                <td style={{ padding:"9px 12px", color:C.textDim, fontSize:12, borderBottom:`1px solid ${C.border}` }}>{i+1}.</td>
+                <td style={{ padding:"9px 12px", borderBottom:`1px solid ${C.border}` }}>
+                  <a href="#" style={{ color:C.blueL, fontSize:12, textDecoration:"underline" }} onClick={e=>e.preventDefault()}>{r.url}</a>
+                </td>
+                <td style={{ padding:"9px 12px", color:C.textMid, fontSize:12, borderBottom:`1px solid ${C.border}` }}>{r.page}</td>
+                <td style={{ padding:"9px 12px", color:C.textMid, fontSize:12, borderBottom:`1px solid ${C.border}` }}>{r.bl}</td>
+                <td style={{ padding:"9px 12px", color:C.textMid, fontSize:12, borderBottom:`1px solid ${C.border}` }}>{r.traffic}</td>
+                <td style={{ padding:"9px 12px", color:C.textMid, fontSize:12, borderBottom:`1px solid ${C.border}` }}>{r.kws}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
@@ -1205,46 +1847,187 @@ function CalendarView() {
 }
 
 // ── Pricing Page ───────────────────────────────────────────────────────
-function PricingPage({ goBack }) {
+function PricingPage({ goBack, currentPlan, onSelectPlan }) {
   const [billing, setBilling] = useState("monthly");
-  const plans = [
-    {name:"Starter",mo:29,yr:22,desc:"Perfect for freelancers and solo SEO professionals.",current:false},
-    {name:"Pro",mo:79,yr:59,desc:"For growing agencies managing multiple clients.",popular:true},
-    {name:"Agency",mo:199,yr:149,desc:"Full power for large teams and enterprises.",current:false},
+  const [hoveredPlan, setHoveredPlan] = useState(null);
+  const tiers = [
+    {
+      id:"free", name:"Free", mo:0, yr:0, badge:null, color:C.textDim,
+      desc:"Perfect for testing. Real value, real limits.",
+      cta:"Current Plan", current: currentPlan==="free",
+      limits:["1 project","25 pages/crawl","20 keywords","10 AI credits/mo","Basic audit","Community support"],
+      features:{ "SEO Audit":"3/month","Rank Tracking":"20 keywords","Competitor Research":"1 domain","AI Credits":"10","Team Members":"1","Client Reports":"No","White-label":"No","API Access":"No" }
+    },
+    {
+      id:"starter", name:"Starter", mo:29, yr:22, badge:null, color:C.blueL,
+      desc:"For freelancers and solo SEO pros building momentum.",
+      cta:"Start Free Trial",
+      limits:["5 projects","5,000 pages/crawl","500 keywords","200 AI credits/mo","Client dashboards","Basic automations"],
+      features:{ "SEO Audit":"Unlimited","Rank Tracking":"500 keywords","Competitor Research":"5 domains","AI Credits":"200","Team Members":"2","Client Reports":"Basic PDF","White-label":"No","API Access":"No" }
+    },
+    {
+      id:"pro", name:"Pro", mo:79, yr:59, badge:"MOST POPULAR", color:C.orange, popular:true,
+      desc:"Everything agencies need to manage clients at scale.",
+      cta:"Get Pro — Most Popular",
+      limits:["20 projects","50,000 pages/crawl","5,000 keywords","2,000 AI credits/mo","White-label reports","Advanced automations","Team collaboration"],
+      features:{ "SEO Audit":"Unlimited","Rank Tracking":"5,000 keywords","Competitor Research":"Unlimited","AI Credits":"2,000","Team Members":"10","Client Reports":"White-label PDF","White-label":"Full","API Access":"Read-only" }
+    },
+    {
+      id:"agency", name:"Agency", mo:199, yr:149, badge:"BEST FOR TEAMS", color:C.purple,
+      desc:"Full power for large agencies running dozens of clients.",
+      cta:"Start Agency Trial",
+      limits:["Unlimited projects","Unlimited crawl","Unlimited keywords","9,999 AI credits/mo","Full API access","Dedicated support","Custom AI models"],
+      features:{ "SEO Audit":"Unlimited","Rank Tracking":"Unlimited","Competitor Research":"Unlimited","AI Credits":"9,999","Team Members":"50","Client Reports":"Custom branded","White-label":"Custom domain","API Access":"Full" }
+    },
+    {
+      id:"enterprise", name:"Enterprise", mo:null, yr:null, badge:"CUSTOM", color:"#0A1628",
+      desc:"For large enterprises with custom compliance and scale needs.",
+      cta:"Contact Sales",
+      limits:["Everything in Agency","SSO / SAML","Audit logs","Custom SLAs","Dedicated CSM","Onboarding & training"],
+      features:{ "SEO Audit":"Unlimited","Rank Tracking":"Unlimited","Competitor Research":"Unlimited","AI Credits":"Custom","Team Members":"Unlimited","Client Reports":"Full custom","White-label":"Enterprise","API Access":"Full + Webhooks" }
+    },
   ];
+  const featureRows = ["SEO Audit","Rank Tracking","Competitor Research","AI Credits","Team Members","Client Reports","White-label","API Access"];
+
   return (
-    <div style={{minHeight:"100vh",background:"#fff",overflowY:"auto"}}>
-      <nav style={{background:"#fff",borderBottom:"1px solid #E5E7EB",padding:"0 40px",display:"flex",alignItems:"center",height:56,position:"sticky",top:0,zIndex:50}}>
-        <div style={{display:"flex",alignItems:"center",gap:8,marginRight:36,cursor:"pointer"}} onClick={goBack}>
-          <div style={{width:28,height:28,borderRadius:6,background:`linear-gradient(135deg,${C.orange},${C.blueL})`,display:"flex",alignItems:"center",justifyContent:"center"}}><Zap size={15} color="#fff" fill="#fff"/></div>
-          <span style={{color:C.text,fontWeight:800,fontSize:15}}>Boostly</span>
+    <div style={{ minHeight:"100vh",background:"#F8FAFC",overflowY:"auto" }}>
+      {/* Topnav */}
+      <nav style={{ background:"#fff",borderBottom:"1px solid #E5E7EB",padding:"0 40px",display:"flex",alignItems:"center",height:56,position:"sticky",top:0,zIndex:50 }}>
+        <div style={{ display:"flex",alignItems:"center",gap:8,marginRight:36,cursor:"pointer" }} onClick={goBack}>
+          <div style={{ width:28,height:28,borderRadius:6,background:`linear-gradient(135deg,${C.orange},${C.blueL})`,display:"flex",alignItems:"center",justifyContent:"center" }}><Zap size={15} color="#fff" fill="#fff"/></div>
+          <span className="sg" style={{ color:C.text,fontWeight:800,fontSize:15 }}>Boostly</span>
         </div>
-        <div style={{display:"flex",alignItems:"center",gap:24,flex:1}}>{["Tools","Pricing","Results","Training","Consulting","Contact"].map(l=>(<span key={l} style={{color:l==="Pricing"?C.blueL:C.textMid,fontSize:13.5,fontWeight:l==="Pricing"?700:500,cursor:"pointer"}}>{l}</span>))}</div>
-        <button onClick={goBack} style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"7px 16px",borderRadius:7,fontSize:13,fontWeight:600,fontFamily:"inherit"}}>← Back to App</button>
+        <div style={{ display:"flex",alignItems:"center",gap:24,flex:1 }}>
+          {["Tools","Pricing","Results","Training","Consulting","Contact"].map(l=>(
+            <span key={l} style={{ color:l==="Pricing"?C.blueL:C.textMid,fontSize:13,fontWeight:l==="Pricing"?700:500,cursor:"pointer" }}>{l}</span>
+          ))}
+        </div>
+        <div style={{ display:"flex",gap:8,alignItems:"center" }}>
+          {currentPlan&&<PlanBadge plan={currentPlan}/>}
+          <button onClick={goBack} style={{ background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"7px 16px",borderRadius:7,fontSize:12,fontWeight:600,fontFamily:"inherit" }}>← Back to App</button>
+        </div>
       </nav>
-      <section style={{padding:"50px 40px 40px",maxWidth:960,margin:"0 auto",textAlign:"center"}}>
-        <h1 style={{fontSize:36,fontWeight:900,color:C.text,marginBottom:10}}>Simple, transparent pricing</h1>
-        <p style={{color:C.textMid,fontSize:16,marginBottom:28}}>Start free. Upgrade when you need more power.</p>
-        <div style={{display:"flex",justifyContent:"center",marginBottom:40}}>
-          <div style={{display:"flex",background:"#F3F4F6",borderRadius:6,padding:4,gap:2}}>
-            {["monthly","yearly"].map(b=>(<button key={b} onClick={()=>setBilling(b)} style={{padding:"8px 28px",border:"none",cursor:"pointer",fontSize:14,fontWeight:600,fontFamily:"inherit",borderRadius:4,background:billing===b?"#111827":"transparent",color:billing===b?"#fff":"#374151"}}>{b==="monthly"?"Monthly":"Annually (25% off)"}</button>))}
+
+      {/* Hero */}
+      <section style={{ padding:"56px 40px 40px",maxWidth:1100,margin:"0 auto",textAlign:"center" }}>
+        <div style={{ display:"inline-flex",alignItems:"center",gap:6,background:C.bluePale,border:`1px solid ${C.blueL}22`,borderRadius:20,padding:"5px 16px",marginBottom:16 }}>
+          <span style={{ color:C.blueL,fontSize:12,fontWeight:700 }}>🚀 Replace SEMrush + Slack + Trello + CRM — all in one platform</span>
+        </div>
+        <h1 className="sg" style={{ fontSize:40,fontWeight:900,color:C.text,marginBottom:12 }}>Simple, transparent pricing</h1>
+        <p style={{ color:C.textMid,fontSize:16,marginBottom:8 }}>Start free. Upgrade when you scale. Cancel anytime.</p>
+        <p style={{ color:C.textDim,fontSize:13,marginBottom:32 }}>Join 10,000+ agencies and freelancers already using Boostly</p>
+        {/* Billing toggle */}
+        <div style={{ display:"flex",justifyContent:"center",marginBottom:40 }}>
+          <div style={{ display:"flex",background:"#F3F4F6",borderRadius:8,padding:4,gap:2,position:"relative" }}>
+            {["monthly","yearly"].map(b=>(
+              <button key={b} onClick={()=>setBilling(b)} style={{ padding:"9px 28px",border:"none",cursor:"pointer",fontSize:13,fontWeight:600,fontFamily:"inherit",borderRadius:6,background:billing===b?"#fff":"transparent",color:billing===b?C.text:"#6B7280",boxShadow:billing===b?"0 1px 4px rgba(0,0,0,.1)":"none",transition:"all .2s" }}>
+                {b==="monthly"?"Monthly":"Yearly"}{b==="yearly"&&<span style={{ marginLeft:6,background:"#DCFCE7",color:"#15803D",fontSize:10,fontWeight:800,padding:"2px 7px",borderRadius:20 }}>Save 25%</span>}
+              </button>
+            ))}
           </div>
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:20,marginBottom:48}}>
-          {plans.map(plan=>{const price=billing==="monthly"?plan.mo:plan.yr;return(
-            <div key={plan.name} style={{background:"#fff",border:`${plan.popular?"2px":"1px"} solid ${plan.popular?C.blueL:"#E5E7EB"}`,borderRadius:16,padding:"28px 24px",position:"relative",boxShadow:plan.popular?`0 4px 20px rgba(37,99,235,.15)`:"0 1px 4px rgba(0,0,0,.06)"}}>
-              {plan.popular&&<div style={{position:"absolute",top:-13,left:"50%",transform:"translateX(-50%)",background:C.blueL,color:"#fff",fontSize:11,fontWeight:800,padding:"4px 16px",borderRadius:20}}>MOST POPULAR</div>}
-              <div style={{color:C.text,fontWeight:700,fontSize:18,marginBottom:8}}>{plan.name}</div>
-              <div style={{display:"flex",alignItems:"baseline",gap:3,marginBottom:10,justifyContent:"center"}}>
-                <span style={{fontSize:40,fontWeight:900,color:C.text}}>${price}</span>
-                <span style={{fontSize:13,color:C.textDim}}>/mo</span>
+
+        {/* Plan cards */}
+        <div style={{ display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:14,marginBottom:56 }}>
+          {tiers.map(tier=>{
+            const price = billing==="monthly"?tier.mo:tier.yr;
+            const isActive = currentPlan===tier.id;
+            const isHovered = hoveredPlan===tier.id;
+            return (
+              <div key={tier.id}
+                onMouseEnter={()=>setHoveredPlan(tier.id)}
+                onMouseLeave={()=>setHoveredPlan(null)}
+                style={{ background:"#fff",border:`${tier.popular||isHovered?"2":"1"}px solid ${tier.popular?C.orange:isHovered?C.blueL:"#E2E8F0"}`,borderRadius:16,padding:"22px 18px",position:"relative",cursor:"pointer",transition:"all .2s",boxShadow:tier.popular?"0 6px 24px rgba(249,115,22,.15)":isHovered?"0 4px 16px rgba(37,99,235,.1)":"0 1px 4px rgba(0,0,0,.05)",transform:tier.popular?"translateY(-6px)":"none" }}>
+                {tier.badge&&<div style={{ position:"absolute",top:-12,left:"50%",transform:"translateX(-50%)",background:tier.popular?C.orange:C.purple,color:"#fff",fontSize:9,fontWeight:800,padding:"4px 12px",borderRadius:20,whiteSpace:"nowrap" }}>{tier.badge}</div>}
+                <div style={{ display:"flex",justifyContent:"center",marginBottom:10 }}>
+                  <span style={{ background:`${tier.color}18`,color:tier.color,fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:20 }}>{tier.name}</span>
+                </div>
+                <div style={{ textAlign:"center",marginBottom:12 }}>
+                  {tier.mo===null
+                    ? <div className="sg" style={{ fontSize:22,fontWeight:800,color:C.text }}>Custom</div>
+                    : <>
+                        <span className="sg" style={{ fontSize:34,fontWeight:900,color:tier.popular?C.orange:C.text }}>${price}</span>
+                        <span style={{ color:C.textDim,fontSize:12 }}>/mo</span>
+                        {billing==="yearly"&&tier.mo>0&&<div style={{ color:C.green,fontSize:10,fontWeight:600 }}>Save ${(tier.mo-tier.yr)*12}/yr</div>}
+                      </>
+                  }
+                </div>
+                <p style={{ color:C.textMid,fontSize:11,lineHeight:1.5,marginBottom:14,textAlign:"center",minHeight:40 }}>{tier.desc}</p>
+                <button onClick={()=>{if(onSelectPlan)onSelectPlan(tier.id);goBack&&goBack();}} style={{ width:"100%",padding:"9px 0",fontSize:12,borderRadius:8,border:`${isActive?"2":"1"}px solid ${tier.popular?C.orange:isActive?C.green:C.blueL}`,background:tier.popular?`linear-gradient(135deg,${C.orange},#EA580C)`:isActive?C.greenL:"transparent",color:tier.popular?"#fff":isActive?C.green:C.blueL,cursor:"pointer",fontFamily:"inherit",fontWeight:700,marginBottom:14 }}>
+                  {isActive?"✓ Current Plan":tier.cta}
+                </button>
+                <div style={{ borderTop:`1px solid ${C.border}`,paddingTop:12 }}>
+                  {tier.limits.map(f=>(
+                    <div key={f} style={{ display:"flex",alignItems:"flex-start",gap:6,marginBottom:6 }}>
+                      <div style={{ width:14,height:14,borderRadius:"50%",background:`${tier.color}18`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1 }}>
+                        <Check size={8} color={tier.color} strokeWidth={3}/>
+                      </div>
+                      <span style={{ color:C.textMid,fontSize:11,lineHeight:1.4 }}>{f}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <p style={{color:C.textMid,fontSize:13,lineHeight:1.6,marginBottom:20}}>{plan.desc}</p>
-              <button style={{width:"100%",padding:"11px 0",fontSize:14,borderRadius:9,border:"none",background:plan.popular?C.blueL:C.bg,color:plan.popular?"#fff":C.text,cursor:"pointer",fontFamily:"inherit",fontWeight:700,marginBottom:20}}>{plan.current?"Current Plan":"Get Started"}</button>
-              {["Unlimited keyword tracking","Advanced competitor analysis","AI-powered content lab","White-label PDF reports","Priority 24/7 support","Full API access"].map(f=>(<div key={f} style={{display:"flex",alignItems:"center",gap:7,marginBottom:7,textAlign:"left"}}><div style={{width:15,height:15,borderRadius:"50%",background:C.greenL,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Check size={8} color={C.green} strokeWidth={3}/></div><span style={{color:C.textMid,fontSize:12}}>{f}</span></div>))}
-            </div>
-          );})}
+            );
+          })}
         </div>
+
+        {/* Feature comparison table */}
+        <div style={{ background:"#fff",border:`1px solid ${C.border}`,borderRadius:16,overflow:"hidden",marginBottom:48 }}>
+          <div style={{ padding:"18px 24px",borderBottom:`1px solid ${C.border}` }}>
+            <h2 className="sg" style={{ color:C.text,fontSize:18,fontWeight:800 }}>Full feature comparison</h2>
+          </div>
+          <table style={{ width:"100%",borderCollapse:"collapse" }}>
+            <thead>
+              <tr style={{ background:C.bg }}>
+                <th style={{ padding:"12px 20px",textAlign:"left",color:C.textDim,fontSize:11,fontWeight:700,borderBottom:`1px solid ${C.border}`,width:"25%" }}>Feature</th>
+                {tiers.map(t=>(
+                  <th key={t.id} style={{ padding:"12px 12px",textAlign:"center",borderBottom:`1px solid ${C.border}`,width:"15%" }}>
+                    <span style={{ color:t.color,fontSize:12,fontWeight:700 }}>{t.name}</span>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {featureRows.map((feat,i)=>(
+                <tr key={feat} style={{ background:i%2===0?"#fff":C.bg }}>
+                  <td style={{ padding:"11px 20px",color:C.text,fontSize:12,fontWeight:600,borderBottom:`1px solid ${C.border}` }}>{feat}</td>
+                  {tiers.map(t=>(
+                    <td key={t.id} style={{ padding:"11px 12px",textAlign:"center",borderBottom:`1px solid ${C.border}` }}>
+                      <span style={{ color:C.textMid,fontSize:11 }}>{t.features[feat]||"—"}</span>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Usage-based limits explainer */}
+        <div style={{ display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16,marginBottom:48 }}>
+          {[
+            { icon:"⚡",title:"AI Credits",desc:"Each AI action (audit report, keyword suggestion, content generation) uses 1 credit. Roll over unused credits each month on Pro+." },
+            { icon:"📊",title:"Soft Limits",desc:"Hit your limit? We give you a 10% grace period before asking you to upgrade — because growth shouldn't be punished." },
+            { icon:"🔒",title:"Preview Locked Features",desc:"Every locked feature shows you exactly what you're getting before you pay. No surprises. No mystery boxes." },
+          ].map(c=>(
+            <div key={c.title} style={{ background:"#fff",border:`1px solid ${C.border}`,borderRadius:12,padding:"20px 22px",textAlign:"left" }}>
+              <div style={{ fontSize:28,marginBottom:10 }}>{c.icon}</div>
+              <div style={{ color:C.text,fontWeight:700,fontSize:14,marginBottom:6 }}>{c.title}</div>
+              <p style={{ color:C.textMid,fontSize:12,lineHeight:1.65 }}>{c.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA strip */}
+        <div style={{ background:`linear-gradient(135deg,${C.blue},${C.blueL})`,borderRadius:16,padding:"36px 40px",display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:40 }}>
+          <div style={{ textAlign:"left" }}>
+            <div className="sg" style={{ color:"#fff",fontSize:22,fontWeight:800,marginBottom:6 }}>Replace 5 tools with one platform</div>
+            <p style={{ color:"rgba(255,255,255,.8)",fontSize:13 }}>SEMrush + Slack + Trello + CRM + Invoicing — all at a fraction of the cost</p>
+          </div>
+          <button onClick={()=>{if(onSelectPlan)onSelectPlan("pro");goBack&&goBack();}} style={{ background:"#fff",color:C.blueL,border:"none",cursor:"pointer",padding:"12px 28px",borderRadius:10,fontSize:14,fontWeight:800,fontFamily:"inherit",flexShrink:0 }}>
+            Start Free Trial →
+          </button>
+        </div>
+        <p style={{ color:C.textDim,fontSize:12,textAlign:"center" }}>No credit card required for free plan. Starter/Pro: 14-day free trial. Cancel anytime.</p>
       </section>
     </div>
   );
@@ -1252,112 +2035,177 @@ function PricingPage({ goBack }) {
 
 // ── CrawlDashboard ───────────────────────────────────────────────────
 function CrawlDashboard({ onNavigate }) {
-  const stats = [
-    { l:"Domain Rating", v:"42", ch:"+3", up:true, icon:Shield, c:C.blueL },
-    { l:"Organic Traffic", v:"52,340", ch:"+18.4%", up:true, icon:TrendingUp, c:C.green },
-    { l:"Keywords Ranked", v:"1,475", ch:"+12.1%", up:true, icon:Search, c:C.orange },
-    { l:"Backlinks", v:"14,280", ch:"-2.3%", up:false, icon:Link2, c:C.purple },
+  const [search, setSearch] = useState("");
+  const [tab, setTab] = useState("all");
+  const [country, setCountry] = useState("🇵🇭 PHL");
+  const [showCreate, setShowCreate] = useState(false);
+  const projects = [
+    { name:"seoengineboost.com", domain:"seoengineboost.com", health:82, rankChange:"no change", status:"active" },
+    { name:"dentalpro.com", domain:"dentalpro.com", health:900, rankChange:"no change", status:"active" },
   ];
-  const issues = [
-    { t:"12 pages missing H1 tags", sev:"Critical", c:C.red, bg:C.redL },
-    { t:"Core Web Vitals failing on mobile", sev:"Critical", c:C.red, bg:C.redL },
-    { t:"48 images missing alt text", sev:"High", c:C.yellow, bg:C.yellowL },
-    { t:"14 orphan pages found", sev:"Medium", c:C.orange, bg:C.orangeL },
-  ];
+  const tools = ["Site Health","Position Tracking","On-page SEO Checker","Social Media Tools","Social Media Post","Brand Monitoring","Backlink Audits","Building Links","PPC Keyword Tool","Organic Traffic","Social Direct","Content Analyzer"];
+  if (showCreate) {
+    return <NewProjectWizard onDone={() => setShowCreate(false)} />;
+  }
   return (
-    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", padding:"22px 28px", background:C.bg }}>
-      <div style={{ background:`linear-gradient(135deg,${C.blue},${C.blueL})`, borderRadius:16, padding:"28px 32px", marginBottom:24, position:"relative", overflow:"hidden" }}>
-        <div style={{ position:"absolute", right:-20, top:-20, width:200, height:200, borderRadius:"50%", background:"rgba(255,255,255,0.06)" }}/>
-        <div style={{ color:"rgba(255,255,255,.7)", fontSize:13, marginBottom:6 }}>Good Morning 👋</div>
-        <div className="sg" style={{ fontSize:26, fontWeight:800, color:"#fff", marginBottom:10 }}>Welcome back, Admin</div>
-        <div style={{ color:"rgba(255,255,255,.75)", fontSize:14, marginBottom:20, maxWidth:420 }}>Your SEO performance is improving. 3 keywords moved into top 10 this week.</div>
-        <div style={{ display:"flex", gap:12 }}>
-          <button style={{ background:"#fff", color:C.blue, border:"none", cursor:"pointer", padding:"9px 20px", borderRadius:9, fontSize:13, fontWeight:700, fontFamily:"inherit" }} onClick={() => onNavigate && onNavigate("siteaudit")}>Run SEO Audit</button>
-          <button style={{ background:"rgba(255,255,255,.15)", color:"#fff", border:"1px solid rgba(255,255,255,.3)", cursor:"pointer", padding:"9px 20px", borderRadius:9, fontSize:13, fontWeight:700, fontFamily:"inherit" }} onClick={() => onNavigate && onNavigate("seoassistant")}>Ask AI Copilot</button>
+    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", background:C.bg }}>
+      {/* Search bar */}
+      <div style={{ padding:"10px 20px", background:C.white, borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:10 }}>
+        <div style={{ flex:1, display:"flex", alignItems:"center", gap:8, background:C.bg, border:`1px solid ${C.border}`, borderRadius:8, padding:"8px 14px" }}>
+          <Search size={14} color={C.textDim}/>
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Enter Url, domain or keyword" style={{ background:"transparent", border:"none", outline:"none", color:C.text, fontSize:13, fontFamily:"inherit", flex:1 }}/>
         </div>
+        <select value={country} onChange={e=>setCountry(e.target.value)} style={{ background:C.bg, border:`1px solid ${C.border}`, borderRadius:8, padding:"8px 12px", color:C.text, fontSize:13, fontFamily:"inherit", cursor:"pointer" }}>
+          <option>🇵🇭 PHL</option><option>🇺🇸 USA</option><option>🇬🇧 GBR</option><option>🇳🇬 NGR</option>
+        </select>
+        <button style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"9px 24px", borderRadius:8, fontSize:13, fontWeight:700, fontFamily:"inherit" }}>Search</button>
       </div>
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16, marginBottom:24 }}>
-        {stats.map(m => (
-          <div key={m.l} className="card ch" style={{ padding:18 }}>
-            <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
-              <div style={{ width:36, height:36, borderRadius:10, background:`${m.c}18`, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                <m.icon size={17} color={m.c}/>
-              </div>
-              <span style={{ color:C.textDim, fontSize:12 }}>{m.l}</span>
-            </div>
-            <div className="sg" style={{ fontSize:24, fontWeight:800, color:C.text, marginBottom:4 }}>{m.v}</div>
-            <div style={{ color:m.up?C.green:C.red, fontSize:12, fontWeight:600 }}>{m.up?"↑":"↓"} {m.ch} vs last month</div>
+
+      {/* Hero gradient banner */}
+      <div style={{ margin:"16px 20px", borderRadius:16, overflow:"hidden", height:180, position:"relative", background:"linear-gradient(135deg, #3B5EF5 0%, #6B4FE8 40%, #F97316 80%, #FB923C 100%)" }}>
+        {/* Diamond pattern overlay */}
+        <svg style={{ position:"absolute", right:0, top:0, height:"100%", opacity:0.25 }} viewBox="0 0 400 180" preserveAspectRatio="xMaxYMid slice">
+          {Array.from({length:8}).map((_,row)=>Array.from({length:12}).map((_,col)=>(
+            <rect key={`${row}-${col}`} x={col*40-row*10} y={row*28-10} width={20} height={20} transform={`rotate(45,${col*40-row*10+10},${row*28})`} fill="white"/>
+          )))}
+        </svg>
+        <div style={{ position:"relative", padding:"32px 36px", color:"#fff" }}>
+          <div className="sg" style={{ fontSize:22, fontWeight:800, marginBottom:6 }}>Boostly SEO Platform</div>
+          <div style={{ fontSize:14, opacity:0.85, marginBottom:18, maxWidth:400 }}>All-in-one SEO toolkit — audit, track, research and grow your organic traffic faster.</div>
+          <div style={{ display:"flex", gap:10 }}>
+            <button style={{ background:"rgba(255,255,255,.2)", border:"1px solid rgba(255,255,255,.4)", color:"#fff", cursor:"pointer", padding:"7px 18px", borderRadius:8, fontSize:12, fontWeight:700, fontFamily:"inherit" }} onClick={()=>onNavigate&&onNavigate("siteaudit")}>Run Audit</button>
+            <button style={{ background:"rgba(255,255,255,.2)", border:"1px solid rgba(255,255,255,.4)", color:"#fff", cursor:"pointer", padding:"7px 18px", borderRadius:8, fontSize:12, fontWeight:700, fontFamily:"inherit" }} onClick={()=>onNavigate&&onNavigate("keyword")}>Keyword Research</button>
           </div>
-        ))}
-      </div>
-      <div style={{ display:"grid", gridTemplateColumns:"2fr 1fr", gap:20, marginBottom:24 }}>
-        <div className="card" style={{ padding:20 }}>
-          <div className="sg" style={{ color:C.text, fontWeight:700, marginBottom:16 }}>Organic Traffic Trend</div>
-          <ResponsiveContainer width="100%" height={200}>
-            <AreaChart data={trafficData}>
-              <defs>
-                <linearGradient id="cdg" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={C.blueL} stopOpacity={0.25}/>
-                  <stop offset="95%" stopColor={C.blueL} stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke={C.border}/>
-              <XAxis dataKey="m" tick={{ fill:C.textDim, fontSize:11 }} axisLine={false}/>
-              <YAxis tick={{ fill:C.textDim, fontSize:11 }} axisLine={false} tickFormatter={v=>`${v/1000}k`}/>
-              <Tooltip contentStyle={{ background:C.white, border:`1px solid ${C.border}`, borderRadius:8 }}/>
-              <Area type="monotone" dataKey="v" stroke={C.blueL} fill="url(#cdg)" strokeWidth={2} name="Traffic"/>
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="card" style={{ padding:20 }}>
-          <div className="sg" style={{ color:C.text, fontWeight:700, marginBottom:14 }}>Critical Issues</div>
-          {issues.map((iss,i) => (
-            <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 0", borderBottom:i<issues.length-1?`1px solid ${C.border}`:"none" }}>
-              <span className="chip" style={{ color:iss.c, background:iss.bg, flexShrink:0 }}>{iss.sev}</span>
-              <span style={{ color:C.textMid, fontSize:12, flex:1 }}>{iss.t}</span>
-            </div>
-          ))}
-          <button style={{ marginTop:12, width:"100%", background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"8px", borderRadius:8, fontSize:12, fontWeight:700, fontFamily:"inherit" }} onClick={() => onNavigate && onNavigate("aisuggestions")}>Fix All Issues →</button>
         </div>
       </div>
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20 }}>
-        <div className="card" style={{ padding:20 }}>
-          <div className="sg" style={{ color:C.text, fontWeight:700, marginBottom:14 }}>Top Keywords This Week</div>
-          {[
-            { kw:"designer tools", pos:3, ch:+2, vol:"8.1K" },
-            { kw:"SEO software", pos:7, ch:+5, vol:"22K" },
-            { kw:"web design agency", pos:12, ch:-1, vol:"14K" },
-            { kw:"keyword tracker", pos:18, ch:+3, vol:"5.5K" },
-          ].map(k => (
-            <div key={k.kw} style={{ display:"flex", alignItems:"center", padding:"9px 0", borderBottom:`1px solid ${C.border}` }}>
-              <div style={{ flex:1, color:C.text, fontSize:13 }}>{k.kw}</div>
-              <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:14, marginRight:12 }}>#{k.pos}</div>
-              <div style={{ color:k.ch>0?C.green:C.red, fontSize:12, fontWeight:600, marginRight:12 }}>{k.ch>0?"↑":"↓"}{Math.abs(k.ch)}</div>
-              <div style={{ color:C.textDim, fontSize:12 }}>{k.vol}/mo</div>
-            </div>
+
+      {/* My Projects */}
+      <div style={{ margin:"0 20px 20px", background:C.white, border:`1px solid ${C.border}`, borderRadius:14, overflow:"hidden" }}>
+        <div style={{ padding:"12px 16px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:10 }}>
+          <span className="sg" style={{ color:C.text, fontWeight:700, fontSize:15, flex:1 }}>My Projects</span>
+          <span style={{ color:C.textDim, fontSize:12, marginRight:6 }}>Tags ∨</span>
+          <div style={{ display:"flex", alignItems:"center", gap:8, background:C.bg, border:`1px solid ${C.border}`, borderRadius:7, padding:"5px 10px" }}>
+            <Search size={11} color={C.textDim}/>
+            <input placeholder="Enter Project, Url or keyword" style={{ background:"transparent", border:"none", outline:"none", color:C.textMid, fontSize:11, width:180, fontFamily:"inherit" }}/>
+          </div>
+          <button style={{ background:C.bg, border:`1px solid ${C.border}`, color:C.textMid, cursor:"pointer", padding:"6px 12px", borderRadius:7, fontSize:12, fontFamily:"inherit" }}>Search</button>
+          <button onClick={()=>setShowCreate(true)} style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"7px 14px", borderRadius:7, fontSize:12, fontWeight:700, fontFamily:"inherit", display:"flex", alignItems:"center", gap:5 }}>
+            <Plus size={12}/> Create Project
+          </button>
+        </div>
+        {/* Tabs */}
+        <div style={{ padding:"0 16px", borderBottom:`1px solid ${C.border}`, display:"flex", gap:0 }}>
+          {[["all","All (2)"],["own","My Own (2)"],["shared","Shared (0)"]].map(([id,label])=>(
+            <button key={id} onClick={()=>setTab(id)} style={{ background:"none", border:"none", borderBottom:tab===id?`2px solid ${C.blueL}`:"2px solid transparent", color:tab===id?C.blueL:C.textDim, cursor:"pointer", padding:"9px 16px", fontSize:12, fontWeight:tab===id?700:500, fontFamily:"inherit" }}>{label}</button>
           ))}
         </div>
-        <div className="card" style={{ padding:20 }}>
-          <div className="sg" style={{ color:C.text, fontWeight:700, marginBottom:14 }}>Recent Activity</div>
-          {[
-            { t:"Audit completed", d:"85 issues found on homepage", c:C.orange, time:"5m ago" },
-            { t:"New backlink", d:"techcrunch.com → /blog/seo", c:C.green, time:"2h ago" },
-            { t:"Rank change", d:"'designer' moved from #8 → #3", c:C.blueL, time:"4h ago" },
-            { t:"Report generated", d:"Monthly SEO report ready", c:C.purple, time:"1d ago" },
-          ].map((a,i) => (
-            <div key={i} style={{ display:"flex", gap:12, padding:"9px 0", borderBottom:`1px solid ${C.border}` }}>
-              <div style={{ width:8, height:8, borderRadius:"50%", background:a.c, marginTop:4, flexShrink:0 }}/>
-              <div style={{ flex:1 }}>
-                <div style={{ color:C.text, fontSize:13, fontWeight:600 }}>{a.t}</div>
-                <div style={{ color:C.textMid, fontSize:12 }}>{a.d}</div>
-              </div>
-              <div style={{ color:C.textDim, fontSize:11 }}>{a.time}</div>
-            </div>
-          ))}
+        {/* Table */}
+        <div style={{ overflowX:"auto" }}>
+          <table style={{ width:"100%", borderCollapse:"collapse", minWidth:900 }}>
+            <thead>
+              <tr style={{ background:C.bg }}>
+                <th style={{ padding:"9px 14px", textAlign:"left", color:C.textDim, fontSize:10, fontWeight:700, borderBottom:`1px solid ${C.border}`, whiteSpace:"nowrap", minWidth:140 }}>Project</th>
+                {tools.map(t=>(
+                  <th key={t} style={{ padding:"9px 8px", textAlign:"center", color:C.textDim, fontSize:9, fontWeight:700, borderBottom:`1px solid ${C.border}`, maxWidth:80, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{t}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {projects.map((p,i)=>(
+                <tr key={i} className="td">
+                  <td style={{ padding:"12px 14px", borderBottom:`1px solid ${C.border}` }}>
+                    <div style={{ color:C.text, fontWeight:700, fontSize:13 }}>{p.name}</div>
+                    <div style={{ color:C.textDim, fontSize:11 }}>{p.domain}</div>
+                    <div style={{ color:p.rankChange==="no change"?C.textDim:C.green, fontSize:10, marginTop:2 }}>
+                      <span style={{ background:`${C.border}`, padding:"1px 6px", borderRadius:4, marginRight:4 }}>{p.health}</span>
+                      {p.rankChange}
+                    </div>
+                  </td>
+                  {tools.map(t=>(
+                    <td key={t} style={{ padding:"12px 8px", textAlign:"center", borderBottom:`1px solid ${C.border}` }}>
+                      <span style={{ color:C.blueL, fontSize:11, fontWeight:600, cursor:"pointer" }} className="hl">Set Up</span>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   );
+}
+
+// ── New Project Wizard ────────────────────────────────────────────────
+function NewProjectWizard({ onDone }) {
+  const [step, setStep] = useState(1);
+  const [url, setUrl] = useState("");
+  const [name, setName] = useState("");
+  const [keyword, setKeyword] = useState("");
+  const [location, setLocation] = useState("");
+
+  const wizardCard = (title, subtitle, children) => (
+    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", background:C.bg, display:"flex", flexDirection:"column" }}>
+      <div style={{ padding:"18px 24px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+        <h2 className="sg" style={{ color:C.text, fontSize:20, fontWeight:800 }}>New Project</h2>
+        <div style={{ display:"flex", gap:8 }}>
+          {[1,2,3].map(s=>(
+            <div key={s} style={{ width:28, height:6, borderRadius:3, background:step>=s?C.blueL:C.border }}/>
+          ))}
+        </div>
+      </div>
+      <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", padding:"0 24px 24px" }}>
+        <div style={{ width:"100%", maxWidth:700, background:`linear-gradient(135deg, ${C.blueL} 0%, #4F46E5 60%, #6366F1 100%)`, borderRadius:18, padding:"48px 52px", position:"relative", overflow:"hidden" }}>
+          {/* Decorative circle */}
+          <div style={{ position:"absolute", right:-60, top:-60, width:280, height:280, borderRadius:"50%", background:"rgba(255,255,255,0.08)" }}/>
+          <div style={{ position:"absolute", right:40, bottom:-80, width:200, height:200, borderRadius:"50%", background:"rgba(255,255,255,0.05)" }}/>
+          <div style={{ position:"relative" }}>
+            <h3 className="sg" style={{ color:"#fff", fontSize:22, fontWeight:800, textAlign:"center", marginBottom:6 }}>{title}</h3>
+            <div style={{ width:40, height:3, background:"rgba(255,255,255,.5)", borderRadius:2, margin:"0 auto 16px" }}/>
+            {subtitle && <p style={{ color:"rgba(255,255,255,.75)", fontSize:13, textAlign:"center", marginBottom:24 }}>{subtitle}</p>}
+            {children}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const inputStyle = { width:"100%", background:"rgba(255,255,255,.15)", border:"1px solid rgba(255,255,255,.3)", borderRadius:8, padding:"12px 16px", color:"#fff", fontSize:14, fontFamily:"inherit", outline:"none", boxSizing:"border-box" };
+  const btnBack = { background:"transparent", border:"1px solid rgba(255,255,255,.4)", color:"#fff", cursor:"pointer", padding:"9px 24px", borderRadius:8, fontSize:13, fontWeight:600, fontFamily:"inherit" };
+  const btnNext = { background:"#fff", color:C.blueL, border:"none", cursor:"pointer", padding:"9px 24px", borderRadius:8, fontSize:13, fontWeight:700, fontFamily:"inherit", display:"flex", alignItems:"center", gap:6 };
+
+  if (step===1) return wizardCard("Project Information", null, (
+    <>
+      <input value={url} onChange={e=>setUrl(e.target.value)} placeholder="website URL" style={{ ...inputStyle, marginBottom:14 }}/>
+      <input value={name} onChange={e=>setName(e.target.value)} placeholder="Project name" style={{ ...inputStyle, marginBottom:28 }}/>
+      <div style={{ display:"flex", justifyContent:"space-between" }}>
+        <button onClick={onDone} style={btnBack}>Close</button>
+        <button onClick={()=>setStep(2)} style={btnNext}>Next →</button>
+      </div>
+    </>
+  ));
+
+  if (step===2) return wizardCard("Enter Keyword", "Click on next to track the performance of keyword", (
+    <>
+      <input value={keyword} onChange={e=>setKeyword(e.target.value)} placeholder="Keyword" style={{ ...inputStyle, marginBottom:10 }}/>
+      <p style={{ color:"rgba(255,255,255,.6)", fontSize:12, textAlign:"center", marginBottom:28 }}>Confirm Better <span style={{ textDecoration:"underline", cursor:"pointer" }}>plans</span> to add multiple locations</p>
+      <div style={{ display:"flex", justifyContent:"space-between" }}>
+        <button onClick={()=>setStep(1)} style={btnBack}>Back</button>
+        <button onClick={()=>setStep(3)} style={btnNext}>Next →</button>
+      </div>
+    </>
+  ));
+
+  return wizardCard("Specify Locations", "Enter the country or city you want traffic from", (
+    <>
+      <input value={location} onChange={e=>setLocation(e.target.value)} placeholder="Enter country or city" style={{ ...inputStyle, marginBottom:10 }}/>
+      <p style={{ color:"rgba(255,255,255,.6)", fontSize:12, textAlign:"center", marginBottom:28 }}>Explore Better <span style={{ textDecoration:"underline", cursor:"pointer" }}>plans</span> to add multiple locations</p>
+      <div style={{ display:"flex", justifyContent:"space-between" }}>
+        <button onClick={()=>setStep(2)} style={btnBack}>Back</button>
+        <button onClick={onDone} style={btnNext}>Next →</button>
+      </div>
+    </>
+  ));
 }
 
 // ── AdvancedKeywordResearch ───────────────────────────────────────────
@@ -3144,38 +3992,137 @@ function SEOAssistant() {
 
 // ── Admin Dashboard Screen ────────────────────────────────────────────
 function AdminDashboard({ onNavigate }) {
+  const [tab, setTab] = useState("dashboard");
   const revData = [
     {m:"Jan",v:28000},{m:"Feb",v:32000},{m:"Mar",v:35000},{m:"Apr",v:38000},{m:"May",v:42000},{m:"Jun",v:45000}
   ];
-  const recentUsers = [
-    {name:"Ahmed Al-Rashid",email:"ahmed@company.com",plan:"Pro",joined:"May 8",rev:"$79"},
-    {name:"Sarah Kim",email:"sarah@agency.io",plan:"Agency",joined:"May 7",rev:"$199"},
-    {name:"James Park",email:"james@startup.com",plan:"Starter",joined:"May 6",rev:"$29"},
-    {name:"Lena Garcia",email:"lena@design.co",plan:"Pro",joined:"May 5",rev:"$79"},
+  const plans = [
+    { name:"Individual", price:"$12", users:123, c:C.blueL },
+    { name:"Business",   price:"$40", users:124, c:C.blueL },
+    { name:"Enterprise", price:"$12", users:324, c:C.blueL },
+    { name:"Individual", price:"$12", users:98,  c:C.blueL },
   ];
-  const planColor = {Pro:C.orange,Agency:C.purple,Starter:C.blueL};
+  const subsUsers = [
+    { name:"User 1", plan:"Individual", days:12 },
+    { name:"User 2", plan:"Business",   days:12 },
+    { name:"User 3", plan:"Business",   days:12 },
+    { name:"User 4", plan:"Business",   days:12 },
+    { name:"User 5", plan:"Business",   days:12 },
+    { name:"User 6", plan:"Business",   days:12 },
+  ];
+  const planCol = n => n==="Individual"?C.blueL:n==="Business"?C.orange:C.purple;
   return (
-    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)" }}>
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12, padding:"20px 24px 0" }}>
-        {[{l:"Total Users",v:"1,284",chg:"+84 this month",c:C.blueL,icon:Users},{l:"Active Subscriptions",v:"842",chg:"65.6% of users",c:C.green,icon:CheckCircle2},{l:"Monthly Revenue",v:"$48,920",chg:"+18.4% vs last mo.",c:C.orange,icon:Activity},{l:"Churn Rate",v:"2.4%",chg:"-0.8% vs last mo.",c:C.red,icon:TrendingDown}].map(({l,v,chg,c,icon:Icon}) => (
-          <div key={l} className="card ch" style={{ padding:"16px 18px" }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:10 }}>
-              <div style={{ width:34,height:34,borderRadius:9,background:`${c}18`,display:"flex",alignItems:"center",justifyContent:"center" }}><Icon size={14} color={c}/></div>
-              <span className="chip" style={{ color:c.includes(C.red)?C.red:C.green, background:c.includes(C.red)?C.redL:C.greenL, fontSize:9.5 }}>{chg}</span>
-            </div>
-            <div className="sg" style={{ color:C.text, fontSize:22, fontWeight:800 }}>{v}</div>
-            <div style={{ color:C.textDim, fontSize:11, marginTop:2 }}>{l}</div>
+    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", background:C.bg }}>
+      {/* Sidebar tabs */}
+      <div style={{ display:"flex", height:"100%", position:"relative" }}>
+        {/* Left mini nav */}
+        <div style={{ width:170, background:C.white, borderRight:`1px solid ${C.border}`, flexShrink:0, padding:"16px 10px", display:"flex", flexDirection:"column", gap:4 }}>
+          {[
+            { id:"dashboard", icon:LayoutDashboard, label:"Dashboard" },
+            { id:"users",     icon:Users,           label:"Users" },
+            { id:"plans",     icon:BarChart2,      label:"Price and Plans" },
+            { id:"payments",  icon:DollarSign,      label:"Payments" },
+            { id:"settings",  icon:Settings,        label:"Settings" },
+          ].map(({ id, icon:Icon, label }) => (
+            <button key={id} onClick={()=>setTab(id)} style={{ display:"flex", alignItems:"center", gap:8, padding:"9px 12px", borderRadius:8, border:"none", cursor:"pointer", fontSize:12, fontFamily:"inherit", fontWeight:tab===id?700:500, background:tab===id?C.bluePale:"transparent", color:tab===id?C.blueL:C.textMid, textAlign:"left" }}>
+              <Icon size={14}/>{label}
+            </button>
+          ))}
+          <div style={{ marginTop:4 }}>
+            <button style={{ display:"flex", alignItems:"center", gap:8, padding:"9px 12px", borderRadius:8, border:"none", cursor:"pointer", fontSize:12, fontFamily:"inherit", fontWeight:400, background:"transparent", color:C.textDim, textAlign:"left", width:"100%" }}>
+              <HelpCircle size={14}/> Contact support
+            </button>
           </div>
-        ))}
-      </div>
-      <div style={{ padding:"16px 24px" }}>
-        <div style={{ display:"grid", gridTemplateColumns:"2fr 1fr", gap:16, marginBottom:16 }}>
+          <div style={{ borderRadius:8, border:`1px solid ${C.border}`, padding:"7px 12px", cursor:"pointer", textAlign:"center", fontSize:12, fontWeight:700, color:C.textMid, marginTop:4 }}>Help ?</div>
+          <div style={{ marginTop:"auto", paddingTop:12, borderTop:`1px solid ${C.border}` }}>
+            <button style={{ display:"flex", alignItems:"center", gap:8, padding:"9px 12px", borderRadius:8, border:"none", cursor:"pointer", fontSize:12, fontFamily:"inherit", color:C.red, background:"transparent", width:"100%" }}>
+              <LogOut size={14}/> Logout
+            </button>
+          </div>
+        </div>
+
+        {/* Main content */}
+        <div style={{ flex:1, overflowY:"auto", padding:"20px 24px" }}>
+          {/* Notification cards */}
+          <div style={{ display:"grid", gridTemplateColumns:"1fr auto", gap:16, marginBottom:20 }}>
+            <div style={{ background:C.white, border:`1px solid ${C.border}`, borderRadius:12, padding:"18px 24px", display:"flex", alignItems:"center", gap:16, position:"relative", overflow:"hidden" }}>
+              {/* Coin emojis */}
+              <div style={{ position:"absolute", right:20, top:-5, fontSize:28, opacity:0.7 }}>🪙</div>
+              <div style={{ position:"absolute", right:50, top:5, fontSize:20, opacity:0.5 }}>🪙</div>
+              <div style={{ position:"absolute", right:35, top:25, fontSize:16, opacity:0.4 }}>🪙</div>
+              <div>
+                <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:6 }}>
+                  <span style={{ color:C.text, fontWeight:700, fontSize:15 }}>New</span>
+                  <span style={{ fontSize:16 }}>🔔</span>
+                </div>
+                <div style={{ color:C.textMid, fontSize:13 }}>12 subscriptions expired today!</div>
+              </div>
+            </div>
+            <div style={{ background:C.white, border:`2px solid ${C.orange}`, borderRadius:12, padding:"16px 24px", textAlign:"center", minWidth:140 }}>
+              <div style={{ color:C.orange, fontSize:12, fontWeight:700, marginBottom:6 }}>Expires in a month</div>
+              <div className="sg" style={{ color:C.text, fontSize:36, fontWeight:800, lineHeight:1 }}>66</div>
+            </div>
+          </div>
+
+          {/* Subscription Plans */}
+          <div style={{ marginBottom:20 }}>
+            <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:16, marginBottom:14 }}>Subscription Plans</div>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14 }}>
+              {plans.map((p,i)=>(
+                <div key={i} className="card" style={{ padding:"16px 18px" }}>
+                  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                      <div style={{ width:10, height:10, borderRadius:"50%", background:p.c }}/>
+                      <span style={{ color:C.text, fontWeight:700, fontSize:14 }}>{p.name}</span>
+                    </div>
+                    <span style={{ color:C.textDim, fontSize:14, cursor:"pointer" }}>···</span>
+                  </div>
+                  <div style={{ marginBottom:12 }}>
+                    <span style={{ color:C.text, fontWeight:800, fontSize:18 }}>{p.price}</span>
+                    <span style={{ color:C.textDim, fontSize:12 }}> / month</span>
+                  </div>
+                  <button style={{ width:"100%", background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"8px", borderRadius:7, fontSize:12, fontWeight:700, fontFamily:"inherit" }}>
+                    {p.users} Users
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Users table */}
+          <div className="card" style={{ overflow:"hidden", marginBottom:20 }}>
+            <table style={{ width:"100%", borderCollapse:"collapse" }}>
+              <thead><tr style={{ background:C.bg }}>
+                {["Username","Plan name","Remaining days"].map(h=>(
+                  <th key={h} style={{ padding:"12px 20px", textAlign:"left", color:C.text, fontSize:13, fontWeight:700, borderBottom:`1px solid ${C.border}` }}>{h}</th>
+                ))}
+              </tr></thead>
+              <tbody>
+                {subsUsers.map((u,i)=>(
+                  <tr key={i} className="td">
+                    <td style={{ padding:"12px 20px", color:C.textMid, fontSize:13, borderBottom:`1px solid ${C.border}` }}>{u.name}</td>
+                    <td style={{ padding:"12px 20px", borderBottom:`1px solid ${C.border}` }}>
+                      <span style={{ color:planCol(u.plan), fontWeight:600, fontSize:13 }}>{u.plan}</span>
+                    </td>
+                    <td style={{ padding:"12px 20px", color:C.textMid, fontSize:13, borderBottom:`1px solid ${C.border}` }}>{u.days} days</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div style={{ padding:"12px 20px", display:"flex", justifyContent:"flex-end", borderTop:`1px solid ${C.border}` }}>
+              <button style={{ background:"transparent", border:`1px solid ${C.border}`, color:C.blueL, cursor:"pointer", padding:"6px 16px", borderRadius:7, fontSize:12, fontFamily:"inherit", display:"flex", alignItems:"center", gap:5 }}>
+                View all <ChevronDown size={11}/>
+              </button>
+            </div>
+          </div>
+
+          {/* Revenue chart */}
           <div className="card" style={{ padding:"18px 22px" }}>
             <div className="sg" style={{ color:C.text, fontSize:14, fontWeight:700, marginBottom:14 }}>Monthly Revenue</div>
-            <ResponsiveContainer width="100%" height={180}>
+            <ResponsiveContainer width="100%" height={160}>
               <AreaChart data={revData} margin={{top:0,right:0,left:-22,bottom:0}}>
                 <defs><linearGradient id="adg1" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={C.green} stopOpacity={.2}/><stop offset="95%" stopColor={C.green} stopOpacity={0}/></linearGradient></defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9"/>
+                <CartesianGrid strokeDasharray="3 3" stroke={C.border}/>
                 <XAxis dataKey="m" tick={{fill:C.textDim,fontSize:10}} axisLine={false} tickLine={false}/>
                 <YAxis tick={{fill:C.textDim,fontSize:9}} axisLine={false} tickLine={false} tickFormatter={v=>`$${v/1000}k`}/>
                 <Tooltip contentStyle={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:8,fontSize:11}}/>
@@ -3183,43 +4130,25 @@ function AdminDashboard({ onNavigate }) {
               </AreaChart>
             </ResponsiveContainer>
           </div>
-          <div className="card" style={{ padding:"16px 18px" }}>
-            <div className="sg" style={{ color:C.text, fontSize:13, fontWeight:700, marginBottom:12 }}>Quick Actions</div>
-            {[{l:"User Management",ic:"usermanagement",icon:Users,c:C.blueL},{l:"Payment Logs",ic:"paymentlogs",icon:Activity,c:C.green},{l:"NLP Analytics",ic:"nlpanalytics",icon:BarChart2,c:C.purple},{l:"Push Notifications",ic:"pushnotifications",icon:Bell,c:C.orange}].map(({l,ic,icon:Icon,c}) => (
-              <div key={l} onClick={() => onNavigate && onNavigate(ic)} className="hl" style={{ display:"flex", alignItems:"center", gap:9, padding:"9px 8px", borderRadius:8, cursor:"pointer", marginBottom:4 }}>
-                <div style={{ width:30,height:30,borderRadius:8,background:`${c}18`,display:"flex",alignItems:"center",justifyContent:"center" }}><Icon size={13} color={c}/></div>
-                <span style={{ color:C.text, fontSize:13, fontWeight:600 }}>{l}</span>
-                <ChevronRight size={12} color={C.textDim} style={{ marginLeft:"auto" }}/>
-              </div>
-            ))}
-            <div style={{ marginTop:12, paddingTop:12, borderTop:`1px solid ${C.border}` }}>
-              {[{l:"Plans (3 active)",v:"Starter · Pro · Agency"},{l:"Trial Users",v:"346 users in trial"},{l:"Avg. Revenue/User",v:"$58.1/month"}].map(({l,v}) => (
-                <div key={l} style={{ display:"flex", justifyContent:"space-between", padding:"5px 0" }}>
-                  <span style={{ color:C.textDim, fontSize:11 }}>{l}</span>
-                  <span style={{ color:C.text, fontSize:11, fontWeight:600 }}>{v}</span>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
 
-        <div className="card" style={{ overflow:"hidden" }}>
-          <div style={{ padding:"13px 20px", borderBottom:`1px solid ${C.border}`, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-            <div className="sg" style={{ color:C.text, fontSize:13, fontWeight:700 }}>Recent Sign-ups</div>
-            <button onClick={() => onNavigate && onNavigate("usermanagement")} style={{ background:"transparent", border:`1px solid ${C.border}`, color:C.blueL, cursor:"pointer", padding:"5px 12px", borderRadius:7, fontSize:11, fontFamily:"inherit" }}>View All →</button>
-          </div>
-          <div style={{ display:"grid", gridTemplateColumns:"2fr 2fr 1fr 1fr 1fr", padding:"8px 20px", background:C.bg, borderBottom:`1px solid ${C.border}` }}>
-            {["Name","Email","Plan","Joined","Revenue"].map(h => <div key={h} style={{ color:C.textDim, fontSize:10.5, fontWeight:700, letterSpacing:.4 }}>{h.toUpperCase()}</div>)}
-          </div>
-          {recentUsers.map(({name,email,plan,joined,rev},i) => (
-            <div key={i} className="td" style={{ display:"grid", gridTemplateColumns:"2fr 2fr 1fr 1fr 1fr", padding:"11px 20px", borderBottom:i<recentUsers.length-1?`1px solid ${C.border}`:"none", alignItems:"center" }}>
-              <div style={{ display:"flex", gap:8 }}><Av l={name[0]} size={28}/><span style={{ color:C.text, fontSize:13, fontWeight:600, alignSelf:"center" }}>{name}</span></div>
-              <span style={{ color:C.textDim, fontSize:12.5 }}>{email}</span>
-              <span className="chip" style={{ color:planColor[plan]||C.textMid, background:`${planColor[plan]||C.textMid}18` }}>{plan}</span>
-              <span style={{ color:C.textDim, fontSize:12 }}>{joined}</span>
-              <span style={{ color:C.green, fontWeight:700, fontSize:13 }}>{rev}</span>
+        {/* Right stats column */}
+        <div style={{ width:160, background:C.white, borderLeft:`1px solid ${C.border}`, flexShrink:0, padding:16, display:"flex", flexDirection:"column", gap:16 }}>
+          {[
+            { label:"No. of users", value:"80" },
+            { label:"Active subscribers", value:"23" },
+            { label:"Expired Sub.", value:"123" },
+          ].map(s=>(
+            <div key={s.label} className="card" style={{ padding:"14px 16px", textAlign:"center" }}>
+              <div style={{ color:C.textDim, fontSize:11, marginBottom:6, lineHeight:1.4 }}>{s.label}</div>
+              <div className="sg" style={{ color:C.text, fontSize:32, fontWeight:800 }}>{s.value}</div>
             </div>
           ))}
+          <div style={{ marginTop:"auto", borderTop:`1px solid ${C.border}`, paddingTop:14 }}>
+            {[{l:"Quick Actions",v:""},{l:"User Mgmt",ic:"usermanagement"},{l:"Payments",ic:"paymentlogs"},{l:"Push Notifs",ic:"pushnotifications"}].filter(a=>a.ic).map(a=>(
+              <button key={a.ic} onClick={()=>onNavigate&&onNavigate(a.ic)} style={{ display:"block", width:"100%", background:"transparent", border:`1px solid ${C.border}`, color:C.blueL, cursor:"pointer", padding:"7px 8px", borderRadius:7, fontSize:11, fontFamily:"inherit", marginBottom:6 }}>{a.l} →</button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -3518,6 +4447,120 @@ function PushNotifications() {
 
 // ── (end of new additions) ─────────────────────────────────────────────
 
+// ════════════════════════════════════════════════════════════════
+//  MONETIZATION LAYER — Plans, Usage, Upgrade Modals, Locks
+// ════════════════════════════════════════════════════════════════
+
+// ── Plan definitions (single source of truth) ────────────────────
+const PLANS = {
+  free:    { label:"Free",     color:C.textDim, bg:C.bg,      credits:10,  projects:1,  keywords:20,   pages:25,   team:1 },
+  starter: { label:"Starter",  color:C.blueL,   bg:C.bluePale,credits:200, projects:5,  keywords:500,  pages:5000, team:2 },
+  pro:     { label:"Pro",      color:C.orange,  bg:C.orangeL, credits:2000,projects:20, keywords:5000, pages:50000,team:10 },
+  agency:  { label:"Agency",   color:C.purple,  bg:C.purpleL, credits:9999,projects:999,keywords:99999,pages:999999,team:50 },
+};
+
+// ── Usage context (simulated) ─────────────────────────────────────
+const USAGE = {
+  credits:    { used:8,   limit:10 },
+  projects:   { used:1,   limit:1  },
+  keywords:   { used:14,  limit:20 },
+  pages:      { used:22,  limit:25 },
+  teamMembers:{ used:1,   limit:1  },
+};
+
+// ── Upgrade Modal ────────────────────────────────────────────────
+function UpgradeModal({ trigger, onClose, onUpgrade }) {
+  const triggerMap = {
+    credits:  { title:"AI Credits Running Low", desc:"You've used 8/10 AI credits this month. Upgrade to continue generating AI-powered reports and recommendations.", icon:"⚡" },
+    projects: { title:"Project Limit Reached", desc:"You've reached your 1-project limit. Upgrade to track multiple domains and manage all your clients in one place.", icon:"📁" },
+    keywords: { title:"Keyword Limit Reached", desc:"You're tracking 14/20 keywords. Upgrade to track unlimited keywords across all your projects.", icon:"🔑" },
+    export:   { title:"Export Locked on Free Plan", desc:"PDF and CSV exports are available on Starter and above. Upgrade to create branded client reports.", icon:"📄" },
+    team:     { title:"Team Collaboration is Pro+", desc:"Invite teammates, assign tasks, and collaborate in real-time. Available from the Starter plan.", icon:"👥" },
+    whitelabel:{ title:"White-Label is Pro+", desc:"Remove Boostly branding and use your own logo, colors, and domain for client-facing reports.", icon:"🏷" },
+    api:      { title:"API Access is Agency+", desc:"Integrate Boostly data into your own tools and workflows with full API access.", icon:"🔌" },
+  };
+  const info = triggerMap[trigger] || triggerMap.credits;
+  return (
+    <div style={{ position:"fixed",inset:0,background:"rgba(0,0,0,.45)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center" }} onClick={onClose}>
+      <div style={{ background:C.white,borderRadius:18,padding:"36px 40px",maxWidth:460,width:"90%",boxShadow:"0 20px 60px rgba(0,0,0,.2)",textAlign:"center" }} onClick={e=>e.stopPropagation()}>
+        <div style={{ fontSize:48,marginBottom:12 }}>{info.icon}</div>
+        <div className="sg" style={{ color:C.text,fontSize:20,fontWeight:800,marginBottom:10 }}>{info.title}</div>
+        <p style={{ color:C.textMid,fontSize:14,lineHeight:1.65,marginBottom:24 }}>{info.desc}</p>
+        {/* Plan cards */}
+        <div style={{ display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:24 }}>
+          {[
+            { name:"Starter",price:29,features:["5 projects","500 keywords","200 AI credits","Client reports"] },
+            { name:"Pro",price:79,features:["20 projects","5K keywords","2,000 AI credits","White-label"], popular:true },
+            { name:"Agency",price:199,features:["Unlimited","Unlimited","Unlimited","Full API"] },
+          ].map(p=>(
+            <div key={p.name} style={{ border:`${p.popular?2:1}px solid ${p.popular?C.blueL:C.border}`,borderRadius:12,padding:"14px 12px",position:"relative",cursor:"pointer",background:p.popular?C.bluePale:C.bg }} onClick={onUpgrade}>
+              {p.popular&&<div style={{ position:"absolute",top:-10,left:"50%",transform:"translateX(-50%)",background:C.blueL,color:"#fff",fontSize:9,fontWeight:800,padding:"3px 10px",borderRadius:20,whiteSpace:"nowrap" }}>BEST VALUE</div>}
+              <div style={{ fontWeight:700,fontSize:13,color:C.text,marginBottom:4 }}>{p.name}</div>
+              <div style={{ color:C.blueL,fontSize:20,fontWeight:800,marginBottom:8 }}>${p.price}<span style={{ color:C.textDim,fontSize:10,fontWeight:400 }}>/mo</span></div>
+              {p.features.map(f=><div key={f} style={{ color:C.textMid,fontSize:10,marginBottom:3 }}>✓ {f}</div>)}
+            </div>
+          ))}
+        </div>
+        <div style={{ display:"flex",gap:10 }}>
+          <button onClick={onClose} style={{ flex:1,background:"transparent",border:`1px solid ${C.border}`,color:C.textMid,cursor:"pointer",padding:"10px",borderRadius:9,fontSize:13,fontFamily:"inherit" }}>Maybe Later</button>
+          <button onClick={onUpgrade} style={{ flex:2,background:`linear-gradient(135deg,${C.orange},#EA580C)`,color:"#fff",border:"none",cursor:"pointer",padding:"10px",borderRadius:9,fontSize:13,fontWeight:700,fontFamily:"inherit" }}>⚡ Upgrade Now — Save 25% Yearly</button>
+        </div>
+        <p style={{ color:C.textDim,fontSize:11,marginTop:10 }}>No contracts. Cancel anytime. 14-day money-back guarantee.</p>
+      </div>
+    </div>
+  );
+}
+
+// ── Usage Meter bar (used in sidebar + settings) ──────────────────
+function UsageMeter({ label, used, limit, color }) {
+  const pct = Math.min((used/limit)*100,100);
+  const danger = pct >= 80;
+  return (
+    <div style={{ marginBottom:8 }}>
+      <div style={{ display:"flex",justifyContent:"space-between",marginBottom:4 }}>
+        <span style={{ color:C.textDim,fontSize:10 }}>{label}</span>
+        <span style={{ color:danger?C.red:C.textDim,fontSize:10,fontWeight:danger?700:400 }}>{used}/{limit}</span>
+      </div>
+      <div style={{ background:C.border,borderRadius:10,height:5,overflow:"hidden" }}>
+        <div style={{ width:`${pct}%`,height:"100%",background:danger?C.red:(color||C.blueL),borderRadius:10,transition:"width .3s" }}/>
+      </div>
+    </div>
+  );
+}
+
+// ── Locked Feature Overlay (put over any premium feature) ─────────
+function LockedFeature({ feature, plan, children, onUpgrade }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <div style={{ position:"relative",overflow:"hidden" }}
+      onMouseEnter={()=>setHover(true)} onMouseLeave={()=>setHover(false)}>
+      <div style={{ filter:"blur(3px)",pointerEvents:"none",userSelect:"none",opacity:0.6 }}>{children}</div>
+      <div style={{ position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"rgba(255,255,255,0.85)",borderRadius:10,backdropFilter:"blur(2px)" }}>
+        <div style={{ width:36,height:36,borderRadius:10,background:`linear-gradient(135deg,${C.blue},${C.blueL})`,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:8 }}>
+          <Lock size={16} color="#fff"/>
+        </div>
+        <div style={{ color:C.text,fontWeight:700,fontSize:13,marginBottom:4 }}>{feature}</div>
+        <div style={{ color:C.textDim,fontSize:11,marginBottom:12,textAlign:"center",maxWidth:180 }}>Available on {plan || "Pro"} plan and above</div>
+        <button onClick={onUpgrade} style={{ background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"7px 18px",borderRadius:7,fontSize:12,fontWeight:700,fontFamily:"inherit" }}>
+          🔒 Unlock with {plan||"Pro"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Plan badge (shown in topbar + settings) ───────────────────────
+function PlanBadge({ plan, onClick }) {
+  const p = PLANS[plan] || PLANS.free;
+  return (
+    <div onClick={onClick} style={{ display:"flex",alignItems:"center",gap:6,background:p.bg,border:`1px solid ${p.color}22`,borderRadius:7,padding:"4px 10px",cursor:"pointer" }}>
+      <div style={{ width:7,height:7,borderRadius:"50%",background:p.color }}/>
+      <span style={{ color:p.color,fontSize:11,fontWeight:700 }}>{p.label} Plan</span>
+      <ChevronRight size={10} color={p.color}/>
+    </div>
+  );
+}
+
 // ── Updated SCREENS Map (with all screens including new sub-screens) ────
 const SCREENS = {
   crawl:               { C: CrawlDashboard,          title: "Dashboard",               sub: "Welcome to Boostly — your SEO command center" },
@@ -3676,6 +4719,12 @@ function SidebarFull({ active, setActive, sub, setSub, openAI, setOpenAI }) {
       </div>
 
       <div style={{borderTop:`1px solid ${C.border}`,padding:"10px 10px 14px"}}>
+        {/* Usage meters */}
+        <div style={{padding:"10px 8px",borderTop:`1px solid ${C.border}`,marginBottom:4}}>
+          <UsageMeter label="AI Credits" used={USAGE.credits.used} limit={USAGE.credits.limit} color={USAGE.credits.used/USAGE.credits.limit>=0.8?C.red:C.blueL}/>
+          <UsageMeter label="Keywords" used={USAGE.keywords.used} limit={USAGE.keywords.limit}/>
+          <UsageMeter label="Projects" used={USAGE.projects.used} limit={USAGE.projects.limit}/>
+        </div>
         {/* Upgrade banner */}
         <div style={{background:`linear-gradient(135deg,${C.orange},#EA580C)`,borderRadius:10,padding:"12px 14px",marginBottom:10,cursor:"pointer"}} onClick={() => setActive("pricing")}>
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
@@ -3705,6 +4754,8 @@ export default function App() {
   const [view, setView] = useState("app");
   const [aiOpen, setAiOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [plan, setPlan] = useState("free");
+  const [upgradeModal, setUpgradeModal] = useState(null);
 
   // Sub-routing: when competitive is active and a sub is selected, use that sub as the screen key
   const screenKey = (active === "competitive" && sub) ? sub : active;
@@ -3715,7 +4766,7 @@ export default function App() {
     return (
       <>
         <style>{CSS}</style>
-        <PricingPage goBack={() => setView("app")} />
+        <PricingPage goBack={() => setView("app")} currentPlan={plan} onSelectPlan={setPlan} />
       </>
     );
   }
@@ -3780,6 +4831,7 @@ export default function App() {
 
         {/* Floating AI Copilot */}
         {aiOpen && <AICopilot onClose={() => setAiOpen(false)}/>}
+        {upgradeModal && <UpgradeModal trigger={upgradeModal} onClose={()=>setUpgradeModal(null)} onUpgrade={()=>{setView("pricing");setUpgradeModal(null);}}/>}
       </div>
     </>
   );
