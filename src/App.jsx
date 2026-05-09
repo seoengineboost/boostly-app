@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import {
-  LayoutDashboard, Search, BarChart2, Globe, Link2, FileSearch,
+  LayoutDashboard, Search, BarChart2, Globe, Link2, FileSearch, Code,
   TrendingUp, TrendingDown, MessageSquare, CheckSquare, Users, Calendar,
   Bell, Plus, ChevronDown, ChevronRight, MoreHorizontal, Send,
   Paperclip, Video, Phone, Hash, Settings, AlertCircle, Clock,
@@ -1491,7 +1491,7 @@ function SettingsView() {
   const [notifPush, setNotifPush] = useState(true);
   const [notifSMS, setNotifSMS] = useState(false);
   const [notifWeekly, setNotifWeekly] = useState(true);
-  const tabs = [{id:"profile",icon:Users,l:"Profile"},{id:"workspace",icon:Briefcase,l:"Workspace"},{id:"notifications",icon:Bell,l:"Notifications"},{id:"integrations",icon:Cpu,l:"Integrations"},{id:"billing",icon:BarChart,l:"Billing"},{id:"security",icon:Shield,l:"Security"},{id:"whitelabel",icon:Globe,l:"White-Label"}];
+  const tabs = [{id:"profile",icon:Users,l:"Profile"},{id:"workspace",icon:Briefcase,l:"Workspace"},{id:"notifications",icon:Bell,l:"Notifications"},{id:"integrations",icon:Cpu,l:"Integrations"},{id:"billing",icon:BarChart,l:"Billing"},{id:"security",icon:Shield,l:"Security"},{id:"whitelabel",icon:Globe,l:"White-Label"},{id:"api",icon:Code,l:"API & Webhooks"}];
   const Toggle = ({on,setOn}) => (<div onClick={()=>setOn(!on)} style={{width:44,height:24,borderRadius:12,background:on?C.blueL:"#CBD5E1",cursor:"pointer",position:"relative",transition:"background .2s",flexShrink:0}}><div style={{width:20,height:20,borderRadius:"50%",background:"#fff",position:"absolute",top:2,left:on?22:2,transition:"left .2s",boxShadow:"0 1px 3px rgba(0,0,0,.2)"}}/></div>);
   return (
     <div className="fade" style={{display:"flex",height:"calc(100vh - 57px)",overflow:"hidden"}}>
@@ -1590,6 +1590,69 @@ function SettingsView() {
                 <div key={l} style={{marginBottom:14}}><label style={{color:C.textMid,fontSize:12,fontWeight:600,display:"block",marginBottom:5}}>{l}</label><input defaultValue={v} style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 13px",color:C.text,fontSize:13,fontFamily:"inherit",outline:"none"}}/></div>
               ))}
               <button style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"9px 22px",borderRadius:9,fontSize:13,fontWeight:700,fontFamily:"inherit"}}>Save Workspace</button>
+            </div>
+          </div>
+        )}
+        {tab==="api" && (
+          <div style={{maxWidth:680}}>
+            <div className="sg" style={{color:C.text,fontSize:18,fontWeight:800,marginBottom:5}}>API & Webhooks</div>
+            <div style={{color:C.textDim,fontSize:13,marginBottom:20}}>Use the Boostly API to integrate with your own tools and automate workflows.</div>
+            <div className="card" style={{padding:"22px 24px",marginBottom:16}}>
+              <div className="sg" style={{color:C.text,fontWeight:700,fontSize:14,marginBottom:14}}>API Keys</div>
+              <div style={{background:`${C.blueL}08`,border:`1px solid ${C.blueL}22`,borderRadius:10,padding:"14px 16px",marginBottom:14,display:"flex",alignItems:"center",gap:12}}>
+                <div style={{flex:1}}>
+                  <div style={{color:C.text,fontWeight:700,fontSize:13,marginBottom:2}}>Production Key</div>
+                  <code style={{color:C.blueL,fontSize:12,background:C.bluePale,padding:"2px 10px",borderRadius:5}}>bst_live_xK9mL2nQ8pR4wV7yT3...</code>
+                </div>
+                <span className="chip" style={{color:C.green,background:C.greenL}}>Active</span>
+                <button style={{background:"transparent",border:`1px solid ${C.border}`,color:C.textMid,cursor:"pointer",padding:"5px 10px",borderRadius:6,fontSize:11,fontFamily:"inherit"}}>Reveal</button>
+                <button style={{background:"transparent",border:`1px solid ${C.border}`,color:C.textMid,cursor:"pointer",padding:"5px 10px",borderRadius:6,fontSize:11,fontFamily:"inherit"}}>Revoke</button>
+              </div>
+              <div style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:10,padding:"14px 16px",marginBottom:14,display:"flex",alignItems:"center",gap:12,opacity:0.7}}>
+                <div style={{flex:1}}>
+                  <div style={{color:C.text,fontWeight:700,fontSize:13,marginBottom:2}}>Test Key</div>
+                  <code style={{color:C.textDim,fontSize:12,background:C.bg,padding:"2px 10px",borderRadius:5}}>bst_test_jH5aM9vW2xP6yN3...</code>
+                </div>
+                <span className="chip" style={{color:C.textDim,background:C.bg}}>Sandbox</span>
+                <button style={{background:"transparent",border:`1px solid ${C.border}`,color:C.textMid,cursor:"pointer",padding:"5px 10px",borderRadius:6,fontSize:11,fontFamily:"inherit"}}>Reveal</button>
+              </div>
+              <button style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:700,fontFamily:"inherit",display:"flex",alignItems:"center",gap:6}}>
+                <Plus size={12}/> Generate New API Key
+              </button>
+            </div>
+            <div className="card" style={{padding:"22px 24px",marginBottom:16}}>
+              <div className="sg" style={{color:C.text,fontWeight:700,fontSize:14,marginBottom:14}}>Webhooks</div>
+              {[
+                {event:"audit.completed",url:"https://myapp.com/webhooks/audit",status:"Active",last:"2 min ago"},
+                {event:"rank.changed",url:"https://myapp.com/webhooks/rank",status:"Active",last:"1h ago"},
+                {event:"report.ready",url:"https://myapp.com/webhooks/report",status:"Paused",last:"3d ago"},
+              ].map((wh,i)=>(
+                <div key={i} style={{padding:"12px 0",borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center",gap:12}}>
+                  <div style={{flex:1}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:3}}>
+                      <code style={{color:C.blueL,fontSize:12,background:C.bluePale,padding:"2px 8px",borderRadius:5}}>{wh.event}</code>
+                    </div>
+                    <div style={{color:C.textDim,fontSize:11}}>{wh.url} · Last: {wh.last}</div>
+                  </div>
+                  <span className="chip" style={{color:wh.status==="Active"?C.green:C.orange,background:wh.status==="Active"?C.greenL:C.orangeL}}>{wh.status}</span>
+                  <button style={{background:"transparent",border:`1px solid ${C.border}`,color:C.textMid,cursor:"pointer",padding:"5px 10px",borderRadius:6,fontSize:11,fontFamily:"inherit"}}>Edit</button>
+                </div>
+              ))}
+              <button style={{marginTop:12,background:"transparent",border:`1px solid ${C.blueL}`,color:C.blueL,cursor:"pointer",padding:"9px 18px",borderRadius:8,fontSize:12,fontWeight:700,fontFamily:"inherit",display:"flex",alignItems:"center",gap:6}}>
+                <Plus size={12}/> Add Webhook
+              </button>
+            </div>
+            <div className="card" style={{padding:"22px 24px"}}>
+              <div className="sg" style={{color:C.text,fontWeight:700,fontSize:14,marginBottom:10}}>API Usage This Month</div>
+              {[["Audit API calls","342 / 1,000",34],["/keywords endpoint","1,847 / 5,000",37],["/rankings endpoint","2,241 / 5,000",44],["/backlinks endpoint","891 / 2,000",44]].map(([l,v,pct])=>(
+                <div key={l} style={{marginBottom:12}}>
+                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+                    <span style={{color:C.textMid,fontSize:12}}>{l}</span>
+                    <span style={{color:C.text,fontSize:12,fontWeight:700}}>{v}</span>
+                  </div>
+                  <ProgBar v={pct} col={pct>=80?C.red:C.blueL} h={5}/>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -2851,105 +2914,195 @@ function SiteAudit() {
 }
 
 // ── DomainRankTracker ─────────────────────────────────────────────────
-function DomainRankTracker() {
+function DomainRankTracker({ onNavigate }) {
+  const [activeDomain, setActiveDomain] = useState(0);
   const domains = [
-    { d:"seoengineboost.com", kws:1475, top3:48, top10:214, dr:42, traffic:"52K" },
-    { d:"dentalpro.com", kws:892, top3:31, top10:148, dr:38, traffic:"31K" },
-    { d:"fitnessapp.io", kws:634, top3:22, top10:95, dr:29, traffic:"18K" },
+    { d:"seoengineboost.com", kws:1475, top3:48, top10:214, dr:42, traffic:"52K", color:C.blueL },
+    { d:"dentalpro.com",      kws:892,  top3:31, top10:148, dr:38, traffic:"31K", color:C.orange },
+    { d:"fitnessapp.io",      kws:634,  top3:22, top10:95,  dr:29, traffic:"18K", color:C.green },
   ];
-  const data = [
-    { d:"Week 1", a:12, b:8, c:5 }, { d:"Week 2", a:10, b:7, c:6 },
-    { d:"Week 3", a:9, b:7, c:7 }, { d:"Week 4", a:8, b:6, c:7 },
-    { d:"Week 5", a:7, b:6, c:8 }, { d:"Week 6", a:6, b:5, c:9 },
+  const posData = [
+    {d:"Nov 25",a:18,b:14,c:22},{d:"Dec 25",a:16,b:13,c:21},{d:"Jan 26",a:14,b:12,c:20},
+    {d:"Feb 26",a:13,b:11,c:19},{d:"Mar 26",a:12,b:10,c:18},{d:"Apr 26",a:11,b:9,c:17},{d:"May 26",a:10,b:8,c:16},
+  ];
+  const topKws = [
+    {kw:"seo tools 2026",        pos:3,  prev:7,  vol:"12K", domain:"seoengineboost.com"},
+    {kw:"dental implants cost",   pos:4,  prev:9,  vol:"8.4K",domain:"dentalpro.com"},
+    {kw:"fitness app 2026",       pos:8,  prev:12, vol:"5.1K",domain:"fitnessapp.io"},
+    {kw:"backlink checker free",  pos:5,  prev:11, vol:"8.4K",domain:"seoengineboost.com"},
+    {kw:"dental implants near me",pos:6,  prev:8,  vol:"9.2K",domain:"dentalpro.com"},
   ];
   return (
-    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", padding:"22px 28px", background:C.bg }}>
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:14, marginBottom:22 }}>
-        {domains.map(d => (
-          <div key={d.d} className="card ch" style={{ padding:18 }}>
-            <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
-              <Globe size={14} color={C.blueL}/>
-              <span style={{ color:C.text, fontWeight:700, fontSize:13 }}>{d.d}</span>
+    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", background:C.bg, padding:"20px 24px" }}>
+      {/* Domain selector */}
+      <div style={{ display:"flex", gap:10, marginBottom:20 }}>
+        {domains.map((d,i)=>(
+          <button key={i} onClick={()=>setActiveDomain(i)} style={{ display:"flex", alignItems:"center", gap:10, padding:"12px 18px", borderRadius:10, border:`2px solid ${activeDomain===i?d.color:C.border}`, cursor:"pointer", background:activeDomain===i?`${d.color}08`:"transparent", fontFamily:"inherit", flex:1 }}>
+            <Globe size={16} color={d.color}/>
+            <div style={{ textAlign:"left" }}>
+              <div style={{ color:C.text, fontWeight:700, fontSize:13 }}>{d.d}</div>
+              <div style={{ color:d.color, fontSize:11, fontWeight:600 }}>DR {d.dr} · {d.traffic}/mo</div>
             </div>
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
-              {[["Keywords",d.kws],["Top 3",d.top3],["Top 10",d.top10],["DR",d.dr]].map(([l,v]) => (
-                <div key={l} style={{ background:C.bg, borderRadius:7, padding:"8px 10px" }}>
-                  <div style={{ color:C.textDim, fontSize:10, marginBottom:3 }}>{l}</div>
-                  <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:16 }}>{v}</div>
-                </div>
-              ))}
-            </div>
-            <div style={{ marginTop:12, color:C.green, fontSize:12, fontWeight:600 }}>↑ {d.traffic} monthly traffic</div>
+          </button>
+        ))}
+        <button style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"12px 18px", borderRadius:10, fontSize:13, fontWeight:700, fontFamily:"inherit", display:"flex", alignItems:"center", gap:6, whiteSpace:"nowrap" }}>
+          <Plus size={13}/> Add Domain
+        </button>
+      </div>
+
+      {/* Stats for active domain */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12, marginBottom:20 }}>
+        {[
+          { l:"Keywords Tracked", v:domains[activeDomain].kws.toLocaleString(), c:domains[activeDomain].color },
+          { l:"Top 3 Positions",  v:domains[activeDomain].top3,  c:C.green },
+          { l:"Top 10 Positions", v:domains[activeDomain].top10, c:C.blueL },
+          { l:"Organic Traffic",  v:domains[activeDomain].traffic, c:C.orange },
+        ].map(s=>(
+          <div key={s.l} className="card" style={{ padding:"14px 18px" }}>
+            <div className="sg" style={{ color:s.c, fontSize:24, fontWeight:800, marginBottom:4 }}>{s.v}</div>
+            <div style={{ color:C.textDim, fontSize:12 }}>{s.l}</div>
           </div>
         ))}
       </div>
-      <div className="card" style={{ padding:20, marginBottom:20 }}>
-        <div className="sg" style={{ color:C.text, fontWeight:700, marginBottom:16 }}>Average Position Trend (6 Weeks)</div>
+
+      {/* Position trend chart */}
+      <div className="card" style={{ padding:"20px 24px", marginBottom:20 }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
+          <div>
+            <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:14 }}>Average Position Trend</div>
+            <div style={{ color:C.textDim, fontSize:12 }}>Lower = better ranking</div>
+          </div>
+          <div style={{ display:"flex", gap:12 }}>
+            {domains.map((d,i)=>(
+              <div key={i} style={{ display:"flex", alignItems:"center", gap:5 }}>
+                <div style={{ width:10, height:3, borderRadius:2, background:d.color }}/>
+                <span style={{ color:C.textDim, fontSize:11 }}>{d.d.split(".")[0]}</span>
+              </div>
+            ))}
+          </div>
+        </div>
         <ResponsiveContainer width="100%" height={220}>
-          <LineChart data={data}>
+          <LineChart data={posData} margin={{top:4,right:4,left:-28,bottom:0}}>
             <CartesianGrid strokeDasharray="3 3" stroke={C.border}/>
-            <XAxis dataKey="d" tick={{ fill:C.textDim, fontSize:11 }} axisLine={false}/>
-            <YAxis reversed tick={{ fill:C.textDim, fontSize:11 }} axisLine={false} domain={[1,15]}/>
-            <Tooltip contentStyle={{ background:C.white, border:`1px solid ${C.border}`, borderRadius:8 }} formatter={(v)=>[`Position ${v}`,""]}/>
-            <Line type="monotone" dataKey="a" stroke={C.blueL} strokeWidth={2} dot={{ fill:C.blueL, r:3 }} name="seoengineboost.com"/>
-            <Line type="monotone" dataKey="b" stroke={C.orange} strokeWidth={2} dot={{ fill:C.orange, r:3 }} name="dentalpro.com"/>
-            <Line type="monotone" dataKey="c" stroke={C.green} strokeWidth={2} dot={{ fill:C.green, r:3 }} name="fitnessapp.io"/>
+            <XAxis dataKey="d" tick={{fill:C.textDim,fontSize:10}} axisLine={false} tickLine={false}/>
+            <YAxis reversed tick={{fill:C.textDim,fontSize:10}} axisLine={false} tickLine={false} domain={[1,25]}/>
+            <Tooltip contentStyle={{background:C.white,border:`1px solid ${C.border}`,borderRadius:8,fontSize:11}} formatter={(v)=>[`Position #${v}`,""]}/>
+            <Line type="monotone" dataKey="a" stroke={C.blueL}  strokeWidth={2.5} dot={{r:3,fill:C.blueL}}  name="seoengineboost.com"/>
+            <Line type="monotone" dataKey="b" stroke={C.orange} strokeWidth={2.5} dot={{r:3,fill:C.orange}} name="dentalpro.com"/>
+            <Line type="monotone" dataKey="c" stroke={C.green}  strokeWidth={2.5} dot={{r:3,fill:C.green}}  name="fitnessapp.io"/>
           </LineChart>
         </ResponsiveContainer>
       </div>
+
+      {/* Top performing keywords table */}
+      <div className="card" style={{ overflow:"hidden" }}>
+        <div style={{ padding:"12px 18px", borderBottom:`1px solid ${C.border}` }}>
+          <span className="sg" style={{ color:C.text, fontWeight:700, fontSize:14 }}>Top Performing Keywords — All Domains</span>
+        </div>
+        <table style={{ width:"100%", borderCollapse:"collapse" }}>
+          <thead><tr style={{ background:C.bg }}>
+            {["Keyword","Domain","Current","Previous","Change","Volume"].map(h=>(
+              <th key={h} style={{ padding:"10px 16px", textAlign:"left", color:C.textDim, fontSize:10, fontWeight:700, borderBottom:`1px solid ${C.border}` }}>{h}</th>
+            ))}
+          </tr></thead>
+          <tbody>
+            {topKws.map((k,i)=>{
+              const ch = k.prev-k.pos;
+              const dc = domains.find(d=>d.d===k.domain);
+              return (
+                <tr key={i} className="td">
+                  <td style={{ padding:"12px 16px", color:C.text, fontWeight:600, fontSize:13, borderBottom:`1px solid ${C.border}` }}>{k.kw}</td>
+                  <td style={{ padding:"12px 16px", borderBottom:`1px solid ${C.border}` }}><span style={{ color:dc?.color||C.blueL, fontSize:11, fontWeight:700, background:`${dc?.color||C.blueL}18`, padding:"2px 8px", borderRadius:20 }}>{k.domain}</span></td>
+                  <td style={{ padding:"12px 16px", borderBottom:`1px solid ${C.border}` }}><span className="sg" style={{ color:C.text, fontWeight:800, fontSize:16 }}>#{k.pos}</span></td>
+                  <td style={{ padding:"12px 16px", color:C.textDim, fontSize:13, borderBottom:`1px solid ${C.border}` }}>#{k.prev}</td>
+                  <td style={{ padding:"12px 16px", borderBottom:`1px solid ${C.border}` }}><span style={{ color:ch>0?C.green:C.red, fontWeight:700, fontSize:13, background:ch>0?C.greenL:C.redL, padding:"3px 8px", borderRadius:6 }}>{ch>0?"↑":"↓"}{Math.abs(ch)}</span></td>
+                  <td style={{ padding:"12px 16px", color:C.textMid, fontSize:13, borderBottom:`1px solid ${C.border}` }}>{k.vol}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
 
-// ── ProjectsDashboard ─────────────────────────────────────────────────
-function ProjectsDashboard() {
+// ── Projects Dashboard ───────────────────────────────────────────────────
+function ProjectsDashboard({ onNavigate }) {
+  const [view, setView] = useState("grid");
+  const MiniTrend = ({data,up}) => {
+    const max=Math.max(...data),min=Math.min(...data);
+    const pts = data.map((v,i)=>`${(i/(data.length-1))*60},${18-((v-min)/(max-min+1))*16}`).join(" ");
+    return <svg width={62} height={20}><polyline points={pts} fill="none" stroke={up?C.green:C.red} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/></svg>;
+  };
   const projects = [
-    { name:"SEO Engine Boost", domain:"seoengineboost.com", score:68, kws:1475, issues:32, traffic:"52K", dr:42, status:"Active" },
-    { name:"Dental Pro", domain:"dentalpro.com", score:74, kws:892, issues:18, traffic:"31K", dr:38, status:"Active" },
-    { name:"Fitness App", domain:"fitnessapp.io", score:55, kws:634, issues:47, traffic:"18K", dr:29, status:"Needs Audit" },
-    { name:"Tech Blog", domain:"techinsights.blog", score:81, kws:2240, issues:8, traffic:"94K", dr:56, status:"Healthy" },
+    { name:"SEO Engine Boost", domain:"seoengineboost.com", score:68, kws:1475, issues:32, traffic:"52K", dr:42, status:"Active",      trend:[42,45,48,50,55,60,68], rankChg:"+12", revenue:"$299/mo" },
+    { name:"Dental Pro",       domain:"dentalpro.com",      score:74, kws:892,  issues:18, traffic:"31K", dr:38, status:"Active",      trend:[60,62,65,68,70,72,74], rankChg:"+8",  revenue:"$199/mo" },
+    { name:"Fitness App",      domain:"fitnessapp.io",      score:55, kws:634,  issues:47, traffic:"18K", dr:29, status:"Needs Audit", trend:[58,55,52,50,48,52,55], rankChg:"-3",  revenue:"$99/mo" },
+    { name:"Tech Blog",        domain:"techinsights.blog",  score:81, kws:2240, issues:8,  traffic:"94K", dr:56, status:"Healthy",     trend:[72,74,76,78,79,80,81], rankChg:"+18", revenue:"$499/mo" },
   ];
-  const statusCol = s => s==="Healthy"?C.green:s==="Active"?C.blueL:C.yellow;
-  const statusBg = s => s==="Healthy"?C.greenL:s==="Active"?C.bluePale:C.yellowL;
+  const ss = { Healthy:{c:C.green,bg:C.greenL}, Active:{c:C.blueL,bg:C.bluePale}, "Needs Audit":{c:C.orange,bg:C.orangeL} };
   return (
-    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", padding:"22px 28px", background:C.bg }}>
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
-        <div style={{ color:C.textDim, fontSize:14 }}>Tracking <strong style={{ color:C.text }}>{projects.length} projects</strong> across all domains</div>
-        <button style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"9px 18px", borderRadius:9, fontSize:13, fontWeight:700, fontFamily:"inherit", display:"flex", alignItems:"center", gap:6 }}>
-          <Plus size={13}/> Add Project
-        </button>
-      </div>
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:16 }}>
-        {projects.map(p => (
-          <div key={p.domain} className="card ch" style={{ padding:20 }}>
-            <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:14 }}>
-              <ScoreRing score={p.score} size={52}/>
-              <div>
-                <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:15 }}>{p.name}</div>
-                <div style={{ color:C.blueL, fontSize:12 }}>{p.domain}</div>
-              </div>
-              <span className="chip" style={{ color:statusCol(p.status), background:statusBg(p.status), marginLeft:"auto" }}>{p.status}</span>
-            </div>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8, marginBottom:14 }}>
-              {[["Keywords",p.kws],["Issues",p.issues],["Traffic",p.traffic],["DR",p.dr]].map(([l,v]) => (
-                <div key={l} style={{ background:C.bg, borderRadius:7, padding:"8px" }}>
-                  <div style={{ color:C.textDim, fontSize:10 }}>{l}</div>
-                  <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:14 }}>{v}</div>
-                </div>
-              ))}
-            </div>
-            <div style={{ display:"flex", gap:8 }}>
-              <button style={{ flex:1, background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"7px", borderRadius:7, fontSize:12, fontWeight:700, fontFamily:"inherit" }}>View Report</button>
-              <button style={{ flex:1, background:"transparent", border:`1px solid ${C.border}`, color:C.textMid, cursor:"pointer", padding:"7px", borderRadius:7, fontSize:12, fontFamily:"inherit" }}>Run Audit</button>
-            </div>
-          </div>
+    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", background:C.bg, padding:"20px 24px" }}>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12, marginBottom:22 }}>
+        {[{l:"Active Projects",v:projects.length,c:C.blueL,icon:Briefcase},{l:"Avg Site Score",v:`${Math.round(projects.reduce((s,p)=>s+p.score,0)/projects.length)}/100`,c:C.green,icon:Activity},{l:"Total Issues",v:projects.reduce((s,p)=>s+p.issues,0),c:C.red,icon:AlertCircle},{l:"Total Revenue",v:"$1,096/mo",c:C.green,icon:TrendingUp}].map(({l,v,c,icon:Icon})=>(
+          <div key={l} className="card" style={{padding:"14px 18px"}}><div style={{display:"flex",gap:8,alignItems:"center",marginBottom:8}}><div style={{width:30,height:30,borderRadius:8,background:`${c}18`,display:"flex",alignItems:"center",justifyContent:"center"}}><Icon size={14} color={c}/></div></div><div className="sg" style={{color:C.text,fontSize:22,fontWeight:800}}>{v}</div><div style={{color:C.textDim,fontSize:11,marginTop:2}}>{l}</div></div>
         ))}
       </div>
+      <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
+        <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:15, flex:1 }}>All Projects</div>
+        <div style={{ display:"flex", gap:2, background:C.bg, padding:3, borderRadius:8, border:`1px solid ${C.border}` }}>
+          {[["grid","⊞"],["list","☰"]].map(([id,icon])=>(
+            <button key={id} onClick={()=>setView(id)} style={{ background:view===id?C.white:"transparent", border:"none", cursor:"pointer", padding:"5px 10px", borderRadius:6, fontSize:14, color:view===id?C.blueL:C.textDim }}>{icon}</button>
+          ))}
+        </div>
+        <button style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"8px 16px", borderRadius:8, fontSize:13, fontWeight:700, fontFamily:"inherit", display:"flex", alignItems:"center", gap:5 }}><Plus size={13}/> Add Project</button>
+      </div>
+      <div style={{ display:view==="grid"?"grid":"flex", gridTemplateColumns:"repeat(2,1fr)", flexDirection:"column", gap:14 }}>
+        {projects.map((p,i)=>{
+          const style = ss[p.status]||ss.Active;
+          const isUp = p.rankChg.startsWith("+");
+          return (
+            <div key={i} className="card ch" style={{ padding:"20px 22px", cursor:"pointer" }}>
+              <div style={{ display:"flex", alignItems:"flex-start", gap:12, marginBottom:16 }}>
+                <ScoreRing score={p.score} size={52}/>
+                <div style={{ flex:1 }}>
+                  <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:15, marginBottom:2 }}>{p.name}</div>
+                  <div style={{ color:C.blueL, fontSize:12, marginBottom:6 }}>{p.domain}</div>
+                  <div style={{ display:"flex", gap:6 }}>
+                    <span className="chip" style={{ color:style.c, background:style.bg }}>{p.status}</span>
+                    <span style={{ color:isUp?C.green:C.red, fontSize:11, fontWeight:700 }}>Rankings {p.rankChg}</span>
+                  </div>
+                </div>
+                <MiniTrend data={p.trend} up={isUp}/>
+              </div>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8, marginBottom:14 }}>
+                {[["Keywords",p.kws],["Issues",p.issues],["Traffic",p.traffic],["DR",p.dr]].map(([l,v])=>(
+                  <div key={l} style={{ background:C.bg, borderRadius:7, padding:"8px 10px" }}>
+                    <div style={{ color:C.textDim, fontSize:10 }}>{l}</div>
+                    <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:14 }}>{v}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                <div style={{ flex:1 }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
+                    <span style={{ color:C.textDim, fontSize:11 }}>Site Health</span>
+                    <span style={{ color:p.score>=70?C.green:C.orange, fontSize:11, fontWeight:700 }}>{p.score}%</span>
+                  </div>
+                  <ProgBar v={p.score} col={p.score>=70?C.green:p.score>=50?C.yellow:C.red} h={5}/>
+                </div>
+                <button onClick={()=>onNavigate&&onNavigate("siteaudit")} style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"7px 12px", borderRadius:7, fontSize:12, fontWeight:700, fontFamily:"inherit" }}>Audit</button>
+                <button onClick={()=>onNavigate&&onNavigate("reports")} style={{ background:"transparent", border:`1px solid ${C.border}`, color:C.textMid, cursor:"pointer", padding:"7px 12px", borderRadius:7, fontSize:12, fontFamily:"inherit" }}>Report</button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
-// ── KeywordsPerformance ───────────────────────────────────────────────
 function KeywordsPerformance() {
   const winners = [
     { kw:"seo tools 2026", pos:3, prev:8, vol:"12K" },
@@ -3545,46 +3698,183 @@ function Reports({ onUpgrade }) {
 }
 
 // ── TeamMembers ───────────────────────────────────────────────────────
-function TeamMembers() {
+function TeamMembers({ onNavigate }) {
+  const [tab, setTab] = useState("members");
+  const [showInvite, setShowInvite] = useState(false);
   const members = [
-    { name:"Mahmoud Al-Rashid", role:"SEO Manager", email:"mahmoud@boostly.io", av:"M", status:"Active", tasks:12 },
-    { name:"Aisha Omar", role:"Content Writer", email:"aisha@boostly.io", av:"A", status:"Active", tasks:8 },
-    { name:"Sam Chen", role:"Developer", email:"sam@boostly.io", av:"S", status:"Active", tasks:5 },
-    { name:"Jordan Smith", role:"Link Builder", email:"jordan@boostly.io", av:"J", status:"Away", tasks:9 },
-    { name:"You", role:"Admin", email:"admin@boostly.io", av:"Y", status:"Active", tasks:15 },
+    { name:"You (Admin)",      role:"Admin",          email:"admin@boostly.app",         av:"Y", status:"online",  tasks:15, kpis:[92,88,95], joined:"Jan 2026", plan:"Owner" },
+    { name:"Mahmoud Al-Rashid",role:"SEO Manager",    email:"mahmoud@boostly.io",        av:"M", status:"online",  tasks:12, kpis:[88,84,91], joined:"Feb 2026", plan:"Pro" },
+    { name:"Aisha Omar",       role:"Content Writer", email:"aisha@boostly.io",          av:"A", status:"online",  tasks:8,  kpis:[79,85,80], joined:"Feb 2026", plan:"Pro" },
+    { name:"Sam Chen",         role:"Developer",      email:"sam@boostly.io",            av:"S", status:"away",    tasks:5,  kpis:[95,90,88], joined:"Mar 2026", plan:"Pro" },
+    { name:"Jordan Smith",     role:"Link Builder",   email:"jordan@boostly.io",         av:"J", status:"offline", tasks:9,  kpis:[72,78,75], joined:"Mar 2026", plan:"Starter" },
   ];
+  const perf = members.map(m=>({ name:m.name, completed:Math.round(m.kpis[0]/10), pending:Math.round(m.tasks*0.4), efficiency:m.kpis[0] }));
+  const statusCol = { online:C.green, away:C.yellow, offline:C.textDim };
+  const roleCol = { "Admin":C.red, "SEO Manager":C.blueL, "Content Writer":C.orange, "Developer":C.purple, "Link Builder":C.green };
+
   return (
-    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", padding:"22px 28px", background:C.bg }}>
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
-        <div style={{ color:C.textDim, fontSize:14 }}><strong style={{ color:C.text }}>{members.length} members</strong> in your workspace</div>
-        <button style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"9px 18px", borderRadius:8, fontSize:13, fontWeight:700, fontFamily:"inherit", display:"flex", alignItems:"center", gap:6 }}>
-          <UserPlus size={13}/> Invite Member
-        </button>
-      </div>
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:16 }}>
-        {members.map((m,i) => (
-          <div key={i} className="card ch" style={{ padding:20, textAlign:"center" }}>
-            <div style={{ position:"relative", display:"inline-block", marginBottom:12 }}>
-              <Av l={m.av} size={52}/>
-              <div style={{ position:"absolute", bottom:0, right:0, width:12, height:12, borderRadius:"50%", background:m.status==="Active"?C.green:C.yellow, border:"2px solid #fff" }}/>
+    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", background:C.bg, padding:"20px 24px" }}>
+      {/* Stats */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12, marginBottom:20 }}>
+        {[
+          { l:"Team Members",  v:members.length,    c:C.blueL,  icon:Users },
+          { l:"Online Now",    v:members.filter(m=>m.status==="online").length, c:C.green, icon:Activity },
+          { l:"Active Tasks",  v:members.reduce((s,m)=>s+m.tasks,0), c:C.orange, icon:CheckSquare },
+          { l:"Avg Efficiency",v:`${Math.round(members.reduce((s,m)=>s+m.kpis[0],0)/members.length)}%`, c:C.purple, icon:TrendingUp },
+        ].map(({l,v,c,icon:Icon})=>(
+          <div key={l} className="card" style={{ padding:"14px 18px" }}>
+            <div style={{ display:"flex", gap:8, alignItems:"center", marginBottom:8 }}>
+              <div style={{ width:30,height:30,borderRadius:8,background:`${c}18`,display:"flex",alignItems:"center",justifyContent:"center" }}><Icon size={14} color={c}/></div>
             </div>
-            <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:15 }}>{m.name}</div>
-            <div style={{ color:C.textDim, fontSize:12, marginBottom:12 }}>{m.role}</div>
-            <div style={{ display:"flex", justifyContent:"center", gap:16, marginBottom:14 }}>
-              <div><div className="sg" style={{ color:C.text, fontWeight:700, fontSize:18 }}>{m.tasks}</div><div style={{ color:C.textDim, fontSize:10 }}>Active Tasks</div></div>
-            </div>
-            <div style={{ display:"flex", gap:8 }}>
-              <button style={{ flex:1, background:"transparent", border:`1px solid ${C.border}`, color:C.textMid, cursor:"pointer", padding:"7px", borderRadius:7, fontSize:12, fontFamily:"inherit" }}>Message</button>
-              <button style={{ flex:1, background:C.bg, border:`1px solid ${C.border}`, color:C.textMid, cursor:"pointer", padding:"7px", borderRadius:7, fontSize:12, fontFamily:"inherit" }}>Edit Role</button>
-            </div>
+            <div className="sg" style={{ color:C.text, fontSize:22, fontWeight:800 }}>{v}</div>
+            <div style={{ color:C.textDim, fontSize:11, marginTop:2 }}>{l}</div>
           </div>
         ))}
       </div>
+
+      {/* Tabs */}
+      <div style={{ display:"flex", alignItems:"center", gap:0, marginBottom:0, borderBottom:`1px solid ${C.border}`, background:C.white, borderRadius:"10px 10px 0 0", overflow:"hidden" }}>
+        {[["members","👥 Members"],["performance","📊 Performance"],["roles","🔐 Roles & Permissions"]].map(([id,label])=>(
+          <button key={id} onClick={()=>setTab(id)} style={{ padding:"12px 20px", border:"none", borderBottom:tab===id?`2.5px solid ${C.blueL}`:"2.5px solid transparent", cursor:"pointer", fontSize:13, fontWeight:tab===id?700:500, fontFamily:"inherit", background:"transparent", color:tab===id?C.blueL:C.textMid, marginBottom:-1 }}>{label}</button>
+        ))}
+        <div style={{ flex:1 }}/>
+        <button onClick={()=>setShowInvite(!showInvite)} style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"8px 16px", borderRadius:7, fontSize:12, fontWeight:700, fontFamily:"inherit", display:"flex", alignItems:"center", gap:5, margin:"6px 12px" }}>
+          <UserPlus size={13}/> Invite Member
+        </button>
+      </div>
+
+      {/* Invite panel */}
+      {showInvite && (
+        <div style={{ background:C.bluePale, border:`1px solid ${C.blueL}33`, borderRadius:"0 0 10px 10px", padding:"16px 20px", marginBottom:14 }}>
+          <div style={{ display:"flex", gap:10 }}>
+            <input placeholder="Email address" style={{ flex:1, background:C.white, border:`1px solid ${C.border}`, borderRadius:8, padding:"9px 14px", fontSize:13, fontFamily:"inherit", outline:"none" }}/>
+            <select style={{ background:C.white, border:`1px solid ${C.border}`, borderRadius:8, padding:"9px 12px", fontSize:12, fontFamily:"inherit" }}>
+              <option>SEO Manager</option><option>Content Writer</option><option>Developer</option><option>Link Builder</option><option>Viewer</option>
+            </select>
+            <button style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"9px 18px", borderRadius:8, fontSize:13, fontWeight:700, fontFamily:"inherit" }}>Send Invite</button>
+          </div>
+        </div>
+      )}
+
+      {/* Members tab */}
+      {tab==="members" && (
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:14, paddingTop:14 }}>
+          {members.map((m,i)=>(
+            <div key={i} className="card ch" style={{ padding:"20px", position:"relative" }}>
+              <div style={{ position:"absolute", top:14, right:14 }}>
+                <div style={{ width:10,height:10,borderRadius:"50%",background:statusCol[m.status],boxShadow:`0 0 0 3px ${statusCol[m.status]}33` }}/>
+              </div>
+              <div style={{ textAlign:"center", marginBottom:14 }}>
+                <Av l={m.av} size={52}/>
+                <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:15, marginTop:10, marginBottom:2 }}>{m.name}</div>
+                <span style={{ background:`${roleCol[m.role]||C.blueL}18`, color:roleCol[m.role]||C.blueL, fontSize:11, fontWeight:700, padding:"3px 10px", borderRadius:20 }}>{m.role}</span>
+              </div>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:6, marginBottom:14 }}>
+                {[["Tasks",m.tasks],["Efficiency",`${m.kpis[0]}%`],["Plan",m.plan]].map(([l,v])=>(
+                  <div key={l} style={{ background:C.bg, borderRadius:7, padding:"8px 6px", textAlign:"center" }}>
+                    <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:13 }}>{v}</div>
+                    <div style={{ color:C.textDim, fontSize:9 }}>{l}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ marginBottom:12 }}>
+                <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
+                  <span style={{ color:C.textDim, fontSize:10 }}>Performance</span>
+                  <span style={{ color:m.kpis[0]>=80?C.green:C.orange, fontSize:10, fontWeight:700 }}>{m.kpis[0]}%</span>
+                </div>
+                <ProgBar v={m.kpis[0]} col={m.kpis[0]>=80?C.green:m.kpis[0]>=60?C.yellow:C.red} h={5}/>
+              </div>
+              <div style={{ display:"flex", gap:6 }}>
+                <button style={{ flex:1, background:"transparent", border:`1px solid ${C.border}`, color:C.blueL, cursor:"pointer", padding:"7px", borderRadius:7, fontSize:11, fontFamily:"inherit" }}>Message</button>
+                <button style={{ flex:1, background:C.bg, border:`1px solid ${C.border}`, color:C.textMid, cursor:"pointer", padding:"7px", borderRadius:7, fontSize:11, fontFamily:"inherit" }}>View Tasks</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Performance tab */}
+      {tab==="performance" && (
+        <div style={{ paddingTop:14 }}>
+          <div className="card" style={{ padding:"20px 24px", marginBottom:16 }}>
+            <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:14, marginBottom:16 }}>Team Performance Overview</div>
+            <ResponsiveContainer width="100%" height={200}>
+              <RBarChart data={perf} barGap={4}>
+                <CartesianGrid strokeDasharray="3 3" stroke={C.border}/>
+                <XAxis dataKey="name" tick={{fill:C.textDim,fontSize:10}} axisLine={false} tickFormatter={v=>v.split(" ")[0]}/>
+                <YAxis tick={{fill:C.textDim,fontSize:10}} axisLine={false}/>
+                <Tooltip contentStyle={{background:C.white,border:`1px solid ${C.border}`,borderRadius:8,fontSize:11}}/>
+                <Bar dataKey="efficiency" fill={C.blueL} radius={[4,4,0,0]} name="Efficiency %"/>
+                <Bar dataKey="completed" fill={C.green} radius={[4,4,0,0]} name="Tasks Completed"/>
+              </RBarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="card" style={{ overflow:"hidden" }}>
+            <div style={{ display:"grid", gridTemplateColumns:"2fr 80px 80px 100px 100px", padding:"10px 18px", background:C.bg, borderBottom:`1px solid ${C.border}` }}>
+              {["Team Member","Tasks Done","Pending","Efficiency","Score"].map(h=>(
+                <div key={h} style={{ color:C.textDim, fontSize:10, fontWeight:700 }}>{h}</div>
+              ))}
+            </div>
+            {members.map((m,i)=>(
+              <div key={i} className="td" style={{ display:"grid", gridTemplateColumns:"2fr 80px 80px 100px 100px", padding:"12px 18px", borderBottom:`1px solid ${C.border}`, alignItems:"center" }}>
+                <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                  <Av l={m.av} size={28}/>
+                  <div>
+                    <div style={{ color:C.text, fontWeight:600, fontSize:13 }}>{m.name}</div>
+                    <div style={{ color:C.textDim, fontSize:11 }}>{m.role}</div>
+                  </div>
+                </div>
+                <div className="sg" style={{ color:C.green, fontWeight:700 }}>{Math.round(m.kpis[0]/10)}</div>
+                <div className="sg" style={{ color:C.orange, fontWeight:700 }}>{Math.round(m.tasks*0.4)}</div>
+                <div>
+                  <ProgBar v={m.kpis[0]} col={m.kpis[0]>=80?C.green:C.yellow} h={5}/>
+                  <div style={{ color:C.textDim, fontSize:10, marginTop:2 }}>{m.kpis[0]}%</div>
+                </div>
+                <span style={{ background:m.kpis[0]>=85?C.greenL:m.kpis[0]>=70?C.yellowL:C.redL, color:m.kpis[0]>=85?C.green:m.kpis[0]>=70?C.yellow:C.red, padding:"4px 10px", borderRadius:20, fontSize:11, fontWeight:700 }}>{m.kpis[0]>=85?"⭐ Top":"👍 Good"}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Roles tab */}
+      {tab==="roles" && (
+        <div style={{ paddingTop:14 }}>
+          <div className="card" style={{ overflow:"hidden" }}>
+            <div style={{ padding:"14px 18px", borderBottom:`1px solid ${C.border}` }}>
+              <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:14 }}>Roles & Access Permissions</div>
+            </div>
+            {[
+              { role:"Admin", perms:["Full access","Billing","User management","All features"], count:1, color:C.red },
+              { role:"SEO Manager", perms:["All SEO tools","Reports","Clients","Tasks"], count:1, color:C.blueL },
+              { role:"Content Writer", perms:["Content Lab","Article Checker","Tasks","Messages"], count:1, color:C.orange },
+              { role:"Developer", perms:["Site Audit","API access","Technical SEO","Tasks"], count:1, color:C.purple },
+              { role:"Link Builder", perms:["Backlink Research","Tasks","Reports (view)"], count:1, color:C.green },
+              { role:"Viewer", perms:["Reports (view only)","Dashboard"], count:0, color:C.textDim },
+            ].map((r,i)=>(
+              <div key={i} style={{ padding:"14px 18px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:14 }}>
+                <div style={{ width:36,height:36,borderRadius:9,background:`${r.color}18`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}>
+                  <Shield size={16} color={r.color}/>
+                </div>
+                <div style={{ flex:1 }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:4 }}>
+                    <span style={{ color:C.text, fontWeight:700, fontSize:13 }}>{r.role}</span>
+                    <span style={{ background:`${r.color}18`, color:r.color, fontSize:10, fontWeight:700, padding:"2px 8px", borderRadius:10 }}>{r.count} member{r.count!==1?"s":""}</span>
+                  </div>
+                  <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+                    {r.perms.map(p=><span key={p} style={{ background:C.bg, border:`1px solid ${C.border}`, color:C.textMid, fontSize:10, padding:"2px 8px", borderRadius:20 }}>{p}</span>)}
+                  </div>
+                </div>
+                <button style={{ background:"transparent", border:`1px solid ${C.border}`, color:C.blueL, cursor:"pointer", padding:"6px 12px", borderRadius:7, fontSize:11, fontFamily:"inherit" }}>Edit</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-// ── AICopilot ─────────────────────────────────────────────────────────
 function AICopilot({ onClose }) {
   const [msgs, setMsgs] = useState([
     { role:"ai", text:"Hi! I'm your AI SEO Copilot. I can help you analyze keywords, fix technical issues, write content, and grow your rankings. What would you like to work on?" },
@@ -6173,6 +6463,7 @@ export default function App() {
   const [cmdOpen, setCmdOpen] = useState(false);
   const [quickStart, setQuickStart] = useState(true);
   const [userMenu, setUserMenu] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
 
   const addToast = (msg, type="info") => {
     const id = Date.now();
@@ -6214,7 +6505,7 @@ export default function App() {
   return (
     <>
       <style>{CSS}</style>
-      <div style={{display:"flex",height:"100vh",background:C.bg,fontFamily:"'Manrope',sans-serif",overflow:"hidden",position:"relative"}}>
+      <div style={{display:"flex",height:"100vh",background:darkMode?"#0F172A":C.bg,fontFamily:"'Manrope',sans-serif",overflow:"hidden",position:"relative",color:darkMode?C.white:C.text,colorScheme:darkMode?"dark":"light"}}>
         <SidebarFull
           active={active}
           setActive={(id) => { setActive(id); setSub(null); }}
@@ -6227,8 +6518,12 @@ export default function App() {
           {/* Topbar */}
           <div style={{padding:"0 24px",borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center",gap:10,background:C.white,position:"sticky",top:0,zIndex:20,flexShrink:0,height:57}}>
             <div style={{flex:1,minWidth:0}}>
-              <h1 className="sg" style={{color:C.text,fontSize:15,fontWeight:700,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{screen.title}</h1>
-              <p style={{color:C.textDim,fontSize:10.5}}>{screen.sub}</p>
+              <div style={{display:"flex",alignItems:"center",gap:5,marginBottom:2}}>
+                <span style={{color:C.textDim,fontSize:10.5,cursor:"pointer"}} onClick={()=>setActive("crawl")}>Home</span>
+                <ChevronRight size={9} color={C.textDim}/>
+                <span style={{color:C.text,fontSize:10.5,fontWeight:600}}>{screen.title}</span>
+              </div>
+              <h1 className="sg" style={{color:C.text,fontSize:15,fontWeight:700,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",lineHeight:1.2}}>{screen.title}</h1>
             </div>
             <button onClick={()=>setCmdOpen(true)} style={{display:"flex",alignItems:"center",gap:6,background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,padding:"6px 12px",width:200,flexShrink:0,cursor:"pointer",fontFamily:"inherit"}}>
               <Search size={12} color={C.textDim}/>
@@ -6275,6 +6570,10 @@ export default function App() {
                 ))}
               </div>
             )}
+            {/* Dark mode toggle */}
+            <button onClick={()=>setDarkMode(d=>!d)} style={{background:darkMode?"#1E293B":"#F1F5F9",border:`1px solid ${darkMode?"#334155":C.border}`,color:darkMode?"#F1F5F9":C.textDim,cursor:"pointer",width:34,height:34,borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}} title="Toggle dark mode">
+              {darkMode?<span style={{fontSize:16}}>☀️</span>:<span style={{fontSize:16}}>🌙</span>}
+            </button>
             {/* ⌘K shortcut button */}
             <button onClick={()=>setCmdOpen(true)} style={{background:C.bg,border:`1px solid ${C.border}`,color:C.textDim,cursor:"pointer",padding:"5px 10px",borderRadius:7,fontSize:11,fontFamily:"inherit",display:"flex",alignItems:"center",gap:5,flexShrink:0}}>
               <Search size={11}/> Search<kbd style={{background:C.border,borderRadius:3,padding:"1px 5px",fontSize:9,marginLeft:2}}>⌘K</kbd>
