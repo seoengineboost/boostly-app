@@ -432,325 +432,327 @@ function Dashboard({ onNavigate, onUpgrade }) {
   );
 }
 
-function KeywordResearch() {
-  const [mainTab, setMainTab] = useState("overview");
-  const [kwTab, setKwTab] = useState("variations");
-  const [query, setQuery] = useState("UX");
-  const [country, setCountry] = useState("🇳🇬 Nigeria");
-  const [lang, setLang] = useState("EN");
+// ══════════════════════════════════════════════════════════════════
+//  KEYWORD RESEARCH — SEMrush-quality, two distinct sub-pages
+// ══════════════════════════════════════════════════════════════════
+function KeywordResearch({ onNavigate, onUpgrade }) {
+  const [kwPage, setKwPage] = useState("overview"); // overview | ideas
+  const [query, setQuery]   = useState("dental implants");
+  const [location, setLocation] = useState("All Locations");
   const [searched, setSearched] = useState(true);
-  const [searchChips, setSearchChips] = useState(["Designer"]);
+  const [tracked, setTracked]   = useState([]);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [intentFilter, setIntentFilter] = useState("all");
 
-  const Spark = ({ data, col }) => {
-    const max = Math.max(...data), min = Math.min(...data);
-    const pts = data.map((v, i) => { const x = (i/(data.length-1))*58, y = 16-((v-min)/(max-min+1))*14; return `${x},${y}`; }).join(" ");
-    return <svg width={60} height={18} viewBox="0 0 60 18"><polyline points={pts} fill="none" stroke={col} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"/></svg>;
+  // ── KD badge ─────────────────────────────────────────────────────
+  const KDBadge = ({kd}) => {
+    const col = kd<=30?"#15803D":kd<=60?"#D97706":"#DC2626";
+    const bg  = kd<=30?"#DCFCE7":kd<=60?"#FEF3C7":"#FEE2E2";
+    return <div style={{width:34,height:34,borderRadius:"50%",background:bg,border:`2px solid ${col}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,color:col,flexShrink:0}}>{kd}</div>;
   };
 
-  const volumeData = [
-    {m:"Sep",v:8200},{m:"Oct",v:8800},{m:"Nov",v:9100},{m:"Dec",v:9400},
-    {m:"Jan",v:9600},{m:"Feb",v:9900},{m:"Mar",v:10100},{m:"Apr",v:10320},
+  // ── Intent badge ──────────────────────────────────────────────────
+  const IntentBadge = ({intent}) => {
+    const map={Commercial:[C.purple,C.purpleL],Informational:[C.blueL,C.bluePale],Navigational:[C.orange,C.orangeL],Transactional:[C.green,C.greenL]};
+    const [col,bg]=map[intent]||[C.textDim,C.bg];
+    return <span style={{background:bg,color:col,padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:600}}>{intent}</span>;
+  };
+
+  // ── Data ──────────────────────────────────────────────────────────
+  const metrics = [
+    { icon:"📊", value:"8,200", label:"Search Volume", sub:"Monthly searches", subColor:C.blueL },
+    { icon:"🎯", value:"28",    label:"Keyword Difficulty", sub:"Low competition", subColor:C.green },
+    { icon:"💰", value:"$4.20", label:"CPC (Avg.)", sub:"Cost per click", subColor:C.orange },
+    { icon:"⭐", value:"6",     label:"SERP Features", sub:"Snippets, maps, ads", subColor:C.purple },
   ];
+
+  const suggestions = [
+    { kw:"dental implants near me",     rank:4,  ch:+3, vol:8200,  kd:28, cpc:"$4.20", intent:"Commercial" },
+    { kw:"best SEO tools 2026",          rank:7,  ch:+5, vol:5100,  kd:42, cpc:"$6.80", intent:"Informational" },
+    { kw:"agency project management",    rank:11, ch:-2, vol:3400,  kd:35, cpc:"$3.50", intent:"Navigational" },
+    { kw:"dental implants cost",         rank:6,  ch:+8, vol:12400, kd:51, cpc:"$8.40", intent:"Commercial" },
+    { kw:"how much are dental implants", rank:9,  ch:+2, vol:6700,  kd:22, cpc:"$5.10", intent:"Informational" },
+    { kw:"dental implants vs dentures",  rank:14, ch:+4, vol:4300,  kd:38, cpc:"$4.90", intent:"Informational" },
+    { kw:"cheap dental implants",        rank:18, ch:-1, vol:3800,  kd:29, cpc:"$7.20", intent:"Commercial" },
+    { kw:"dental implants recovery",     rank:22, ch:+6, vol:2100,  kd:18, cpc:"$2.80", intent:"Informational" },
+  ];
+
+  const filtered = intentFilter==="all" ? suggestions : suggestions.filter(s=>s.intent===intentFilter);
+
+  // ── SERP trend data ───────────────────────────────────────────────
   const trendData = [
-    {m:"1",v:20},{m:"2",v:25},{m:"3",v:18},{m:"4",v:30},{m:"5",v:35},{m:"6",v:28},{m:"7",v:40},{m:"8",v:45},
+    {m:"Nov 25",v:6800},{m:"Dec 25",v:7200},{m:"Jan 26",v:7800},{m:"Feb 26",v:7400},
+    {m:"Mar 26",v:8000},{m:"Apr 26",v:7900},{m:"May 26",v:8200},
   ];
-  const kwIdeas = [
-    {kw:"Designer",  ad:54, trend:[3,4,2,5,4,3,5,4], cpc:"$46", paid:31, sd:54},
-    {kw:"Designs",   ad:54, trend:[2,3,4,3,5,4,3,4], cpc:"$46", paid:31, sd:54},
-    {kw:"Design",    ad:94, trend:[5,4,3,4,3,5,4,3], cpc:"$46", paid:33, sd:54},
-    {kw:"Designing", ad:64, trend:[3,2,4,5,4,3,4,5], cpc:"$46", paid:33, sd:54},
-    {kw:"Designer",  ad:50, trend:[4,5,3,4,5,4,3,4], cpc:"$46", paid:33, sd:54},
-    {kw:"Designs",   ad:54, trend:[2,3,4,3,2,4,3,5], cpc:"$46", paid:31, sd:54},
-    {kw:"Design",    ad:54, trend:[3,4,5,4,3,4,5,4], cpc:"$46", paid:31, sd:54},
-    {kw:"Designing", ad:54, trend:[4,3,2,4,5,3,4,3], cpc:"$46", paid:31, sd:54},
-  ];
-  const serpData = [
-    {url:"http://wordpress.com/", page:41, bl:"20K", traffic:"126.93K", kws:900},
-    {url:"http://wordpress.org/", page:61, bl:"20K", traffic:"135.93K", kws:900},
-    {url:"http://wpbeginners.com/", page:44, bl:"20K", traffic:"135.93K", kws:900},
-    {url:"http://wordpress.com/", page:44, bl:"20K", traffic:"135.93K", kws:900},
-    {url:"http://wordpress.org/", page:45, bl:"20K", traffic:"135.93K", kws:900},
-    {url:"http://wpbeginners.com/", page:44, bl:"20K", traffic:"135.93K", kws:900},
-  ];
-  const contentIdeas = [
-    {title:"Get With The Ultimate Goal Of Digital Marketing - Topics", fit:4, bl:3,  f:0, p:0, g:0},
-    {title:"Get With The Mail Delivery World Of Digital Marketing - Topics", fit:11, bl:3, f:0, p:8, g:8},
-    {title:"Get With The Ultimate Goal Of Digital Marketing - Topics", fit:11, bl:0, f:0, p:3, g:8},
-    {title:"Get With The Mail Delivery World Of Marketing - Topics", fit:12, bl:0, f:0, p:2, g:0},
-    {title:"Get With The Ultimate Goal Of Digital Marketing - Topics", fit:11, bl:0, f:0, p:3, g:8},
-    {title:"Get With The Mail Delivery Digital Marketing - Topics", fit:7,  bl:0, f:0, p:0, g:0},
-  ];
-  const kwTabCounts = { variations:42, suggestions:99, related:53, questions:10 };
-  const kd = 100;
-  const r=36; const circ=2*Math.PI*r; const off=circ*(1-kd/100);
 
+  // ── Keyword clusters (for Ideas page) ────────────────────────────
+  const clusters = [
+    { name:"Cost & Pricing", color:C.orange, keywords:["dental implants cost","how much do implants cost","dental implants price near me","affordable dental implants"], totalVol:"42K", avgKD:38, opportunity:"High" },
+    { name:"Near Me / Local", color:C.blueL, keywords:["dental implants near me","best dentist for implants","dental implant clinic","implant dentist open now"], totalVol:"28K", avgKD:31, opportunity:"High" },
+    { name:"Types & Options", color:C.green, keywords:["full mouth implants","all on 4 implants","mini dental implants","same day implants"], totalVol:"19K", avgKD:42, opportunity:"Medium" },
+    { name:"vs Comparisons", color:C.purple, keywords:["implants vs dentures","implants vs bridges","implants vs veneers"], totalVol:"14K", avgKD:35, opportunity:"Medium" },
+    { name:"Recovery & Care", color:C.red, keywords:["dental implant healing time","implant aftercare","pain after implant"], totalVol:"8K", avgKD:19, opportunity:"Low" },
+  ];
+
+  const questions = [
+    { q:"How long do dental implants last?",        vol:9800, kd:24, intent:"Informational" },
+    { q:"Are dental implants covered by insurance?", vol:7600, kd:18, intent:"Informational" },
+    { q:"What is the best age for dental implants?", vol:5400, kd:21, intent:"Informational" },
+    { q:"How painful is a dental implant?",          vol:4800, kd:16, intent:"Informational" },
+    { q:"Can dental implants fail?",                 vol:3200, kd:28, intent:"Informational" },
+    { q:"Who is a good candidate for implants?",     vol:2800, kd:22, intent:"Informational" },
+  ];
+
+  // ── RENDER ────────────────────────────────────────────────────────
   return (
-    <div className="fade" style={{overflowY:"auto",height:"calc(100vh - 57px)",background:C.bg}}>
-      {/* Top search bar */}
-      <div style={{padding:"14px 24px",background:C.white,borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center",gap:10}}>
-        <input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search keyword..." style={{flex:1,background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 14px",color:C.text,fontSize:13,fontFamily:"inherit",outline:"none"}}/>
-        <select value={country} onChange={e=>setCountry(e.target.value)} style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,padding:"8px 10px",color:C.text,fontSize:12,fontFamily:"inherit"}}>
-          <option>🇳🇬 Nigeria</option><option>🇺🇸 USA</option><option>🇬🇧 UK</option><option>🇵🇭 PHL</option>
-        </select>
-        <select value={lang} onChange={e=>setLang(e.target.value)} style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,padding:"8px 10px",color:C.text,fontSize:12,fontFamily:"inherit"}}>
-          <option>EN</option><option>FR</option><option>ES</option>
-        </select>
-        <button onClick={()=>setSearched(true)} style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"9px 24px",borderRadius:8,fontSize:13,fontWeight:700,fontFamily:"inherit"}}>Search</button>
-      </div>
+    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", background:C.bg }}>
 
-      {/* Main tabs */}
-      <div style={{background:C.white,borderBottom:`1px solid ${C.border}`,padding:"0 24px",display:"flex",gap:0}}>
-        {[["overview","Keyword Overview"],["ideas","Keyword Ideas"],["content","Content Ideas"]].map(([id,label])=>(
-          <button key={id} onClick={()=>setMainTab(id)} style={{padding:"11px 20px",border:"none",borderBottom:mainTab===id?`2.5px solid ${C.blueL}`:"2.5px solid transparent",cursor:"pointer",fontSize:13,fontWeight:mainTab===id?700:500,fontFamily:"inherit",background:"transparent",color:mainTab===id?C.blueL:C.textMid,marginBottom:-1}}>{label}</button>
+      {/* Sub-nav tabs */}
+      <div style={{ background:C.white, borderBottom:`1px solid ${C.border}`, padding:"0 28px", display:"flex", alignItems:"center", gap:0 }}>
+        {[["overview","Keyword Overview"],["ideas","Keyword Ideas"]].map(([id,label])=>(
+          <button key={id} onClick={()=>setKwPage(id)} style={{ padding:"13px 20px", border:"none", borderBottom:kwPage===id?`2.5px solid ${C.blueL}`:"2.5px solid transparent", cursor:"pointer", fontSize:13, fontWeight:kwPage===id?700:500, fontFamily:"inherit", background:"transparent", color:kwPage===id?C.blueL:C.textMid, marginBottom:-1 }}>{label}</button>
         ))}
-        <div style={{marginLeft:"auto",display:"flex",alignItems:"center",padding:"8px 0"}}>
-          <span style={{background:C.greenL,color:C.green,fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:6}}>Language: {lang}</span>
-        </div>
       </div>
 
-      <div style={{padding:"20px 24px"}}>
+      {/* Search bar */}
+      <div style={{ padding:"20px 28px 0" }}>
+        <div style={{ display:"flex", gap:10, marginBottom:searched?20:0 }}>
+          <input value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>e.key==="Enter"&&setSearched(true)} placeholder="Enter keyword, topic, or URL..." style={{ flex:1, background:C.white, border:`1px solid ${C.border}`, borderRadius:10, padding:"12px 18px", color:C.text, fontSize:15, fontFamily:"inherit", outline:"none", boxShadow:"0 1px 4px rgba(0,0,0,.05)" }}/>
+          <select value={location} onChange={e=>setLocation(e.target.value)} style={{ background:C.white, border:`1px solid ${C.border}`, borderRadius:10, padding:"12px 16px", color:C.text, fontSize:13, fontFamily:"inherit", outline:"none", cursor:"pointer" }}>
+            <option>All Locations</option><option>🇺🇸 United States</option><option>🇵🇭 Philippines</option><option>🇬🇧 United Kingdom</option><option>🇦🇺 Australia</option><option>🇳🇬 Nigeria</option>
+          </select>
+          <button onClick={()=>setSearched(true)} style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"12px 28px", borderRadius:10, fontSize:14, fontWeight:700, fontFamily:"inherit" }}>Search</button>
+          <button onClick={()=>setFilterOpen(!filterOpen)} style={{ background:C.white, border:`1px solid ${C.border}`, color:C.textMid, cursor:"pointer", padding:"12px 18px", borderRadius:10, fontSize:13, fontFamily:"inherit", display:"flex", alignItems:"center", gap:6 }}>
+            <Filter size={14}/> Filters
+          </button>
+        </div>
 
-        {/* ── KEYWORD OVERVIEW TAB ── */}
-        {mainTab==="overview" && searched && (
-          <>
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
-              <div>
-                <div style={{color:C.textDim,fontSize:12,marginBottom:2}}>Last fetched Aug 10, 2022</div>
-                <div className="sg" style={{color:C.text,fontSize:18,fontWeight:800}}>Searched Keyword: <span style={{color:C.blueL}}>{query}</span></div>
+        {/* Filters panel */}
+        {filterOpen && (
+          <div className="card" style={{ padding:"16px 20px", marginBottom:16, display:"flex", gap:20, alignItems:"center" }}>
+            <div>
+              <div style={{ color:C.textDim, fontSize:10, fontWeight:700, marginBottom:6 }}>INTENT</div>
+              <div style={{ display:"flex", gap:6 }}>
+                {["all","Commercial","Informational","Navigational","Transactional"].map(i=>(
+                  <button key={i} onClick={()=>setIntentFilter(i)} style={{ background:intentFilter===i?C.blueL:"transparent", color:intentFilter===i?"#fff":C.textMid, border:`1px solid ${intentFilter===i?C.blueL:C.border}`, cursor:"pointer", padding:"5px 12px", borderRadius:20, fontSize:11, fontFamily:"inherit" }}>{i==="all"?"All":i}</button>
+                ))}
               </div>
             </div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 200px",gap:16,marginBottom:20}}>
-              <div className="card" style={{padding:"18px 22px"}}>
-                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
-                  <span style={{color:C.textDim,fontSize:12}}>Search Volume</span>
+            <div>
+              <div style={{ color:C.textDim, fontSize:10, fontWeight:700, marginBottom:6 }}>KD RANGE</div>
+              <div style={{ display:"flex", gap:6 }}>
+                {[["Easy (0-30)","easy"],["Medium (31-60)","med"],["Hard (61+)","hard"]].map(([label,id])=>(
+                  <button key={id} style={{ background:"transparent", border:`1px solid ${C.border}`, color:C.textMid, cursor:"pointer", padding:"5px 12px", borderRadius:20, fontSize:11, fontFamily:"inherit" }}>{label}</button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div style={{ color:C.textDim, fontSize:10, fontWeight:700, marginBottom:6 }}>MIN VOLUME</div>
+              <input defaultValue="1000" style={{ background:C.bg, border:`1px solid ${C.border}`, borderRadius:7, padding:"5px 10px", width:80, fontSize:13, fontFamily:"inherit", outline:"none" }}/>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ══ KEYWORD OVERVIEW PAGE ══════════════════════════════════════ */}
+      {kwPage==="overview" && searched && (
+        <div style={{ padding:"0 28px 28px" }}>
+          {/* 4 metric cards */}
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14, marginBottom:24 }}>
+            {metrics.map((m,i)=>(
+              <div key={i} className="card" style={{ padding:"22px 24px" }}>
+                <div style={{ fontSize:28, marginBottom:10 }}>{m.icon}</div>
+                <div className="sg" style={{ color:C.text, fontSize:30, fontWeight:900, marginBottom:4 }}>{m.value}</div>
+                <div style={{ color:C.textDim, fontSize:12, marginBottom:4 }}>{m.label}</div>
+                <div style={{ color:m.subColor, fontSize:12, fontWeight:600 }}>{m.sub}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Trend chart */}
+          <div className="card" style={{ padding:"20px 24px", marginBottom:20 }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+              <div>
+                <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:15 }}>Search Volume Trend</div>
+                <div style={{ color:C.textDim, fontSize:12 }}>Monthly searches for "<strong>{query}</strong>" over 7 months</div>
+              </div>
+              <div style={{ display:"flex", gap:6 }}>
+                {["3M","6M","12M"].map(r=>(
+                  <button key={r} style={{ background:r==="6M"?C.blueL:"transparent", color:r==="6M"?"#fff":C.textMid, border:`1px solid ${r==="6M"?C.blueL:C.border}`, cursor:"pointer", padding:"5px 12px", borderRadius:6, fontSize:11, fontFamily:"inherit" }}>{r}</button>
+                ))}
+              </div>
+            </div>
+            <ResponsiveContainer width="100%" height={180}>
+              <AreaChart data={trendData} margin={{top:4,right:4,left:-22,bottom:0}}>
+                <defs><linearGradient id="kwg" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={C.blueL} stopOpacity={.2}/><stop offset="95%" stopColor={C.blueL} stopOpacity={0}/></linearGradient></defs>
+                <CartesianGrid strokeDasharray="3 3" stroke={C.border}/>
+                <XAxis dataKey="m" tick={{fill:C.textDim,fontSize:10}} axisLine={false} tickLine={false}/>
+                <YAxis tick={{fill:C.textDim,fontSize:10}} axisLine={false} tickLine={false} tickFormatter={v=>`${v/1000}k`}/>
+                <Tooltip contentStyle={{background:C.white,border:`1px solid ${C.border}`,borderRadius:8,fontSize:11}}/>
+                <Area type="monotone" dataKey="v" stroke={C.blueL} fill="url(#kwg)" strokeWidth={2.5} name="Search Volume"/>
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Keyword Suggestions table */}
+          <div className="card" style={{ overflow:"hidden" }}>
+            <div style={{ padding:"14px 20px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:10 }}>
+              <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:15, flex:1 }}>Keyword Suggestions
+                <span style={{ color:C.textDim, fontSize:12, fontWeight:400, marginLeft:8 }}>{filtered.length} results</span>
+              </div>
+              <button style={{ background:"transparent", border:`1px solid ${C.border}`, color:C.textMid, cursor:"pointer", padding:"7px 14px", borderRadius:8, fontSize:12, fontFamily:"inherit", display:"flex", alignItems:"center", gap:6 }}>
+                <Download size={13}/> Export
+              </button>
+            </div>
+            {/* Table header */}
+            <div style={{ display:"grid", gridTemplateColumns:"2.5fr 120px 80px 100px 160px 140px", padding:"10px 20px", background:C.bg, borderBottom:`1px solid ${C.border}`, gap:8 }}>
+              {["KEYWORD","VOLUME","KD","CPC","INTENT","ACTION"].map(h=>(
+                <div key={h} style={{ color:C.textDim, fontSize:10, fontWeight:700, letterSpacing:.6 }}>{h}</div>
+              ))}
+            </div>
+            {/* Table rows */}
+            {filtered.map((row,i)=>(
+              <div key={i} className="td" style={{ display:"grid", gridTemplateColumns:"2.5fr 120px 80px 100px 160px 140px", padding:"14px 20px", borderBottom:i<filtered.length-1?`1px solid ${C.border}`:"none", alignItems:"center", gap:8 }}>
+                <div>
+                  <div style={{ color:C.text, fontSize:14, fontWeight:600, marginBottom:3 }}>{row.kw}</div>
+                  <div style={{ color:C.textDim, fontSize:11 }}>Rank #{row.rank} · <span style={{ color:row.ch>0?C.green:C.red }}>{row.ch>0?"+":""}{row.ch}</span></div>
                 </div>
-                <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:14}}>
-                  <span className="sg" style={{color:C.text,fontSize:28,fontWeight:800}}>10,320</span>
-                  <span style={{background:C.greenL,color:C.green,fontSize:11,fontWeight:700,padding:"2px 7px",borderRadius:5}}>↑8%</span>
+                <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:14 }}>{row.vol.toLocaleString()}</div>
+                <KDBadge kd={row.kd}/>
+                <div style={{ color:C.orange, fontWeight:600, fontSize:13 }}>{row.cpc}</div>
+                <IntentBadge intent={row.intent}/>
+                <div style={{ display:"flex", gap:6, alignItems:"center" }}>
+                  <button onClick={()=>setTracked(t=>t.includes(row.kw)?t:[ ...t, row.kw])} style={{ background:tracked.includes(row.kw)?C.green:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"7px 16px", borderRadius:7, fontSize:12, fontWeight:700, fontFamily:"inherit" }}>
+                    {tracked.includes(row.kw)?"✓ Tracking":"Track"}
+                  </button>
+                  <button style={{ width:28, height:28, borderRadius:7, border:`1px solid ${C.border}`, background:"transparent", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}><Plus size={13} color={C.textDim}/></button>
                 </div>
-                <ResponsiveContainer width="100%" height={100}>
-                  <AreaChart data={volumeData} margin={{top:0,right:0,left:-28,bottom:0}}>
-                    <defs><linearGradient id="vg" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={C.orange} stopOpacity={.25}/><stop offset="95%" stopColor={C.orange} stopOpacity={0}/></linearGradient></defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke={C.border}/>
-                    <XAxis dataKey="m" tick={{fill:C.textDim,fontSize:9}} axisLine={false} tickLine={false}/>
-                    <YAxis tick={{fill:C.textDim,fontSize:9}} axisLine={false} tickLine={false} tickFormatter={v=>`${v/1000}k`}/>
-                    <Tooltip contentStyle={{background:C.white,border:`1px solid ${C.border}`,borderRadius:6,fontSize:10}}/>
-                    <Area type="monotone" dataKey="v" stroke={C.orange} fill="url(#vg)" strokeWidth={2}/>
-                  </AreaChart>
-                </ResponsiveContainer>
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginTop:16}}>
-                  <div className="card" style={{padding:"12px 14px",background:C.bg}}>
-                    <div style={{color:C.textDim,fontSize:11,marginBottom:4}}>Keyword Difficulty</div>
-                    <div style={{display:"flex",alignItems:"center",gap:10}}>
-                      <div style={{position:"relative",width:60,height:60}}>
-                        <svg width={60} height={60} style={{transform:"rotate(-90deg)"}}>
-                          <circle cx={30} cy={30} r={22} fill="none" stroke={C.border} strokeWidth={7}/>
-                          <circle cx={30} cy={30} r={22} fill="none" stroke={C.orange} strokeWidth={7} strokeDasharray={2*Math.PI*22} strokeDashoffset={2*Math.PI*22*(1-kd/100)} strokeLinecap="round"/>
-                        </svg>
-                        <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
-                          <span className="sg" style={{fontSize:14,fontWeight:800,color:C.text}}>{kd}%</span>
-                        </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ══ KEYWORD IDEAS PAGE ═════════════════════════════════════════ */}
+      {kwPage==="ideas" && (
+        <div style={{ padding:"20px 28px 28px" }}>
+          {/* Header strip */}
+          <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:22 }}>
+            <div style={{ background:`${C.blueL}10`, border:`1px solid ${C.blueL}22`, borderRadius:10, padding:"10px 16px", display:"flex", alignItems:"center", gap:8 }}>
+              <Bot size={16} color={C.blueL}/>
+              <span style={{ color:C.blueL, fontSize:13, fontWeight:600 }}>AI found <strong>247 keyword opportunities</strong> grouped into 5 topic clusters for "<strong>{query}</strong>"</span>
+            </div>
+            <button style={{ background:"transparent", border:`1px solid ${C.border}`, color:C.textMid, cursor:"pointer", padding:"9px 14px", borderRadius:8, fontSize:12, fontFamily:"inherit", display:"flex", alignItems:"center", gap:6 }}>
+              <Download size={13}/> Export All
+            </button>
+          </div>
+
+          {/* Keyword Clusters */}
+          <div style={{ marginBottom:26 }}>
+            <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:16, marginBottom:4 }}>📦 Keyword Clusters</div>
+            <div style={{ color:C.textDim, fontSize:12, marginBottom:14 }}>AI-grouped topics — target entire clusters to dominate search intent</div>
+            <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+              {clusters.map((cl,i)=>(
+                <div key={i} className="card" style={{ padding:"16px 20px", borderLeft:`4px solid ${cl.color}` }}>
+                  <div style={{ display:"grid", gridTemplateColumns:"2fr 100px 100px 120px 1fr", alignItems:"center", gap:12 }}>
+                    <div>
+                      <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
+                        <div style={{ width:8, height:8, borderRadius:"50%", background:cl.color }}/>
+                        <span className="sg" style={{ color:C.text, fontWeight:700, fontSize:14 }}>{cl.name}</span>
+                        <span style={{ background:`${cl.color}18`, color:cl.color, fontSize:10, fontWeight:700, padding:"2px 8px", borderRadius:10 }}>{cl.keywords.length} keywords</span>
                       </div>
-                      <div>
-                        <div style={{color:C.red,fontWeight:700,fontSize:12}}>Very Hard</div>
-                        <div style={{color:C.textDim,fontSize:10}}>SEO Difficulty</div>
+                      <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+                        {cl.keywords.map((kw,j)=>(
+                          <span key={j} style={{ background:C.bg, border:`1px solid ${C.border}`, color:C.textMid, fontSize:11, padding:"2px 9px", borderRadius:20 }}>{kw}</span>
+                        ))}
                       </div>
                     </div>
+                    <div style={{ textAlign:"center" }}>
+                      <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:16 }}>{cl.totalVol}</div>
+                      <div style={{ color:C.textDim, fontSize:10 }}>Total Volume</div>
+                    </div>
+                    <div style={{ textAlign:"center" }}>
+                      <KDBadge kd={cl.avgKD}/>
+                      <div style={{ color:C.textDim, fontSize:10, marginTop:4 }}>Avg KD</div>
+                    </div>
+                    <div style={{ textAlign:"center" }}>
+                      <span className="chip" style={{ color:cl.opportunity==="High"?C.green:cl.opportunity==="Medium"?C.orange:C.textDim, background:cl.opportunity==="High"?C.greenL:cl.opportunity==="Medium"?C.orangeL:C.bg, fontSize:11, padding:"4px 12px" }}>{cl.opportunity} Opportunity</span>
+                    </div>
+                    <button style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"8px 16px", borderRadius:8, fontSize:12, fontWeight:700, fontFamily:"inherit" }}>Track Cluster →</button>
                   </div>
-                  <div className="card" style={{padding:"12px 14px",background:C.bg}}>
-                    <div style={{color:C.textDim,fontSize:11,marginBottom:4}}>Trend (12 months)</div>
-                    <ResponsiveContainer width="100%" height={50}>
-                      <RBarChart data={trendData} barSize={6}>
-                        <Bar dataKey="v" fill={C.blueL} radius={[2,2,0,0]}/>
-                        <Tooltip contentStyle={{background:C.white,border:`1px solid ${C.border}`,borderRadius:6,fontSize:9}} cursor={{fill:C.bluePale}}/>
-                      </RBarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-              </div>
-              <div style={{display:"flex",flexDirection:"column",gap:12}}>
-                {[
-                  {label:"SEO Difficulty",    value:"80",   c:C.orange},
-                  {label:"New traffic",        value:"23",   c:C.blueL},
-                  {label:"Cost per click",     value:"$234", c:C.green},
-                  {label:"Paid difficulty",    value:"24",   c:C.purple},
-                ].map(s=>(
-                  <div key={s.label} className="card" style={{padding:"12px 14px",flex:1}}>
-                    <div style={{color:C.textDim,fontSize:11,marginBottom:4}}>{s.label}</div>
-                    <div className="sg" style={{color:s.c,fontSize:20,fontWeight:800}}>{s.value}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Keyword Ideas preview */}
-            <div className="card" style={{overflow:"hidden",marginBottom:20}}>
-              <div style={{padding:"12px 18px",borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center",gap:8}}>
-                <span className="sg" style={{color:C.text,fontWeight:700,fontSize:14,flex:1}}>Keyword Ideas</span>
-                {[["Variations",42],["Suggestions",99],["Related",53],["Questions",10]].map(([t,c])=>(
-                  <button key={t} style={{background:t==="Suggestions"?C.blueL:"transparent",color:t==="Suggestions"?"#fff":C.textMid,border:`1px solid ${t==="Suggestions"?C.blueL:C.border}`,cursor:"pointer",padding:"4px 10px",borderRadius:6,fontSize:11,fontFamily:"inherit"}}>{t}</button>
-                ))}
-              </div>
-              <table style={{width:"100%",borderCollapse:"collapse"}}>
-                <thead><tr style={{background:C.bg}}>
-                  {["Keyword","Trend","CPC","PD","SD"].map(h=>(
-                    <th key={h} style={{padding:"8px 14px",textAlign:"left",color:C.textDim,fontSize:10,fontWeight:700,borderBottom:`1px solid ${C.border}`}}>{h}</th>
-                  ))}
-                </tr></thead>
-                <tbody>
-                  {kwIdeas.slice(0,5).map((k,i)=>(
-                    <tr key={i} className="td">
-                      <td style={{padding:"9px 14px",color:C.blueL,fontWeight:600,fontSize:13,borderBottom:`1px solid ${C.border}`}}>{k.kw}</td>
-                      <td style={{padding:"9px 14px",borderBottom:`1px solid ${C.border}`}}><Spark data={k.trend} col={C.textDim}/></td>
-                      <td style={{padding:"9px 14px",color:C.textMid,fontSize:12,borderBottom:`1px solid ${C.border}`}}>{k.cpc}</td>
-                      <td style={{padding:"9px 14px",color:C.textMid,fontSize:12,borderBottom:`1px solid ${C.border}`}}>{k.paid}</td>
-                      <td style={{padding:"9px 14px",color:C.textMid,fontSize:12,borderBottom:`1px solid ${C.border}`}}>{k.sd}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div style={{padding:"10px 14px",borderTop:`1px solid ${C.border}`}}>
-                <button onClick={()=>setMainTab("ideas")} style={{background:"transparent",border:"none",color:C.blueL,cursor:"pointer",fontSize:12,fontWeight:700,fontFamily:"inherit"}}>View all keyword ideas →</button>
-              </div>
-            </div>
-
-            {/* SERP Analysis */}
-            <div className="card" style={{overflow:"hidden"}}>
-              <div style={{padding:"12px 18px",borderBottom:`1px solid ${C.border}`}}>
-                <span className="sg" style={{color:C.text,fontWeight:700,fontSize:14}}>SERP Analysis</span>
-              </div>
-              <table style={{width:"100%",borderCollapse:"collapse"}}>
-                <thead><tr style={{background:C.bg}}>
-                  {["","URL","Page Rank","Backlinks","Search Traffic","Keywords"].map(h=>(
-                    <th key={h} style={{padding:"8px 12px",textAlign:"left",color:C.textDim,fontSize:10,fontWeight:700,borderBottom:`1px solid ${C.border}`}}>{h}</th>
-                  ))}
-                </tr></thead>
-                <tbody>
-                  {serpData.map((r,i)=>(
-                    <tr key={i} className="td">
-                      <td style={{padding:"9px 12px",color:C.textDim,fontSize:12,borderBottom:`1px solid ${C.border}`}}>{i+1}.</td>
-                      <td style={{padding:"9px 12px",borderBottom:`1px solid ${C.border}`}}><a href="#" style={{color:C.blueL,fontSize:12,textDecoration:"underline"}} onClick={e=>e.preventDefault()}>{r.url}</a></td>
-                      <td style={{padding:"9px 12px",color:C.textMid,fontSize:12,borderBottom:`1px solid ${C.border}`}}>{r.page}</td>
-                      <td style={{padding:"9px 12px",color:C.textMid,fontSize:12,borderBottom:`1px solid ${C.border}`}}>{r.bl}</td>
-                      <td style={{padding:"9px 12px",color:C.textMid,fontSize:12,borderBottom:`1px solid ${C.border}`}}>{r.traffic}</td>
-                      <td style={{padding:"9px 12px",color:C.textMid,fontSize:12,borderBottom:`1px solid ${C.border}`}}>{r.kws}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div style={{padding:"10px 14px",borderTop:`1px solid ${C.border}`,textAlign:"right"}}>
-                <button style={{background:"transparent",border:"none",color:C.blueL,cursor:"pointer",fontSize:12,fontFamily:"inherit"}}>view all →</button>
-              </div>
-            </div>
-          </>
-        )}
-
-        {/* ── KEYWORD IDEAS TAB ── */}
-        {mainTab==="ideas" && (
-          <>
-            <div style={{marginBottom:16}}>
-              <div className="sg" style={{color:C.text,fontSize:18,fontWeight:800,marginBottom:4}}>Keyword Ideas</div>
-              <div style={{color:C.textDim,fontSize:13,marginBottom:14}}>Lorem ipsum dolor sit amet, consectetur adipiscing</div>
-              {/* Search with chips */}
-              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}>
-                <div style={{display:"flex",alignItems:"center",gap:6,flex:1,background:C.white,border:`1px solid ${C.border}`,borderRadius:8,padding:"8px 12px"}}>
-                  {searchChips.map((chip,i)=>(
-                    <span key={i} style={{background:C.bluePale,color:C.blueL,fontSize:12,fontWeight:700,padding:"2px 8px",borderRadius:20,display:"flex",alignItems:"center",gap:4}}>
-                      {chip}
-                      <span onClick={()=>setSearchChips(c=>c.filter((_,j)=>j!==i))} style={{cursor:"pointer",color:C.blueL,fontSize:12}}>×</span>
-                    </span>
-                  ))}
-                  <input placeholder="Add keyword..." style={{border:"none",outline:"none",background:"transparent",color:C.text,fontSize:13,fontFamily:"inherit",flex:1}} onKeyDown={e=>{if(e.key==="Enter"&&e.target.value){setSearchChips(c=>[...c,e.target.value]);e.target.value=""}}}/>
-                </div>
-                <select style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 10px",color:C.textMid,fontSize:12,fontFamily:"inherit"}}><option>🇳🇬 Nigeria</option><option>🇺🇸 USA</option></select>
-                <button style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"9px 24px",borderRadius:8,fontSize:13,fontWeight:700,fontFamily:"inherit"}}>Search</button>
-              </div>
-              <div className="sg" style={{color:C.blueL,fontSize:16,fontWeight:800}}>Keyword Ideas: <span style={{color:C.text}}>{searchChips.join(", ")}</span></div>
-            </div>
-            {/* Keyword Ideas panel */}
-            <div className="card" style={{overflow:"hidden"}}>
-              <div style={{padding:"12px 18px",borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center",gap:10}}>
-                <span style={{background:C.bluePale,color:C.blueL,padding:"6px 16px",borderRadius:8,fontSize:13,fontWeight:700}}>Keyword Ideas</span>
-                <div style={{display:"flex",gap:6,marginLeft:8}}>
-                  {Object.entries(kwTabCounts).map(([id,count])=>(
-                    <button key={id} onClick={()=>setKwTab(id)} style={{background:kwTab===id?C.blueL:"transparent",color:kwTab===id?"#fff":C.textMid,border:`1px solid ${kwTab===id?C.blueL:C.border}`,cursor:"pointer",padding:"5px 12px",borderRadius:6,fontSize:12,fontFamily:"inherit",textTransform:"capitalize"}}>{id.charAt(0).toUpperCase()+id.slice(1)} ({count})</button>
-                  ))}
-                </div>
-                <button style={{marginLeft:"auto",background:"transparent",border:`1px solid ${C.border}`,color:C.blueL,cursor:"pointer",padding:"5px 12px",borderRadius:6,fontSize:11,fontFamily:"inherit",display:"flex",alignItems:"center",gap:4}}>
-                  View all keyword ideas <ChevronRight size={11}/>
-                </button>
-              </div>
-              <div style={{padding:"10px 18px",borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center",gap:6}}>
-                <span style={{color:C.textMid,fontSize:12,fontWeight:600}}>Suggestions</span>
-                <span style={{color:C.blueL,fontWeight:700,fontSize:12,background:C.bluePale,padding:"1px 7px",borderRadius:5}}>View all keyword ideas →</span>
-              </div>
-              <div style={{padding:"0 0 0 0"}}>
-                <div style={{display:"grid",gridTemplateColumns:"36px 1fr 160px 100px 130px 130px",padding:"9px 14px",background:C.bg,borderBottom:`1px solid ${C.border}`,gap:8}}>
-                  {["","Keyword","Trend","CPC","Paid difficulty","SEO Difficulty"].map(h=>(
-                    <div key={h} style={{color:C.textDim,fontSize:10,fontWeight:700}}>{h}</div>
-                  ))}
-                </div>
-                {kwIdeas.map((k,i)=>(
-                  <div key={i} className="td" style={{display:"grid",gridTemplateColumns:"36px 1fr 160px 100px 130px 130px",padding:"10px 14px",borderBottom:`1px solid ${C.border}`,alignItems:"center",gap:8}}>
-                    <input type="checkbox" style={{accentColor:C.blueL}}/>
-                    <a href="#" style={{color:C.blueL,fontWeight:600,fontSize:13,textDecoration:"none"}} onClick={e=>e.preventDefault()}>{k.kw}</a>
-                    <Spark data={k.trend} col={C.textDim}/>
-                    <span style={{color:C.textMid,fontSize:12}}>{k.cpc}</span>
-                    <span style={{color:C.textMid,fontSize:12}}>{k.paid}</span>
-                    <span style={{color:C.textMid,fontSize:12}}>{k.sd}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-
-        {/* ── CONTENT IDEAS TAB ── */}
-        {mainTab==="content" && (
-          <>
-            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}>
-              <input defaultValue="mail delivery" style={{flex:1,background:C.white,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 14px",color:C.text,fontSize:13,fontFamily:"inherit",outline:"none"}} placeholder="Discover popular content on the Web..."/>
-              <select style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 10px",color:C.textMid,fontSize:12,fontFamily:"inherit"}}><option>🇳🇬 English/Nigeria</option></select>
-              <button style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"9px 22px",borderRadius:8,fontSize:13,fontWeight:700,fontFamily:"inherit"}}>Search</button>
-            </div>
-            <div style={{background:`${C.yellowL}`,border:`1px solid ${C.yellow}`,borderRadius:8,padding:"8px 14px",marginBottom:16,display:"flex",alignItems:"center",gap:8}}>
-              <span style={{color:C.yellow,fontSize:12}}>⚠ You are on Free version —</span>
-              <span style={{color:C.blueL,fontSize:12,fontWeight:700,cursor:"pointer",textDecoration:"underline"}}>UPGRADE</span>
-            </div>
-            <div className="card" style={{overflow:"hidden"}}>
-              <div style={{padding:"12px 18px",borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center"}}>
-                <span className="sg" style={{color:C.text,fontWeight:700,fontSize:14,flex:1}}>Content Ideas</span>
-                <button style={{background:"transparent",border:`1px solid ${C.border}`,color:C.blueL,cursor:"pointer",padding:"5px 12px",borderRadius:6,fontSize:11,fontFamily:"inherit"}}>EXPORT TO CSV ↑</button>
-              </div>
-              <div style={{padding:"8px 18px",borderBottom:`1px solid ${C.border}`}}>
-                <span className="sg" style={{color:C.blueL,fontSize:14,fontWeight:700}}>Content Ideas : mail delivery</span>
-                <button style={{float:"right",background:C.bg,border:`1px solid ${C.border}`,color:C.textMid,cursor:"pointer",padding:"4px 10px",borderRadius:5,fontSize:11,fontFamily:"inherit"}}>Sort ↕</button>
-              </div>
-              <div style={{display:"grid",gridTemplateColumns:"36px 1fr 100px 120px 60px 60px 60px",padding:"8px 14px",background:C.bg,borderBottom:`1px solid ${C.border}`,gap:8}}>
-                {["","Page Title URL","FIT Score","Backlinks","F","P","G"].map(h=>(
-                  <div key={h} style={{color:C.textDim,fontSize:10,fontWeight:700}}>{h}</div>
-                ))}
-              </div>
-              {contentIdeas.map((c,i)=>(
-                <div key={i} className="td" style={{display:"grid",gridTemplateColumns:"36px 1fr 100px 120px 60px 60px 60px",padding:"10px 14px",borderBottom:`1px solid ${C.border}`,alignItems:"center",gap:8}}>
-                  <input type="checkbox" style={{accentColor:C.blueL}}/>
-                  <span style={{color:C.text,fontSize:12,lineHeight:1.4}}>{c.title}</span>
-                  <span style={{color:C.textMid,fontSize:12}}>{c.fit}</span>
-                  <span style={{color:C.textMid,fontSize:12}}>{c.bl}</span>
-                  <span style={{color:C.textMid,fontSize:12}}>{c.f}</span>
-                  <span style={{color:c.p>0?C.red:C.textMid,fontSize:12}}>{c.p}</span>
-                  <span style={{color:c.g>0?C.orange:C.textMid,fontSize:12}}>{c.g}</span>
                 </div>
               ))}
             </div>
-          </>
-        )}
-      </div>
+          </div>
+
+          {/* Questions people ask */}
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20 }}>
+            <div>
+              <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:16, marginBottom:4 }}>❓ Questions People Ask</div>
+              <div style={{ color:C.textDim, fontSize:12, marginBottom:14 }}>Target these for featured snippets (Position 0)</div>
+              <div className="card" style={{ overflow:"hidden" }}>
+                {questions.map((q,i)=>(
+                  <div key={i} className="td" style={{ padding:"13px 16px", borderBottom:i<questions.length-1?`1px solid ${C.border}`:"none", display:"flex", alignItems:"center", gap:12 }}>
+                    <div style={{ flex:1 }}>
+                      <div style={{ color:C.text, fontSize:13, marginBottom:4 }}>{q.q}</div>
+                      <div style={{ display:"flex", gap:8 }}>
+                        <span style={{ color:C.textDim, fontSize:11 }}>Vol: <strong>{q.vol.toLocaleString()}</strong></span>
+                        <KDBadge kd={q.kd}/>
+                      </div>
+                    </div>
+                    <IntentBadge intent={q.intent}/>
+                    <button style={{ background:"transparent", border:`1px solid ${C.border}`, color:C.blueL, cursor:"pointer", padding:"5px 10px", borderRadius:6, fontSize:11, fontFamily:"inherit" }}>Track</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Content Opportunities panel */}
+            <div>
+              <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:16, marginBottom:4 }}>🚀 Content Opportunities</div>
+              <div style={{ color:C.textDim, fontSize:12, marginBottom:14 }}>High-volume, low-competition gaps you're not ranking for</div>
+              <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+                {[
+                  { title:"Dental Implants Cost Guide 2026",   vol:"42K", gap:"Not ranking", score:94, color:C.green },
+                  { title:"Best Dental Implants Near Me",       vol:"28K", gap:"Rank #22",    score:87, color:C.green },
+                  { title:"Are Implants Worth It? (Guide)",     vol:"19K", gap:"Not ranking", score:81, color:C.blueL },
+                  { title:"Implants vs Dentures Comparison",    vol:"14K", gap:"Rank #18",    score:76, color:C.blueL },
+                  { title:"Dental Implant Recovery Timeline",   vol:"8K",  gap:"Not ranking", score:68, color:C.orange },
+                ].map((opp,i)=>(
+                  <div key={i} className="card" style={{ padding:"14px 16px" }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                      <div style={{ width:38, height:38, borderRadius:9, background:`${opp.color}18`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                        <span className="sg" style={{ color:opp.color, fontWeight:800, fontSize:13 }}>{opp.score}</span>
+                      </div>
+                      <div style={{ flex:1 }}>
+                        <div style={{ color:C.text, fontWeight:600, fontSize:13, marginBottom:2 }}>{opp.title}</div>
+                        <div style={{ display:"flex", gap:10 }}>
+                          <span style={{ color:C.textDim, fontSize:11 }}>Vol: {opp.vol}</span>
+                          <span style={{ color:opp.gap==="Not ranking"?C.red:C.orange, fontSize:11, fontWeight:600 }}>{opp.gap}</span>
+                        </div>
+                      </div>
+                      <button style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"6px 12px", borderRadius:6, fontSize:11, fontWeight:700, fontFamily:"inherit" }}>Create</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Empty state when not searched */}
+      {!searched && (
+        <div style={{ padding:"60px 28px", textAlign:"center" }}>
+          <div style={{ fontSize:64, marginBottom:16 }}>🔍</div>
+          <div className="sg" style={{ color:C.text, fontSize:22, fontWeight:800, marginBottom:8 }}>Find your next keyword opportunity</div>
+          <p style={{ color:C.textMid, fontSize:14 }}>Enter any keyword or topic above to get search volume, difficulty, CPC, and hundreds of related keyword ideas.</p>
+        </div>
+      )}
     </div>
   );
 }
 
-// ── On Page Audit ────────────────────────────────────────────────────
 function OnPageAudit() {
   return (
     <div className="fade" style={{overflowY:"auto",height:"calc(100vh - 57px)"}}>
@@ -1664,83 +1666,117 @@ function SettingsView() {
 }
 
 // ── Competitive Research ──────────────────────────────────────────────
-function CompetitiveResearch() {
+function CompetitiveResearch({ onNavigate }) {
+  const tools = [
+    {
+      id:"domain-overview", icon:"🌐", color:C.blueL, bg:C.bluePale,
+      title:"Domain Overview",
+      desc:"Full traffic analysis, keyword landscape, backlink profile & on-page score for any domain",
+      stats:[["Monthly Traffic","333K"],["Keywords","12.4K"],["Backlinks","91K"],["Authority","78"]],
+      cta:"Analyze Domain"
+    },
+    {
+      id:"keyword-gap", icon:"🔑", color:C.green, bg:C.greenL,
+      title:"Keyword Gap",
+      desc:"Discover every keyword your competitors rank for that you don't — find ranking gaps instantly",
+      stats:[["Keywords Missing","2,847"],["Quick Wins","342"],["Avg KD","31"],["Potential Traffic","48K"]],
+      cta:"Find Keyword Gaps"
+    },
+    {
+      id:"backlink-gap", icon:"🔗", color:C.orange, bg:C.orangeL,
+      title:"Backlink Gap",
+      desc:"Compare backlink profiles to find link prospects your competitors have that you're missing",
+      stats:[["Prospects Found","1,249"],["High DA (60+)","184"],["Common Links","89"],["Unique Opp.","1,160"]],
+      cta:"Find Link Gaps"
+    },
+    {
+      id:"competitoranalyzer", icon:"⚔️", color:C.purple, bg:C.purpleL,
+      title:"Competitor Analyzer",
+      desc:"Side-by-side comparison of traffic, keywords, pages & full content strategy breakdown",
+      stats:[["Domains Tracked","4"],["Avg Overlap","38%"],["Your DR","42"],["Top Competitor DR","91"]],
+      cta:"Compare Competitors"
+    },
+  ];
+
+  const recentCompetitors = [
+    { domain:"semrush.com",   dr:91, traffic:"5.2M", kws:"124K", change:"+3.2%" },
+    { domain:"ahrefs.com",    dr:88, traffic:"3.8M", kws:"89K",  change:"+1.8%" },
+    { domain:"moz.com",       dr:86, traffic:"2.1M", kws:"67K",  change:"-0.4%" },
+    { domain:"surfer-seo.com",dr:72, traffic:"890K", kws:"31K",  change:"+5.1%" },
+  ];
+
   return (
-    <div className="fade" style={{overflowY:"auto",height:"calc(100vh - 57px)"}}>
-      <div style={{padding:"16px 24px",borderBottom:`1px solid ${C.border}`,background:C.white,display:"flex",gap:10}}>
-        <div style={{flex:1,display:"flex",background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,overflow:"hidden"}}>
-          <input defaultValue="designer.com" style={{flex:1,padding:"9px 14px",background:"transparent",border:"none",outline:"none",color:C.text,fontSize:13,fontFamily:"inherit"}}/>
-          <select style={{background:"transparent",border:"none",outline:"none",color:C.textMid,fontSize:12,padding:"0 12px",borderLeft:`1px solid ${C.border}`,cursor:"pointer",fontFamily:"inherit"}}><option>Global</option><option>Philippines</option><option>United States</option></select>
+    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", background:C.bg, padding:"24px 28px" }}>
+      {/* Hero */}
+      <div style={{ background:`linear-gradient(135deg,${C.blue},${C.blueL})`, borderRadius:16, padding:"28px 32px", marginBottom:26, position:"relative", overflow:"hidden" }}>
+        <div style={{ position:"absolute", right:-40, top:-40, width:200, height:200, borderRadius:"50%", background:"rgba(255,255,255,.07)" }}/>
+        <div style={{ position:"relative" }}>
+          <div className="sg" style={{ color:"#FED7AA", fontSize:11, fontWeight:700, letterSpacing:1, marginBottom:6 }}>COMPETITIVE RESEARCH SUITE</div>
+          <h2 className="sg" style={{ color:"#fff", fontSize:24, fontWeight:800, marginBottom:8 }}>Outrank every competitor</h2>
+          <p style={{ color:"rgba(255,255,255,.75)", fontSize:13 }}>4 powerful tools to find gaps, steal traffic, and build an unbeatable SEO strategy.</p>
         </div>
-        <button style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"10px 22px",borderRadius:9,fontSize:13,fontWeight:700,fontFamily:"inherit"}}>Compare</button>
-        <button style={{background:"transparent",border:`1px solid ${C.border}`,color:C.textMid,cursor:"pointer",padding:"10px 14px",borderRadius:9,fontSize:13,fontWeight:600,display:"flex",alignItems:"center",gap:6,fontFamily:"inherit"}}><Plus size={13}/> Add Competitor</button>
       </div>
-      <div style={{padding:"20px 24px"}}>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 220px",gap:14,marginBottom:16}}>
-          <div className="card" style={{padding:"18px 20px"}}>
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
+
+      {/* 4 tool cards */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:16, marginBottom:26 }}>
+        {tools.map(tool=>(
+          <div key={tool.id} className="card ch" style={{ padding:"24px 26px", cursor:"pointer", border:`1px solid ${C.border}` }} onClick={()=>onNavigate&&onNavigate(tool.id)}>
+            <div style={{ display:"flex", alignItems:"flex-start", gap:14, marginBottom:16 }}>
+              <div style={{ width:48, height:48, borderRadius:12, background:tool.bg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22, flexShrink:0 }}>{tool.icon}</div>
               <div>
-                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}><span style={{color:C.orange,fontWeight:800,fontSize:16,fontFamily:"Space Grotesk"}}>Organic Traffic</span><span style={{color:C.textDim,fontSize:13}}>81,346/month</span></div>
-                <div style={{color:C.textDim,fontSize:12}}>designer.com · Date: 12 September 2025</div>
+                <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:16, marginBottom:4 }}>{tool.title}</div>
+                <div style={{ color:C.textMid, fontSize:12, lineHeight:1.6 }}>{tool.desc}</div>
               </div>
             </div>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:14}}>
-              {[["Visits","333K","+4%"],["Unique Visitors","33K","+3%"],["Pages/Visit","4.2",""],["Avg Duration","3:21",""]].map(([l,v,ch])=>(
-                <div key={l} style={{padding:"10px 12px",background:C.bg,borderRadius:8,border:`1px solid ${C.border}`}}>
-                  <div style={{color:C.textDim,fontSize:10.5,marginBottom:4}}>{l}</div>
-                  <div className="sg" style={{color:C.text,fontSize:18,fontWeight:800}}>{v}</div>
-                  {ch&&<div style={{color:C.green,fontSize:10.5,fontWeight:700}}>{ch}</div>}
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:10, marginBottom:16 }}>
+              {tool.stats.map(([label,val])=>(
+                <div key={label} style={{ background:C.bg, borderRadius:8, padding:"10px 10px", textAlign:"center" }}>
+                  <div className="sg" style={{ color:tool.color, fontWeight:800, fontSize:16 }}>{val}</div>
+                  <div style={{ color:C.textDim, fontSize:10 }}>{label}</div>
                 </div>
               ))}
             </div>
-            <ResponsiveContainer width="100%" height={130}>
-              <AreaChart data={trafficData} margin={{top:0,right:0,left:-22,bottom:0}}>
-                <defs><linearGradient id="cg1" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={C.blueL} stopOpacity={.18}/><stop offset="95%" stopColor={C.blueL} stopOpacity={0}/></linearGradient></defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9"/>
-                <XAxis dataKey="m" tick={{fill:C.textDim,fontSize:9}} axisLine={false} tickLine={false}/>
-                <YAxis tick={{fill:C.textDim,fontSize:9}} axisLine={false} tickLine={false}/>
-                <Tooltip contentStyle={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:8,fontSize:11}}/>
-                <Area type="monotone" dataKey="organic" stroke={C.blueL} fill="url(#cg1)" strokeWidth={2}/>
-                <Area type="monotone" dataKey="paid" stroke={C.orange} fill="none" strokeWidth={1.5} strokeDasharray="4 2"/>
-              </AreaChart>
-            </ResponsiveContainer>
+            <button style={{ background:tool.color, color:"#fff", border:"none", cursor:"pointer", padding:"10px 20px", borderRadius:9, fontSize:13, fontWeight:700, fontFamily:"inherit", width:"100%", display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}>
+              {tool.cta} →
+            </button>
           </div>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {[["Backlinks","1.2K","+5%",C.blueL],["Page Visitors","552.5K","+2%",C.green],["Avg Duration","61K","-4%",C.orange],["Authority Score","61","+2",C.purple],["Paid Traffic","621K","+8%",C.blueL]].map(([l,v,ch,col])=>(
-              <div key={l} className="card" style={{padding:"10px 14px",flex:1}}>
-                <div style={{color:C.textDim,fontSize:10.5}}>{l}</div>
-                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:2}}>
-                  <div className="sg" style={{color:C.text,fontSize:18,fontWeight:800}}>{v}</div>
-                  <span className="chip" style={{color:C.green,background:C.greenL,fontSize:9.5}}>{ch}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+        ))}
+      </div>
+
+      {/* Recent competitor domains */}
+      <div className="card" style={{ overflow:"hidden" }}>
+        <div style={{ padding:"14px 20px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center" }}>
+          <span className="sg" style={{ color:C.text, fontWeight:700, fontSize:14, flex:1 }}>Tracked Competitors</span>
+          <button style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"6px 14px", borderRadius:7, fontSize:12, fontWeight:700, fontFamily:"inherit", display:"flex", alignItems:"center", gap:5 }}>
+            <Plus size={12}/> Add Competitor
+          </button>
         </div>
-        <div className="card" style={{overflow:"hidden"}}>
-          <div style={{padding:"12px 18px",borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-            <span style={{color:C.orange,fontWeight:700,fontSize:14,fontFamily:"Space Grotesk"}}>Keywords</span>
-            <button style={{background:"transparent",border:`1px solid ${C.border}`,color:C.textMid,cursor:"pointer",padding:"4px 10px",borderRadius:7,fontSize:11,fontFamily:"inherit"}}>View All →</button>
-          </div>
-          <div style={{display:"grid",gridTemplateColumns:"2fr .7fr .7fr .5fr .5fr",padding:"8px 18px",background:C.bg,borderBottom:`1px solid ${C.border}`}}>
-            {["Keyword","Trend","CPC","SERP","KD"].map(h=>(<div key={h} style={{color:C.textDim,fontSize:10,fontWeight:700,letterSpacing:.4}}>{h.toUpperCase()}</div>))}
-          </div>
-          {keywords.slice(0,6).map(({kw,cpc,kd},i)=>(
-            <div key={i} className="td" style={{display:"grid",gridTemplateColumns:"2fr .7fr .7fr .5fr .5fr",padding:"10px 18px",borderBottom:i<5?`1px solid ${C.border}`:"none",alignItems:"center"}}>
-              <div style={{color:C.text,fontSize:12,fontWeight:500,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{kw}</div>
-              <div style={{color:C.green,fontSize:11,fontWeight:700}}>↑</div>
-              <div style={{color:C.textMid,fontSize:12}}>{cpc}</div>
-              <div style={{color:C.textMid,fontSize:12}}>31</div>
-              <div style={{color:C.textMid,fontSize:12}}>{kd}</div>
-            </div>
+        <div style={{ display:"grid", gridTemplateColumns:"2fr 80px 120px 100px 100px 120px", padding:"9px 20px", background:C.bg, borderBottom:`1px solid ${C.border}` }}>
+          {["DOMAIN","DR","TRAFFIC","KEYWORDS","CHANGE","ACTIONS"].map(h=>(
+            <div key={h} style={{ color:C.textDim, fontSize:10, fontWeight:700, letterSpacing:.5 }}>{h}</div>
           ))}
         </div>
+        {recentCompetitors.map((c,i)=>(
+          <div key={i} className="td" style={{ display:"grid", gridTemplateColumns:"2fr 80px 120px 100px 100px 120px", padding:"13px 20px", borderBottom:i<recentCompetitors.length-1?`1px solid ${C.border}`:"none", alignItems:"center" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+              <div style={{ width:32, height:32, borderRadius:7, background:C.bluePale, display:"flex", alignItems:"center", justifyContent:"center" }}><Globe size={14} color={C.blueL}/></div>
+              <span style={{ color:C.blueL, fontWeight:600, fontSize:13 }}>{c.domain}</span>
+            </div>
+            <span className="sg" style={{ color:C.text, fontWeight:700, fontSize:14 }}>{c.dr}</span>
+            <span style={{ color:C.text, fontSize:13 }}>{c.traffic}</span>
+            <span style={{ color:C.text, fontSize:13 }}>{c.kws}</span>
+            <span style={{ color:c.change.startsWith("+")?C.green:C.red, fontWeight:600, fontSize:13 }}>{c.change}</span>
+            <div style={{ display:"flex", gap:6 }}>
+              <button onClick={()=>onNavigate&&onNavigate("domain-overview")} style={{ background:C.bluePale, color:C.blueL, border:"none", cursor:"pointer", padding:"5px 10px", borderRadius:6, fontSize:11, fontWeight:700, fontFamily:"inherit" }}>Analyze</button>
+              <button onClick={()=>onNavigate&&onNavigate("keyword-gap")} style={{ background:"transparent", border:`1px solid ${C.border}`, color:C.textMid, cursor:"pointer", padding:"5px 10px", borderRadius:6, fontSize:11, fontFamily:"inherit" }}>Gap</button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
 
-// ── Rank Tracking ─────────────────────────────────────────────────────
 function RankTracking() {
   const [hasProject, setHasProject] = useState(true);
   const [showWizard, setShowWizard] = useState(false);
@@ -5986,7 +6022,7 @@ function SidebarFull({ active, setActive, sub, setSub, openAI, setOpenAI }) {
       subs:[{id:"domain-overview",l:"Domain Overview"},{id:"keyword-gap",l:"Keyword Gap"},{id:"backlink-gap",l:"Backlink Gap"},{id:"competitoranalyzer",l:"Competitor Analyzer"}]
     },
     { id:"competitoranalyzer",  icon:Target,          label:"Competitor Analyzer" },
-    { id:"keyword",             icon:Search,          label:"Keyword Research" },
+    { id:"keyword",             icon:Search,          label:"Keyword Research", subs:[{id:"keyword",l:"Keyword Overview"},{id:"advancedkeywords",l:"Keyword Ideas"}] },
     { id:"advancedkeywords",    icon:TrendingUp,      label:"Advanced Keywords", badge:"PRO" },
     { id:"keywordsperformance", icon:BarChart2,       label:"Keywords Performance" },
     { id:"backlink",            icon:Link2,           label:"Backlink Research" },
@@ -6194,10 +6230,13 @@ export default function App() {
               <h1 className="sg" style={{color:C.text,fontSize:15,fontWeight:700,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{screen.title}</h1>
               <p style={{color:C.textDim,fontSize:10.5}}>{screen.sub}</p>
             </div>
-            <button onClick={()=>setCmdOpen(true)} style={{display:"flex",alignItems:"center",gap:6,background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,padding:"6px 12px",width:180,flexShrink:0,cursor:"pointer",fontFamily:"inherit"}}>
+            <button onClick={()=>setCmdOpen(true)} style={{display:"flex",alignItems:"center",gap:6,background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,padding:"6px 12px",width:200,flexShrink:0,cursor:"pointer",fontFamily:"inherit"}}>
               <Search size={12} color={C.textDim}/>
-              <span style={{color:C.textDim,fontSize:12,flex:1,textAlign:"left"}}>Search anything...</span>
+              <span style={{color:C.textDim,fontSize:12,flex:1,textAlign:"left"}}>Search...</span>
               <kbd style={{background:C.border,borderRadius:3,padding:"1px 5px",fontSize:9,color:C.textDim}}>⌘K</kbd>
+            </button>
+            <button onClick={()=>setActive("projectsdashboard")} style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"8px 16px",borderRadius:9,fontSize:13,fontWeight:700,fontFamily:"inherit",display:"flex",alignItems:"center",gap:6,flexShrink:0}}>
+              <Plus size={14}/> New Project
             </button>
             <PlanBadge plan={plan} onClick={() => setView("pricing")}/>
             <div style={{display:"flex",alignItems:"center",gap:5,background:USAGE.credits.used/USAGE.credits.limit>=0.8?C.redL:C.bg,border:`1px solid ${USAGE.credits.used/USAGE.credits.limit>=0.8?C.red:C.border}`,borderRadius:7,padding:"5px 10px",cursor:"pointer",flexShrink:0}} onClick={()=>setUpgradeModal("credits")}>
@@ -6210,9 +6249,11 @@ export default function App() {
             <button onClick={() => setAiOpen(!aiOpen)} style={{background:aiOpen?`linear-gradient(135deg,${C.blue},${C.blueL})`:"transparent",color:aiOpen?"#fff":C.blueL,border:`1px solid ${aiOpen?C.blueL:C.border}`,cursor:"pointer",display:"flex",alignItems:"center",gap:5,padding:"6px 12px",borderRadius:8,fontSize:12,fontWeight:700,fontFamily:"inherit",flexShrink:0}}>
               <Bot size={13}/> AI Copilot
             </button>
-            <div style={{position:"relative",cursor:"pointer"}} onClick={() => setNotifOpen(!notifOpen)}>
+            <div style={{position:"relative",cursor:"pointer"}} onClick={() => { setActive("notifications"); setSub(null); }}>
               <Bell size={17} color={C.textDim}/>
-              <div style={{width:6,height:6,borderRadius:"50%",background:C.orange,position:"absolute",top:-1,right:-1,border:"1.5px solid #fff"}}/>
+              <div style={{width:16,height:16,borderRadius:"50%",background:C.orange,position:"absolute",top:-6,right:-6,border:"2px solid #fff",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                <span style={{color:"#fff",fontSize:8,fontWeight:800}}>4</span>
+              </div>
             </div>
             {notifOpen && (
               <div style={{position:"absolute",top:57,right:16,width:320,background:C.white,border:`1px solid ${C.border}`,borderRadius:12,boxShadow:"0 8px 30px rgba(0,0,0,0.12)",zIndex:100,overflow:"hidden"}}>
