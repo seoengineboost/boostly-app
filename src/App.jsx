@@ -1102,7 +1102,7 @@ function Tasks() {
               </div>
               <div style={{flex:1,overflowY:"auto"}}>
                 {tasks.map(({id,title,tags,pri,avs,due,cmts,prog})=>(
-                  <div key={id} className="kc">
+                  <div key={id} className="kc" draggable="true" onDragStart={()=>{}} style={{cursor:"grab"}}>
                     <div style={{display:"flex",justifyContent:"space-between",marginBottom:7}}><PriBadge p={pri}/><MoreHorizontal size={12} color={C.textDim} style={{cursor:"pointer"}}/></div>
                     <p style={{color:C.text,fontSize:12.5,fontWeight:500,lineHeight:1.5,marginBottom:8}}>{title}</p>
                     <div style={{display:"flex",flexWrap:"wrap",gap:3,marginBottom:8}}>{tags.map(t=><span key={t} className="chip" style={{color:C.blue,background:C.bluePale}}>{t}</span>)}</div>
