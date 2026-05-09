@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   LayoutDashboard, Search, BarChart2, Globe, Link2, FileSearch,
   TrendingUp, TrendingDown, MessageSquare, CheckSquare, Users, Calendar,
@@ -282,107 +282,148 @@ function Topbar({ title, sub }) {
 
 
 // ── Dashboard ─────────────────────────────────────────────────────────
-function Dashboard() {
+function Dashboard({ onNavigate, onUpgrade }) {
+  const [dateRange, setDateRange] = useState("30d");
   const stats = [
-    {l:"Domain Rating",v:"42",chg:"+3",up:true,icon:Shield,c:C.blueL},
-    {l:"Backlinks",v:"1,847",chg:"+124",up:true,icon:Link2,c:C.orange},
-    {l:"Keywords Ranked",v:"3,241",chg:"+89",up:true,icon:Target,c:C.green},
-    {l:"Organic Traffic",v:"92.4K",chg:"+18%",up:true,icon:TrendingUp,c:C.purple},
-    {l:"Avg. Position",v:"14.2",chg:"-2.1",up:true,icon:BarChart2,c:C.blueL},
-    {l:"Site Health",v:"78/100",chg:"+5",up:true,icon:Activity,c:C.green},
+    {l:"Organic Traffic", v:"92.4K",  chg:"+18%", up:true,  icon:TrendingUp, c:C.blueL},
+    {l:"Keywords Top 10", v:"214",    chg:"+31",  up:true,  icon:Target,     c:C.green},
+    {l:"Domain Rating",   v:"42",     chg:"+3",   up:true,  icon:Shield,     c:C.orange},
+    {l:"Backlinks",       v:"14.2K",  chg:"+482", up:true,  icon:Link2,      c:C.purple},
+    {l:"Avg. Position",   v:"12.4",   chg:"-1.8", up:true,  icon:BarChart2,  c:C.blueL},
+    {l:"Site Health",     v:"68/100", chg:"+5",   up:true,  icon:Activity,   c:C.yellow},
+  ];
+  const mrrData = [
+    {m:"Oct",v:3800},{m:"Nov",v:4200},{m:"Dec",v:3900},{m:"Jan",v:5100},{m:"Feb",v:5800},{m:"Mar",v:6200},{m:"Apr",v:7100},{m:"May",v:7840},
+  ];
+  const trafficByChannel = [
+    {name:"Organic",   value:68, color:C.blueL},
+    {name:"Direct",    value:18, color:C.green},
+    {name:"Referral",  value:9,  color:C.orange},
+    {name:"Paid",      value:5,  color:C.purple},
   ];
   const acts = [
-    {u:"Mahmoud",a:"completed keyword audit for",t:"Dental Pro",ago:"2m",icon:CheckCircle2,c:C.green},
-    {u:"Aisha",a:"created 4 tasks in",t:"TechFlow Campaign",ago:"14m",icon:Plus,c:C.blueL},
-    {u:"AI Copilot",a:"fixed 3 broken links on",t:"seoengineboost.com",ago:"1h",icon:Bot,c:C.purple},
-    {u:"Sam",a:"published blog post for",t:"Dental Client",ago:"2h",icon:FileText,c:C.orange},
-    {u:"Jordan",a:"started working on",t:"Homepage Redesign",ago:"3h",icon:PlayCircle,c:C.yellow},
+    {u:"Mahmoud",  a:"completed keyword audit for",  t:"Dental Pro",        ago:"2m",  icon:CheckCircle2, c:C.green},
+    {u:"Aisha",    a:"created 4 tasks in",            t:"TechFlow Campaign", ago:"14m", icon:Plus,         c:C.blueL},
+    {u:"AI",       a:"fixed 3 broken links on",       t:"seoengineboost.com",ago:"1h",  icon:Bot,          c:C.purple},
+    {u:"Sam",      a:"published blog post for",       t:"Dental Client",     ago:"2h",  icon:FileText,     c:C.orange},
+    {u:"Jordan",   a:"approved client report",        t:"LegalEdge Q1",      ago:"3h",  icon:CheckCircle2, c:C.yellow},
   ];
+  const topKws = [
+    {kw:"seo tools 2026",        pos:3,  ch:+4, vol:"12K"},
+    {kw:"backlink checker",       pos:7,  ch:+2, vol:"8.4K"},
+    {kw:"keyword rank tracker",   pos:9,  ch:-1, vol:"6.1K"},
+    {kw:"site audit free",        pos:12, ch:+5, vol:"5.8K"},
+    {kw:"competitor analysis",    pos:18, ch:+3, vol:"9.7K"},
+  ];
+
   return (
-    <div className="fade" style={{padding:"22px 24px",overflowY:"auto",height:"calc(100vh - 57px)"}}>
+    <div className="fade" style={{padding:"20px 24px",overflowY:"auto",height:"calc(100vh - 57px)",background:C.bg}}>
+      {/* Hero strip */}
       <div style={{background:`linear-gradient(135deg,${C.blue} 0%,${C.blueL} 100%)`,borderRadius:16,padding:"22px 28px",marginBottom:22,position:"relative",overflow:"hidden"}}>
         <div style={{position:"absolute",top:-30,right:60,width:160,height:160,borderRadius:"50%",background:"rgba(255,255,255,0.07)"}}/>
         <div style={{position:"relative"}}>
-          <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}><Sparkles size={13} color="#FED7AA"/><span style={{color:"#FED7AA",fontSize:11,fontWeight:700,letterSpacing:.5}}>GOOD MORNING — May 9, 2026</span></div>
-          <h2 className="sg" style={{color:"#fff",fontSize:22,fontWeight:800,marginBottom:7}}>Your SEO performance is <span style={{color:"#FED7AA"}}>improving</span></h2>
-          <p style={{color:"rgba(255,255,255,.75)",fontSize:13}}>7 tasks due today · 3 client reports pending · Organic traffic up 18% this month</p>
-          <div style={{display:"flex",gap:9,marginTop:16}}>
-            <button style={{background:C.orange,color:"#fff",border:"none",cursor:"pointer",padding:"9px 18px",borderRadius:8,fontSize:13,fontWeight:700,display:"flex",alignItems:"center",gap:7,fontFamily:"inherit"}}><Target size={14}/> Run SEO Audit</button>
-            <button style={{background:"rgba(255,255,255,.15)",border:"1px solid rgba(255,255,255,.25)",color:"#fff",padding:"9px 18px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",display:"flex",alignItems:"center",gap:7,fontFamily:"inherit"}}><Bot size={14}/> Ask AI Copilot</button>
+          <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}><Sparkles size={13} color="#FED7AA"/><span style={{color:"#FED7AA",fontSize:11,fontWeight:700,letterSpacing:.5}}>ANALYTICS OVERVIEW · MAY 2026</span></div>
+          <h2 className="sg" style={{color:"#fff",fontSize:22,fontWeight:800,marginBottom:7}}>Your performance is <span style={{color:"#FED7AA"}}>improving</span> 📈</h2>
+          <p style={{color:"rgba(255,255,255,.75)",fontSize:13,marginBottom:16}}>7 tasks due today · 3 client reports pending · MRR up 24% this month</p>
+          <div style={{display:"flex",gap:9}}>
+            <button onClick={()=>onNavigate&&onNavigate("siteaudit")} style={{background:C.orange,color:"#fff",border:"none",cursor:"pointer",padding:"9px 18px",borderRadius:8,fontSize:13,fontWeight:700,display:"flex",alignItems:"center",gap:7,fontFamily:"inherit"}}><Target size={14}/> Run SEO Audit</button>
+            <button onClick={()=>onNavigate&&onNavigate("seoassistant")} style={{background:"rgba(255,255,255,.15)",border:"1px solid rgba(255,255,255,.25)",color:"#fff",padding:"9px 18px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",display:"flex",alignItems:"center",gap:7,fontFamily:"inherit"}}><Bot size={14}/> Ask AI Copilot</button>
           </div>
         </div>
       </div>
+
+      {/* Date range selector */}
+      <div style={{display:"flex",justifyContent:"flex-end",marginBottom:16,gap:6}}>
+        {[["7d","7 days"],["30d","30 days"],["90d","90 days"],["1y","1 year"]].map(([id,label])=>(
+          <button key={id} onClick={()=>setDateRange(id)} style={{background:dateRange===id?C.blueL:C.white,color:dateRange===id?"#fff":C.textMid,border:`1px solid ${dateRange===id?C.blueL:C.border}`,cursor:"pointer",padding:"5px 12px",borderRadius:6,fontSize:11,fontFamily:"inherit"}}>{label}</button>
+        ))}
+      </div>
+
+      {/* 6 stat cards */}
       <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:12,marginBottom:20}}>
         {stats.map(({l,v,chg,up,icon:Icon,c})=>(
-          <div key={l} className="card ch" style={{padding:"16px 16px"}}>
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
-              <div style={{width:32,height:32,borderRadius:8,background:`${c}18`,display:"flex",alignItems:"center",justifyContent:"center"}}><Icon size={14} color={c}/></div>
-              <span className="chip" style={{color:up?C.green:C.red,background:up?C.greenL:C.redL,fontSize:9.5}}>{up?"↑":"↓"} {chg}</span>
+          <div key={l} className="card ch" style={{padding:"14px 14px"}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
+              <div style={{width:28,height:28,borderRadius:7,background:`${c}18`,display:"flex",alignItems:"center",justifyContent:"center"}}><Icon size={13} color={c}/></div>
+              <span style={{color:up?C.green:C.red,fontSize:10,fontWeight:700}}>{up?"↑":"↓"}{chg}</span>
             </div>
-            <div className="sg" style={{color:C.text,fontSize:20,fontWeight:800}}>{v}</div>
-            <div style={{color:C.textDim,fontSize:10.5,marginTop:2}}>{l}</div>
+            <div className="sg" style={{color:C.text,fontSize:20,fontWeight:800,marginBottom:2}}>{v}</div>
+            <div style={{color:C.textDim,fontSize:10,lineHeight:1.3}}>{l}</div>
           </div>
         ))}
       </div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 260px",gap:14,marginBottom:20}}>
-        <div className="card" style={{padding:"18px 20px"}}>
+
+      {/* Main charts row */}
+      <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:16,marginBottom:16}}>
+        {/* MRR chart */}
+        <div className="card" style={{padding:20}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
-            <div><div className="sg" style={{color:C.text,fontSize:14,fontWeight:700}}>Traffic Overview</div><div style={{color:C.textDim,fontSize:11,marginTop:2}}>Organic · Paid · Last 7 months</div></div>
+            <div className="sg" style={{color:C.text,fontWeight:700,fontSize:14}}>Monthly Recurring Revenue</div>
+            <div className="sg" style={{color:C.green,fontWeight:800,fontSize:16}}>$7,840 <span style={{color:C.textDim,fontSize:11,fontWeight:400}}>MRR</span></div>
           </div>
           <ResponsiveContainer width="100%" height={160}>
-            <AreaChart data={trafficData} margin={{top:0,right:0,left:-22,bottom:0}}>
-              <defs>
-                <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={C.blueL} stopOpacity={0.2}/><stop offset="95%" stopColor={C.blueL} stopOpacity={0}/></linearGradient>
-                <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={C.orange} stopOpacity={0.15}/><stop offset="95%" stopColor={C.orange} stopOpacity={0}/></linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9"/>
+            <AreaChart data={mrrData} margin={{top:4,right:4,left:-22,bottom:0}}>
+              <defs><linearGradient id="mrrg" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={C.green} stopOpacity={.2}/><stop offset="95%" stopColor={C.green} stopOpacity={0}/></linearGradient></defs>
+              <CartesianGrid strokeDasharray="3 3" stroke={C.border}/>
               <XAxis dataKey="m" tick={{fill:C.textDim,fontSize:10}} axisLine={false} tickLine={false}/>
-              <YAxis tick={{fill:C.textDim,fontSize:9}} axisLine={false} tickLine={false}/>
-              <Tooltip contentStyle={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:8,fontSize:11}}/>
-              <Area type="monotone" dataKey="organic" stroke={C.blueL} fill="url(#g1)" strokeWidth={2}/>
-              <Area type="monotone" dataKey="paid" stroke={C.orange} fill="url(#g2)" strokeWidth={2}/>
+              <YAxis tick={{fill:C.textDim,fontSize:9}} axisLine={false} tickLine={false} tickFormatter={v=>`$${v/1000}k`}/>
+              <Tooltip contentStyle={{background:C.white,border:`1px solid ${C.border}`,borderRadius:8,fontSize:11}} formatter={v=>[`$${v.toLocaleString()}`,""]}/>
+              <Area type="monotone" dataKey="v" stroke={C.green} fill="url(#mrrg)" strokeWidth={2.5}/>
             </AreaChart>
           </ResponsiveContainer>
         </div>
-        <div className="card" style={{padding:"18px 20px"}}>
-          <div className="sg" style={{color:C.text,fontSize:14,fontWeight:700,marginBottom:4}}>Ranking Trend</div>
-          <div style={{color:C.textDim,fontSize:11,marginBottom:14}}>Avg. position (lower = better)</div>
-          <ResponsiveContainer width="100%" height={160}>
-            <LineChart data={rankData} margin={{top:0,right:0,left:-22,bottom:0}}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9"/>
-              <XAxis dataKey="n" tick={{fill:C.textDim,fontSize:10}} axisLine={false} tickLine={false}/>
-              <YAxis reversed tick={{fill:C.textDim,fontSize:9}} axisLine={false} tickLine={false}/>
-              <Tooltip contentStyle={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:8,fontSize:11}}/>
-              <Line type="monotone" dataKey="pos" stroke={C.green} strokeWidth={2.5} dot={{fill:C.green,r:3}}/>
-            </LineChart>
+        {/* Traffic by channel */}
+        <div className="card" style={{padding:20}}>
+          <div className="sg" style={{color:C.text,fontWeight:700,fontSize:14,marginBottom:14}}>Traffic by Channel</div>
+          <ResponsiveContainer width="100%" height={140}>
+            <RPieChart>
+              <Pie data={trafficByChannel} cx="50%" cy="50%" innerRadius={42} outerRadius={62} dataKey="value" paddingAngle={3}>
+                {trafficByChannel.map((d,i)=><Cell key={i} fill={d.color}/>)}
+              </Pie>
+              <Tooltip contentStyle={{background:C.white,border:`1px solid ${C.border}`,borderRadius:6,fontSize:10}} formatter={v=>[`${v}%`,""]}/>
+            </RPieChart>
           </ResponsiveContainer>
-        </div>
-        <div className="card" style={{padding:"18px 20px"}}>
-          <div className="sg" style={{color:C.text,fontSize:14,fontWeight:700,marginBottom:4}}>Keywords</div>
-          <div style={{color:C.textDim,fontSize:11,marginBottom:10}}>200 tracked</div>
-          <ResponsiveContainer width="100%" height={110}>
-            <PieChart><Pie data={pieData} cx="50%" cy="50%" innerRadius={36} outerRadius={52} paddingAngle={3} dataKey="v">{pieData.map((_,i)=><Cell key={i} fill={PIE_COLORS[i]}/>)}</Pie><Tooltip contentStyle={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:8,fontSize:11}}/></PieChart>
-          </ResponsiveContainer>
-          {pieData.map((d,i)=>(<div key={d.name} style={{display:"flex",alignItems:"center",gap:7,marginBottom:4}}><div style={{width:7,height:7,borderRadius:2,background:PIE_COLORS[i]}}/><span style={{color:C.textMid,fontSize:11,flex:1}}>{d.name}</span><span style={{color:C.text,fontWeight:700,fontSize:12}}>{d.v}</span></div>))}
+          <div style={{display:"flex",flexWrap:"wrap",gap:8,marginTop:6}}>
+            {trafficByChannel.map(d=>(
+              <div key={d.name} style={{display:"flex",alignItems:"center",gap:4}}>
+                <div style={{width:8,height:8,borderRadius:2,background:d.color}}/>
+                <span style={{fontSize:11,color:C.textMid}}>{d.name} {d.value}%</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 260px",gap:14}}>
-        <div className="card" style={{padding:"18px 20px"}}>
-          <div className="sg" style={{color:C.text,fontSize:14,fontWeight:700,marginBottom:14}}>Team Activity</div>
-          {acts.map(({u,a,t,ago,icon:Icon,c},i)=>(
-            <div key={i} style={{display:"flex",gap:10,paddingBottom:12,marginBottom:12,borderBottom:i<acts.length-1?`1px solid ${C.border}`:"none",alignItems:"flex-start"}}>
-              <div style={{width:30,height:30,borderRadius:8,background:`${c}18`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Icon size={13} color={c}/></div>
-              <div style={{flex:1}}><p style={{color:C.textMid,fontSize:12.5}}><span style={{color:C.text,fontWeight:700}}>{u}</span> {a} <span style={{color:C.blueL}}>{t}</span></p><span style={{color:C.textDim,fontSize:10.5}}>{ago} ago</span></div>
+
+      {/* Bottom row: top keywords + activity */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+        <div className="card" style={{overflow:"hidden"}}>
+          <div style={{padding:"12px 16px",borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <span className="sg" style={{color:C.text,fontWeight:700,fontSize:13}}>Top Keywords</span>
+            <button onClick={()=>onNavigate&&onNavigate("keywordsperformance")} style={{background:"transparent",border:"none",color:C.blueL,cursor:"pointer",fontSize:12,fontFamily:"inherit"}}>View All →</button>
+          </div>
+          {topKws.map((k,i)=>(
+            <div key={i} className="td" style={{display:"flex",alignItems:"center",padding:"10px 16px",borderBottom:i<topKws.length-1?`1px solid ${C.border}`:"none",gap:10}}>
+              <div style={{flex:1,color:C.text,fontSize:13}}>{k.kw}</div>
+              <div className="sg" style={{color:C.text,fontWeight:700,fontSize:13,minWidth:26}}>#{k.pos}</div>
+              <div style={{color:k.ch>0?C.green:C.red,fontSize:12,fontWeight:600,minWidth:28}}>{k.ch>0?"↑":"↓"}{Math.abs(k.ch)}</div>
+              <div style={{color:C.textDim,fontSize:11,minWidth:36}}>{k.vol}</div>
             </div>
           ))}
         </div>
-        <div className="card" style={{padding:"18px 18px"}}>
-          <div className="sg" style={{color:C.text,fontSize:14,fontWeight:700,marginBottom:12}}>Quick Actions</div>
-          {[{l:"Run Site Audit",icon:FileSearch,c:C.blueL,d:"Check site health"},{l:"Keyword Research",icon:Search,c:C.orange,d:"Find new keywords"},{l:"Generate Report",icon:BarChart2,c:C.green,d:"Branded PDF report"},{l:"Content Writer",icon:Edit2,c:C.purple,d:"AI blog generator"},{l:"Competitor Analysis",icon:Globe,c:C.yellow,d:"Track competitors"},{l:"AI Copilot",icon:Sparkles,c:C.blueL,d:"Ask anything"}].map(({l,icon:Icon,c,d})=>(
-            <div key={l} className="hl" style={{display:"flex",alignItems:"center",gap:9,padding:"8px 8px",borderRadius:8,marginBottom:4}}>
+        <div className="card" style={{overflow:"hidden"}}>
+          <div style={{padding:"12px 16px",borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <span className="sg" style={{color:C.text,fontWeight:700,fontSize:13}}>Team Activity</span>
+            <button onClick={()=>onNavigate&&onNavigate("activitylog")} style={{background:"transparent",border:"none",color:C.blueL,cursor:"pointer",fontSize:12,fontFamily:"inherit"}}>Full Log →</button>
+          </div>
+          {acts.map(({u,a,t,ago,icon:Icon,c},i)=>(
+            <div key={i} className="td" style={{display:"flex",gap:10,padding:"10px 16px",borderBottom:i<acts.length-1?`1px solid ${C.border}`:"none",alignItems:"center"}}>
               <div style={{width:30,height:30,borderRadius:8,background:`${c}18`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Icon size={13} color={c}/></div>
-              <div style={{flex:1}}><div style={{color:C.text,fontSize:12,fontWeight:600}}>{l}</div><div style={{color:C.textDim,fontSize:10.5}}>{d}</div></div>
-              <ChevronRight size={12} color={C.textDim}/>
+              <div style={{flex:1,minWidth:0}}>
+                <span style={{color:C.text,fontWeight:600,fontSize:12}}>{u} </span>
+                <span style={{color:C.textMid,fontSize:12}}>{a} </span>
+                <span style={{color:C.blueL,fontSize:12,fontWeight:600}}>{t}</span>
+              </div>
+              <span style={{color:C.textDim,fontSize:11,flexShrink:0}}>{ago}</span>
             </div>
           ))}
         </div>
@@ -391,7 +432,6 @@ function Dashboard() {
   );
 }
 
-// ── Keyword Research ─────────────────────────────────────────────────
 function KeywordResearch() {
   const [mainTab, setMainTab] = useState("overview");
   const [kwTab, setKwTab] = useState("variations");
@@ -1027,6 +1067,14 @@ function Tasks() {
   const [view, setView] = useState("kanban");
   return (
     <div className="fade" style={{height:"calc(100vh - 57px)",display:"flex",flexDirection:"column",overflow:"hidden"}}>
+      {/* AI Project Manager Alert */}
+      <div style={{padding:"8px 22px",background:`${C.blueL}08`,borderBottom:`1px solid ${C.blueL}22`,display:"flex",alignItems:"center",gap:10}}>
+        <Bot size={14} color={C.blueL}/>
+        <span style={{color:C.blueL,fontSize:12,fontWeight:700}}>AI Project Manager:</span>
+        <span style={{color:C.text,fontSize:12}}>3 tasks are overdue — "SEO Audit for TechFlow" has been pending 5 days.</span>
+        <span style={{color:C.textMid,fontSize:11}}>Recommendation: Assign crawler fixes before content optimization.</span>
+        <button style={{marginLeft:"auto",background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"4px 10px",borderRadius:6,fontSize:11,fontWeight:700,fontFamily:"inherit",flexShrink:0}}>Auto-Prioritize ⚡</button>
+      </div>
       <div style={{padding:"10px 22px",borderBottom:`1px solid ${C.border}`,background:C.white,display:"flex",alignItems:"center",gap:10,flexShrink:0}}>
         <div style={{display:"flex",gap:3,background:C.bg,padding:3,borderRadius:8,border:`1px solid ${C.border}`}}>
           {[{k:"kanban",icon:Kanban,l:"Kanban"},{k:"list",icon:AlignLeft,l:"List"},{k:"calendar",icon:CalendarCheck,l:"Calendar"}].map(({k,icon:Icon,l})=>(
@@ -1103,7 +1151,12 @@ function Messages() {
       <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
         <div style={{padding:"10px 18px",borderBottom:`1px solid ${C.border}`,background:C.white,display:"flex",alignItems:"center",gap:9,flexShrink:0}}>
           <Hash size={15} color={C.blueL}/><span className="sg" style={{color:C.text,fontWeight:700,fontSize:14}}>#{ch}</span><span style={{color:C.textDim,fontSize:12}}>· 8 members</span>
-          <div style={{marginLeft:"auto",display:"flex",gap:5}}>{[Phone,Video,Search,Pin].map((Icon,i)=>(<button key={i} style={{background:"transparent",border:`1px solid ${C.border}`,color:C.textMid,cursor:"pointer",padding:"5px 7px",borderRadius:7,display:"flex"}}><Icon size={13}/></button>))}</div>
+          <div style={{marginLeft:"auto",display:"flex",gap:5}}>
+            <button style={{background:`linear-gradient(135deg,${C.blue},${C.blueL})`,color:"#fff",border:"none",cursor:"pointer",padding:"5px 10px",borderRadius:7,fontSize:11,fontWeight:700,display:"flex",alignItems:"center",gap:5,fontFamily:"inherit"}}>
+              <Bot size={11}/> AI Chat-to-Task
+            </button>
+            {[Phone,Video,Search,Pin].map((Icon,i)=>(<button key={i} style={{background:"transparent",border:`1px solid ${C.border}`,color:C.textMid,cursor:"pointer",padding:"5px 7px",borderRadius:7,display:"flex"}}><Icon size={13}/></button>))}
+          </div>
         </div>
         <div style={{flex:1,overflowY:"auto",padding:"18px 20px",background:C.bg}}>
           {chatMsgs.map(({id,user,av,text,time,mine})=>(
@@ -1208,7 +1261,7 @@ function Clients() {
 
         {/* Sub-tabs */}
         <div style={{ display:"flex",gap:0,borderBottom:`1px solid ${C.border}`,background:C.white,borderRadius:"10px 10px 0 0",overflow:"hidden",marginBottom:-1 }}>
-          {[["clients","Clients"],["invoices","Invoices & Billing"],["portal","Client Portal"]].map(([id,label])=>(
+          {[["clients","Clients"],["invoices","Invoices & Billing"],["comms","Communication History"],["approvals","Approvals"],["portal","Client Portal"]].map(([id,label])=>(
             <button key={id} onClick={()=>setTab(id)} style={{ padding:"11px 20px",border:"none",borderBottom:tab===id?`2.5px solid ${C.blueL}`:"2.5px solid transparent",cursor:"pointer",fontSize:13,fontWeight:tab===id?700:500,fontFamily:"inherit",background:"transparent",color:tab===id?C.blueL:C.textMid,marginBottom:-1 }}>{label}</button>
           ))}
           <div style={{ marginLeft:"auto",display:"flex",alignItems:"center",paddingRight:12 }}>
@@ -1340,6 +1393,61 @@ function Clients() {
         )}
 
         {/* ── CLIENT PORTAL TAB ── */}
+        {tab==="comms" && (
+          <div style={{ marginTop:16 }}>
+            <div className="card" style={{ overflow:"hidden" }}>
+              <div style={{ padding:"12px 16px", borderBottom:`1px solid ${C.border}` }}>
+                <span className="sg" style={{ color:C.text, fontWeight:700, fontSize:14 }}>All Client Communications</span>
+              </div>
+              {[
+                { client:"Dental Pro Clinic",  type:"Email",    subject:"April SEO Report Delivered",       date:"May 1",  icon:"📧", status:"Sent" },
+                { client:"TechFlow Agency",    type:"Report",   subject:"Q1 Audit Results — 89 issues",     date:"Apr 28", icon:"📄", status:"Viewed" },
+                { client:"LegalEdge Partners", type:"Invoice",  subject:"Invoice INV-2026-040 Overdue",     date:"Apr 22", icon:"💳", status:"Pending" },
+                { client:"FitLife Studio",     type:"Chat",     subject:"You: 'Sent the backlink report'",  date:"Apr 14", icon:"💬", status:"Read" },
+                { client:"Dental Pro Clinic",  type:"Approval", subject:"Homepage copy approved ✓",        date:"Apr 10", icon:"✅", status:"Approved" },
+                { client:"Bloom Real Estate",  type:"Email",    subject:"Onboarding welcome email sent",    date:"Mar 28", icon:"📧", status:"Sent" },
+              ].map((c,i)=>(
+                <div key={i} className="td" style={{ display:"flex", alignItems:"center", gap:12, padding:"12px 16px", borderBottom:`1px solid ${C.border}` }}>
+                  <span style={{ fontSize:18 }}>{c.icon}</span>
+                  <div style={{ flex:1 }}>
+                    <div style={{ color:C.text, fontWeight:600, fontSize:13 }}>{c.subject}</div>
+                    <div style={{ color:C.textDim, fontSize:11 }}>{c.client}</div>
+                  </div>
+                  <span className="chip" style={{ color:C.blueL, background:C.bluePale }}>{c.type}</span>
+                  <span style={{ color:C.textDim, fontSize:11 }}>{c.date}</span>
+                  <span className="chip" style={{ color:c.status==="Approved"||c.status==="Viewed"?C.green:c.status==="Pending"?C.orange:C.textDim, background:c.status==="Approved"||c.status==="Viewed"?C.greenL:c.status==="Pending"?C.orangeL:C.bg }}>{c.status}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {tab==="approvals" && (
+          <div style={{ marginTop:16 }}>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
+              {[
+                { client:"Dental Pro Clinic",  item:"Homepage SEO Content",      type:"Content",  due:"May 10", status:"Awaiting" },
+                { client:"TechFlow Agency",    item:"May Monthly SEO Report",     type:"Report",   due:"May 12", status:"Awaiting" },
+                { client:"LegalEdge Partners", item:"Invoice INV-2026-043",       type:"Invoice",  due:"May 20", status:"Approved" },
+                { client:"FitLife Studio",     item:"Backlink Outreach Strategy", type:"Strategy", due:"May 8",  status:"Rejected" },
+              ].map((a,i)=>(
+                <div key={i} className="card" style={{ padding:18 }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:8 }}>
+                    <span className="chip" style={{ color:C.blueL, background:C.bluePale }}>{a.type}</span>
+                    <span className="chip" style={{ color:a.status==="Approved"?C.green:a.status==="Rejected"?C.red:C.orange, background:a.status==="Approved"?C.greenL:a.status==="Rejected"?C.redL:C.orangeL }}>{a.status}</span>
+                  </div>
+                  <div style={{ color:C.text, fontWeight:700, fontSize:14, marginBottom:4 }}>{a.item}</div>
+                  <div style={{ color:C.textDim, fontSize:12, marginBottom:14 }}>{a.client} · Due {a.due}</div>
+                  {a.status==="Awaiting" && (
+                    <div style={{ display:"flex", gap:8 }}>
+                      <button style={{ flex:1, background:C.green, color:"#fff", border:"none", cursor:"pointer", padding:"7px", borderRadius:7, fontSize:12, fontWeight:700, fontFamily:"inherit" }}>✓ Approve</button>
+                      <button style={{ flex:1, background:"transparent", border:`1px solid ${C.border}`, color:C.red, cursor:"pointer", padding:"7px", borderRadius:7, fontSize:12, fontFamily:"inherit" }}>✗ Reject</button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         {tab==="portal" && (
           <div style={{ marginTop:16 }}>
             <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:16 }}>
@@ -1381,7 +1489,7 @@ function SettingsView() {
   const [notifPush, setNotifPush] = useState(true);
   const [notifSMS, setNotifSMS] = useState(false);
   const [notifWeekly, setNotifWeekly] = useState(true);
-  const tabs = [{id:"profile",icon:Users,l:"Profile"},{id:"general",icon:Settings,l:"General"},{id:"security",icon:Shield,l:"Security"},{id:"notifications",icon:Bell,l:"Notifications"},{id:"integrations",icon:Cpu,l:"Integrations"},{id:"billing",icon:BarChart,l:"Billing & Plan"},{id:"workspace",icon:Briefcase,l:"Workspace"}];
+  const tabs = [{id:"profile",icon:Users,l:"Profile"},{id:"general",icon:Settings,l:"General"},{id:"security",icon:Shield,l:"Security"},{id:"notifications",icon:Bell,l:"Notifications"},{id:"integrations",icon:Cpu,l:"Integrations"},{id:"billing",icon:BarChart,l:"Billing & Plan"},{id:"workspace",icon:Briefcase,l:"Workspace"},{id:"whitelabel",icon:Globe,l:"White-Label"}];
   const Toggle = ({on,setOn}) => (<div onClick={()=>setOn(!on)} style={{width:44,height:24,borderRadius:12,background:on?C.blueL:"#CBD5E1",cursor:"pointer",position:"relative",transition:"background .2s",flexShrink:0}}><div style={{width:20,height:20,borderRadius:"50%",background:"#fff",position:"absolute",top:2,left:on?22:2,transition:"left .2s",boxShadow:"0 1px 3px rgba(0,0,0,.2)"}}/></div>);
   return (
     <div className="fade" style={{display:"flex",height:"calc(100vh - 57px)",overflow:"hidden"}}>
@@ -1497,6 +1605,73 @@ function SettingsView() {
               ))}
               <button style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"9px 22px",borderRadius:9,fontSize:13,fontWeight:700,fontFamily:"inherit"}}>Save Workspace</button>
             </div>
+          </div>
+        )}
+        {tab==="whitelabel" && (
+          <div style={{maxWidth:680}}>
+            <div className="sg" style={{color:C.text,fontSize:18,fontWeight:800,marginBottom:5}}>White-Label Settings</div>
+            <div style={{background:`${C.orange}0d`,border:`1px solid ${C.orange}33`,borderRadius:12,padding:"14px 18px",marginBottom:16,display:"flex",alignItems:"center",gap:10}}>
+              <span style={{fontSize:20}}>🏷</span>
+              <div>
+                <div style={{color:C.orange,fontWeight:700,fontSize:13}}>White-Label is available on Pro & Agency plans</div>
+                <div style={{color:C.textMid,fontSize:12}}>Remove Boostly branding and replace with your own logo, colors, and domain.</div>
+              </div>
+              <button style={{marginLeft:"auto",background:C.orange,color:"#fff",border:"none",cursor:"pointer",padding:"7px 14px",borderRadius:7,fontSize:12,fontWeight:700,fontFamily:"inherit",flexShrink:0}}>Upgrade to Pro →</button>
+            </div>
+            <div className="card" style={{padding:"22px 24px",marginBottom:16}}>
+              <div className="sg" style={{color:C.text,fontWeight:700,fontSize:14,marginBottom:16}}>Agency Branding</div>
+              {[
+                {l:"Agency Name",       v:"SEO Engine Boost",    type:"text"},
+                {l:"Custom Domain",     v:"app.seoengineboost.com", type:"url",  note:"Point your DNS CNAME to app.boostly.io"},
+                {l:"Support Email",     v:"support@seoengineboost.com", type:"email"},
+                {l:"Agency Website",    v:"https://seoengineboost.com", type:"url"},
+              ].map(({l,v,type,note})=>(
+                <div key={l} style={{marginBottom:14}}>
+                  <label style={{color:C.textMid,fontSize:12,fontWeight:600,display:"block",marginBottom:5}}>{l}</label>
+                  <input defaultValue={v} type={type} style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 13px",color:C.text,fontSize:13,fontFamily:"inherit",outline:"none"}}/>
+                  {note&&<div style={{color:C.textDim,fontSize:10,marginTop:4}}>{note}</div>}
+                </div>
+              ))}
+            </div>
+            <div className="card" style={{padding:"22px 24px",marginBottom:16}}>
+              <div className="sg" style={{color:C.text,fontWeight:700,fontSize:14,marginBottom:14}}>Logo & Colors</div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+                <div>
+                  <div style={{color:C.textMid,fontSize:12,fontWeight:600,marginBottom:8}}>Agency Logo</div>
+                  <div style={{background:C.bg,border:`2px dashed ${C.border}`,borderRadius:10,padding:"24px",textAlign:"center",cursor:"pointer"}}>
+                    <Upload size={20} color={C.textDim} style={{margin:"0 auto 8px"}}/>
+                    <div style={{color:C.textDim,fontSize:12}}>Click to upload logo</div>
+                    <div style={{color:C.textDim,fontSize:10}}>PNG, SVG, 200×60px recommended</div>
+                  </div>
+                </div>
+                <div>
+                  <div style={{color:C.textMid,fontSize:12,fontWeight:600,marginBottom:8}}>Brand Colors</div>
+                  {[["Primary Color","#1A4FB5"],["Accent Color","#F97316"],["Background","#F7F9FC"]].map(([l,v])=>(
+                    <div key={l} style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+                      <div style={{width:28,height:28,borderRadius:6,background:v,border:`1px solid ${C.border}`,cursor:"pointer",flexShrink:0}}/>
+                      <span style={{color:C.textMid,fontSize:12,flex:1}}>{l}</span>
+                      <input defaultValue={v} style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:6,padding:"5px 8px",fontSize:11,fontFamily:"inherit",outline:"none",width:80}}/>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="card" style={{padding:"22px 24px"}}>
+              <div className="sg" style={{color:C.text,fontWeight:700,fontSize:14,marginBottom:12}}>Client-Facing Features</div>
+              {[
+                {l:"Remove 'Powered by Boostly' footer",     on:true},
+                {l:"Custom login page with your branding",    on:true},
+                {l:"Branded PDF reports with agency logo",    on:true},
+                {l:"Custom email templates (from your domain)",on:false},
+                {l:"White-label mobile app (Agency plan)",    on:false},
+              ].map(({l,on})=>(
+                <div key={l} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 0",borderBottom:`1px solid ${C.border}`}}>
+                  <div style={{flex:1,color:C.text,fontSize:13}}>{l}</div>
+                  <span className="chip" style={{color:on?C.green:C.textDim,background:on?C.greenL:C.bg}}>{on?"✓ Active":"Upgrade"}</span>
+                </div>
+              ))}
+            </div>
+            <button style={{marginTop:16,background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"10px 24px",borderRadius:9,fontSize:13,fontWeight:700,fontFamily:"inherit"}}>Save White-Label Settings</button>
           </div>
         )}
       </div>
@@ -1801,47 +1976,230 @@ function RankTracking() {
 function CalendarView() {
   const days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
   const events={2:[{l:"Team Sync",c:C.blueL}],5:[{l:"Client Call",c:C.orange}],7:[{l:"Q2 Launch",c:C.green}],10:[{l:"Content Due",c:C.red}],14:[{l:"SEO Report",c:C.green}],18:[{l:"Team Meeting",c:C.purple}],21:[{l:"Client Review",c:C.yellow}],25:[{l:"Blog Batch",c:C.blueL}],28:[{l:"Sprint Retro",c:C.orange}]};
-  const upcoming=[{l:"Team Sync",d:"Today, 10:00 AM",c:C.blueL,t:"Meeting"},{l:"Client Call",d:"Today, 2:00 PM",c:C.orange,t:"Call"},{l:"Q2 Campaign Launch",d:"May 7, 9:00 AM",c:C.green,t:"Launch"},{l:"Content Deadline",d:"May 10, 5:00 PM",c:C.red,t:"Deadline"}];
+  const [tab, setTab] = useState("calendar");
+  const [showMeetingAI, setShowMeetingAI] = useState(false);
+  const [aiSummaryLoading, setAiSummaryLoading] = useState(false);
+  const [aiSummaryDone, setAiSummaryDone] = useState(false);
+
+  const meetings = [
+    { title:"Q2 SEO Strategy Sync", date:"Today 10:00 AM", attendees:["Mahmoud","Aisha","Sam"], duration:"45 min", status:"upcoming", type:"Internal" },
+    { title:"Dental Pro Monthly Review", date:"Today 2:00 PM", attendees:["Dr. Maria Santos","You"], duration:"30 min", status:"upcoming", type:"Client Call" },
+    { title:"TechFlow Onboarding",  date:"May 12, 9:00 AM", attendees:["Samuel Chen","Aisha","You"], duration:"60 min", status:"scheduled", type:"Client Call" },
+    { title:"Team Sprint Retro",    date:"May 14, 3:00 PM", attendees:["All Team"], duration:"30 min", status:"scheduled", type:"Internal" },
+  ];
+
+  const pastMeeting = {
+    title: "Dental Pro April Review",
+    date: "Apr 28, 2:00 PM",
+    duration: "32 min",
+    attendees: ["Dr. Maria Santos","You"],
+    rawNotes: "Client happy with rankings improvement. Asked about backlink building strategy. Wants monthly report by 1st. Budget discussion: willing to upgrade to Pro for white-label reports. Action items: send proposal by May 5, schedule follow-up May 15.",
+    aiSummary: [
+      { type:"✅ Decision",   text:"Client approved upgrade to Pro plan for white-label reports." },
+      { type:"📋 Action Item", text:"Send Pro plan proposal by May 5. Owner: You." },
+      { type:"📋 Action Item", text:"Schedule May 15 follow-up call. Owner: You." },
+      { type:"📈 Insight",    text:"Client satisfaction high — rankings improved +18% this month." },
+      { type:"⚠️ Risk",       text:"Budget sensitive — position upgrade as ROI, not cost." },
+    ],
+    tasks: [
+      { t:"Send Pro plan proposal", assign:"You", due:"May 5", pri:"high" },
+      { t:"Schedule follow-up call for May 15", assign:"You", due:"May 3", pri:"medium" },
+      { t:"Generate April white-label report", assign:"Aisha", due:"May 1", pri:"high" },
+    ]
+  };
+
   return (
-    <div className="fade" style={{display:"flex",height:"calc(100vh - 57px)",overflow:"hidden"}}>
-      <div style={{flex:1,padding:"20px 24px",overflowY:"auto"}}>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18}}>
-          <div style={{display:"flex",alignItems:"center",gap:10}}>
-            <button style={{background:"transparent",border:`1px solid ${C.border}`,cursor:"pointer",padding:"6px 9px",borderRadius:8,display:"flex"}}><ChevronLeft size={14}/></button>
-            <h2 className="sg" style={{color:C.text,fontSize:18,fontWeight:800}}>May 2026</h2>
-            <button style={{background:"transparent",border:`1px solid ${C.border}`,cursor:"pointer",padding:"6px 9px",borderRadius:8,display:"flex"}}><ChevronRight size={13}/></button>
-          </div>
-          <div style={{display:"flex",gap:5}}>{["Day","Week","Month"].map((v,i)=>(<button key={v} style={{padding:"6px 14px",borderRadius:8,border:"none",cursor:"pointer",fontSize:12,fontWeight:600,fontFamily:"inherit",background:i===2?C.blueL:"rgba(0,0,0,.05)",color:i===2?"#fff":C.textDim}}>{v}</button>))}</div>
-        </div>
-        <div className="card" style={{overflow:"hidden"}}>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",borderBottom:`1px solid ${C.border}`}}>
-            {days.map(d=>(<div key={d} style={{padding:"10px 0",textAlign:"center",color:C.textDim,fontSize:11,fontWeight:700,letterSpacing:.5}}>{d.toUpperCase()}</div>))}
-          </div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)"}}>
-            {[...Array(37)].map((_,i)=>{const day=i-1,isToday=day===2,hasEvt=events[day];return(
-              <div key={i} style={{minHeight:80,padding:"7px",borderBottom:`1px solid ${C.border}`,borderRight:(i+1)%7!==0?`1px solid ${C.border}`:"none",background:isToday?"rgba(37,99,235,0.04)":"transparent",cursor:"pointer"}}>
-                {day>0&&day<=31&&(<>
-                  <div style={{width:26,height:26,borderRadius:6,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:isToday?800:400,color:isToday?"#fff":C.textMid,background:isToday?C.blueL:"transparent",marginBottom:3}}>{day}</div>
-                  {hasEvt&&hasEvt.map((ev,ei)=>(<div key={ei} style={{background:`${ev.c}15`,color:ev.c,fontSize:9.5,fontWeight:700,padding:"2px 5px",borderRadius:4,marginBottom:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",borderLeft:`2px solid ${ev.c}`}}>{ev.l}</div>))}
-                </>)}
-              </div>
-            );})}
-          </div>
-        </div>
-      </div>
-      <div style={{width:260,background:C.white,borderLeft:`1px solid ${C.border}`,padding:18,overflowY:"auto",flexShrink:0}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
-          <div className="sg" style={{color:C.text,fontWeight:700,fontSize:14}}>Upcoming</div>
-          <button style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"5px 10px",borderRadius:7,fontSize:11,fontWeight:700,display:"flex",alignItems:"center",gap:4,fontFamily:"inherit"}}><Plus size={11}/>New</button>
-        </div>
-        {upcoming.map(({l,d,c,t})=>(
-          <div key={l} style={{background:C.bg,borderLeft:`3px solid ${c}`,border:`1px solid ${C.border}`,borderRadius:10,padding:"11px 12px",marginBottom:9}}>
-            <span className="chip" style={{color:c,background:`${c}18`,marginBottom:5,display:"inline-flex"}}>{t.toUpperCase()}</span>
-            <div style={{color:C.text,fontSize:12.5,fontWeight:600,marginBottom:3}}>{l}</div>
-            <div style={{display:"flex",gap:5,color:C.textDim,fontSize:11,alignItems:"center"}}><Clock size={10}/>{d}</div>
-          </div>
+    <div className="fade" style={{overflowY:"auto",height:"calc(100vh - 57px)",background:C.bg}}>
+      {/* Header tabs */}
+      <div style={{background:C.white,borderBottom:`1px solid ${C.border}`,padding:"0 24px",display:"flex",alignItems:"center",gap:0}}>
+        {[["calendar","📅 Calendar"],["meetings","🎙 Meetings"],["notes","📝 AI Meeting Notes"]].map(([id,label])=>(
+          <button key={id} onClick={()=>setTab(id)} style={{padding:"12px 18px",border:"none",borderBottom:tab===id?`2.5px solid ${C.blueL}`:"2.5px solid transparent",cursor:"pointer",fontSize:13,fontWeight:tab===id?700:500,fontFamily:"inherit",background:"transparent",color:tab===id?C.blueL:C.textMid,marginBottom:-1}}>{label}</button>
         ))}
+        <div style={{marginLeft:"auto",display:"flex",gap:6,padding:"8px 0"}}>
+          <button style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"7px 14px",borderRadius:7,fontSize:12,fontWeight:700,fontFamily:"inherit",display:"flex",alignItems:"center",gap:5}}>
+            <Plus size={12}/> Schedule Meeting
+          </button>
+        </div>
       </div>
+
+      {/* Calendar tab */}
+      {tab==="calendar" && (
+        <div style={{display:"flex",height:"calc(100% - 49px)"}}>
+          <div style={{flex:1,padding:"20px 24px",overflowY:"auto"}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18}}>
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                <button style={{background:"transparent",border:`1px solid ${C.border}`,cursor:"pointer",padding:"6px 9px",borderRadius:8,display:"flex"}}><ChevronLeft size={14}/></button>
+                <h2 className="sg" style={{color:C.text,fontSize:18,fontWeight:800}}>May 2026</h2>
+                <button style={{background:"transparent",border:`1px solid ${C.border}`,cursor:"pointer",padding:"6px 9px",borderRadius:8,display:"flex"}}><ChevronRight size={13}/></button>
+              </div>
+              <div style={{display:"flex",gap:5}}>{["Day","Week","Month"].map((v,i)=>(<button key={v} style={{padding:"6px 14px",borderRadius:8,border:"none",cursor:"pointer",fontSize:12,fontWeight:600,fontFamily:"inherit",background:i===2?C.blueL:"rgba(0,0,0,.05)",color:i===2?"#fff":C.textDim}}>{v}</button>))}</div>
+            </div>
+            <div className="card" style={{overflow:"hidden"}}>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",borderBottom:`1px solid ${C.border}`}}>
+                {days.map(d=>(<div key={d} style={{padding:"10px 0",textAlign:"center",color:C.textDim,fontSize:11,fontWeight:700,letterSpacing:.5}}>{d.toUpperCase()}</div>))}
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)"}}>
+                {[...Array(37)].map((_,i)=>{const day=i-1,isToday=day===2,hasEvt=events[day];return(
+                  <div key={i} style={{minHeight:80,padding:"7px",borderBottom:`1px solid ${C.border}`,borderRight:(i+1)%7!==0?`1px solid ${C.border}`:"none",background:isToday?"rgba(37,99,235,0.04)":"transparent",cursor:"pointer"}}>
+                    {day>0&&day<=31&&(<>
+                      <div style={{width:26,height:26,borderRadius:6,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:isToday?800:400,color:isToday?"#fff":C.textMid,background:isToday?C.blueL:"transparent",marginBottom:3}}>{day}</div>
+                      {hasEvt&&hasEvt.map((ev,ei)=>(<div key={ei} style={{background:`${ev.c}15`,color:ev.c,fontSize:9.5,fontWeight:700,padding:"2px 5px",borderRadius:4,marginBottom:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",borderLeft:`2px solid ${ev.c}`}}>{ev.l}</div>))}
+                    </>)}
+                  </div>
+                );})}
+              </div>
+            </div>
+          </div>
+          <div style={{width:260,background:C.white,borderLeft:`1px solid ${C.border}`,padding:18,overflowY:"auto",flexShrink:0}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+              <div className="sg" style={{color:C.text,fontWeight:700,fontSize:14}}>Upcoming</div>
+              <button style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"5px 10px",borderRadius:7,fontSize:11,fontWeight:700,display:"flex",alignItems:"center",gap:4,fontFamily:"inherit"}}><Plus size={11}/>New</button>
+            </div>
+            {meetings.slice(0,3).map(({title,date,attendees,type},i)=>{
+              const c=type==="Client Call"?C.orange:C.blueL;
+              return (
+                <div key={i} style={{background:C.bg,borderLeft:`3px solid ${c}`,border:`1px solid ${C.border}`,borderRadius:10,padding:"11px 12px",marginBottom:9}}>
+                  <span className="chip" style={{color:c,background:`${c}18`,marginBottom:5,display:"inline-flex"}}>{type.toUpperCase()}</span>
+                  <div style={{color:C.text,fontSize:12.5,fontWeight:600,marginBottom:3}}>{title}</div>
+                  <div style={{display:"flex",gap:5,color:C.textDim,fontSize:11,alignItems:"center"}}><Clock size={10}/>{date}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Meetings tab */}
+      {tab==="meetings" && (
+        <div style={{padding:"20px 24px"}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:20}}>
+            {[
+              {l:"Meetings This Week", v:"4",  c:C.blueL,  icon:Calendar},
+              {l:"Client Calls",       v:"2",  c:C.orange, icon:Phone},
+              {l:"Actions Generated",  v:"8",  c:C.green,  icon:CheckSquare},
+            ].map(({l,v,c,icon:Icon})=>(
+              <div key={l} className="card" style={{padding:"14px 18px"}}>
+                <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:8}}>
+                  <div style={{width:28,height:28,borderRadius:7,background:`${c}18`,display:"flex",alignItems:"center",justifyContent:"center"}}><Icon size={13} color={c}/></div>
+                  <span style={{color:C.textDim,fontSize:11}}>{l}</span>
+                </div>
+                <div className="sg" style={{color:C.text,fontSize:22,fontWeight:800}}>{v}</div>
+              </div>
+            ))}
+          </div>
+          <div className="card" style={{overflow:"hidden"}}>
+            <div style={{padding:"12px 18px",borderBottom:`1px solid ${C.border}`}}>
+              <span className="sg" style={{color:C.text,fontWeight:700,fontSize:14}}>All Meetings</span>
+            </div>
+            {meetings.map((m,i)=>(
+              <div key={i} className="td" style={{padding:"14px 18px",borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center",gap:14}}>
+                <div style={{width:40,height:40,borderRadius:10,background:m.type==="Client Call"?C.orangeL:C.bluePale,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                  {m.type==="Client Call"?<Phone size={16} color={C.orange}/>:<Users size={16} color={C.blueL}/>}
+                </div>
+                <div style={{flex:1}}>
+                  <div style={{color:C.text,fontWeight:700,fontSize:14,marginBottom:2}}>{m.title}</div>
+                  <div style={{display:"flex",gap:10}}>
+                    <span style={{color:C.textDim,fontSize:11}}><Clock size={10}/> {m.date}</span>
+                    <span style={{color:C.textDim,fontSize:11}}>· {m.duration}</span>
+                    <span style={{color:C.textDim,fontSize:11}}>· {m.attendees.join(", ")}</span>
+                  </div>
+                </div>
+                <span className="chip" style={{color:m.status==="upcoming"?C.green:C.blueL,background:m.status==="upcoming"?C.greenL:C.bluePale}}>{m.status}</span>
+                <div style={{display:"flex",gap:6}}>
+                  <button style={{background:C.bluePale,color:C.blueL,border:"none",cursor:"pointer",padding:"6px 12px",borderRadius:6,fontSize:11,fontWeight:700,fontFamily:"inherit"}}>Join</button>
+                  <button onClick={()=>setTab("notes")} style={{background:C.bg,border:`1px solid ${C.border}`,color:C.textMid,cursor:"pointer",padding:"6px 10px",borderRadius:6,fontSize:11,fontFamily:"inherit"}}>Notes →</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* AI Meeting Notes tab */}
+      {tab==="notes" && (
+        <div style={{padding:"20px 24px"}}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
+            {/* Left: raw notes + AI trigger */}
+            <div>
+              <div className="card" style={{padding:20,marginBottom:16}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+                  <div style={{width:32,height:32,borderRadius:8,background:C.orangeL,display:"flex",alignItems:"center",justifyContent:"center"}}><Phone size={14} color={C.orange}/></div>
+                  <div>
+                    <div style={{color:C.text,fontWeight:700,fontSize:14}}>{pastMeeting.title}</div>
+                    <div style={{color:C.textDim,fontSize:11}}>{pastMeeting.date} · {pastMeeting.duration} · {pastMeeting.attendees.join(", ")}</div>
+                  </div>
+                </div>
+                <div style={{color:C.textDim,fontSize:11,fontWeight:700,marginBottom:6,textTransform:"uppercase",letterSpacing:.8}}>Meeting Notes</div>
+                <textarea defaultValue={pastMeeting.rawNotes} style={{width:"100%",minHeight:120,background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,padding:"10px 12px",color:C.text,fontSize:12,fontFamily:"inherit",outline:"none",resize:"vertical",lineHeight:1.65}}/>
+                <button
+                  onClick={()=>{setAiSummaryLoading(true);setTimeout(()=>{setAiSummaryLoading(false);setAiSummaryDone(true);},1800);}}
+                  disabled={aiSummaryLoading}
+                  style={{marginTop:12,width:"100%",background:`linear-gradient(135deg,${C.blue},${C.blueL})`,color:"#fff",border:"none",cursor:"pointer",padding:"10px",borderRadius:9,fontSize:13,fontWeight:700,fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>
+                  <Bot size={14}/> {aiSummaryLoading?"🔄 AI Summarizing...":"✨ Generate AI Summary & Tasks"}
+                </button>
+              </div>
+            </div>
+
+            {/* Right: AI summary output */}
+            <div>
+              {!aiSummaryDone && !aiSummaryLoading && (
+                <div className="card" style={{padding:24,textAlign:"center"}}>
+                  <div style={{fontSize:40,marginBottom:12}}>🤖</div>
+                  <div className="sg" style={{color:C.text,fontWeight:700,fontSize:15,marginBottom:8}}>AI Meeting Intelligence</div>
+                  <p style={{color:C.textMid,fontSize:13,lineHeight:1.65}}>Click "Generate AI Summary" to automatically extract decisions, action items, risks, and insights — then create tasks with one click.</p>
+                </div>
+              )}
+              {aiSummaryLoading && (
+                <div className="card" style={{padding:24,textAlign:"center"}}>
+                  <div style={{fontSize:40,marginBottom:12}}>⚡</div>
+                  <div className="sg" style={{color:C.blueL,fontWeight:700,fontSize:15,marginBottom:8}}>AI is processing your meeting...</div>
+                  <div style={{display:"flex",gap:6,justifyContent:"center"}}>
+                    {["Transcribing","Extracting decisions","Creating tasks"].map((s,i)=>(
+                      <span key={i} className="chip" style={{color:C.blueL,background:C.bluePale,fontSize:10}}>{s}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {aiSummaryDone && (
+                <>
+                  <div className="card" style={{padding:18,marginBottom:14}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+                      <Bot size={16} color={C.blueL}/>
+                      <span className="sg" style={{color:C.blueL,fontWeight:700,fontSize:14}}>AI Summary</span>
+                      <span className="chip" style={{color:C.green,background:C.greenL,marginLeft:"auto"}}>✓ Generated</span>
+                    </div>
+                    {pastMeeting.aiSummary.map((s,i)=>(
+                      <div key={i} style={{display:"flex",gap:10,padding:"9px 0",borderBottom:i<pastMeeting.aiSummary.length-1?`1px solid ${C.border}`:"none"}}>
+                        <span style={{fontSize:14,flexShrink:0}}>{s.type.split(" ")[0]}</span>
+                        <div>
+                          <span style={{color:C.textDim,fontSize:10,fontWeight:700}}>{s.type.substring(2)} </span>
+                          <span style={{color:C.text,fontSize:12}}>{s.text}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="card" style={{padding:18}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
+                      <CheckSquare size={14} color={C.green}/>
+                      <span className="sg" style={{color:C.text,fontWeight:700,fontSize:13}}>Auto-Created Tasks ({pastMeeting.tasks.length})</span>
+                      <button style={{marginLeft:"auto",background:C.green,color:"#fff",border:"none",cursor:"pointer",padding:"5px 12px",borderRadius:6,fontSize:11,fontWeight:700,fontFamily:"inherit"}}>Add All to Board</button>
+                    </div>
+                    {pastMeeting.tasks.map((t,i)=>(
+                      <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 0",borderBottom:i<pastMeeting.tasks.length-1?`1px solid ${C.border}`:"none"}}>
+                        <input type="checkbox" defaultChecked style={{accentColor:C.blueL}}/>
+                        <span style={{flex:1,color:C.text,fontSize:12}}>{t.t}</span>
+                        <PriBadge p={t.pri}/>
+                        <span style={{color:C.textDim,fontSize:11}}>{t.assign}</span>
+                        <span style={{color:C.orange,fontSize:11,fontWeight:600}}>{t.due}</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -2079,6 +2437,21 @@ function CrawlDashboard({ onNavigate }) {
         </div>
       </div>
 
+      {/* AI Executive Assistant Alerts */}
+      <div style={{ margin:"0 20px 14px", display:"flex", flexDirection:"column", gap:8 }}>
+        {[
+          { icon:"🔴", type:"Revenue Risk",    msg:"2 clients (FitLife, Bloom) inactive this month — possible churn.",   action:"Schedule Retention Meeting", c:C.red,    bg:C.redL },
+          { icon:"⚠️", type:"Delayed Task",    msg:"SEO audit for TechFlow pending 5 days — recommend prioritizing.",    action:"Assign Now",                  c:C.orange, bg:C.orangeL },
+          { icon:"🚀", type:"Growth Signal",   msg:"3 keywords entered top 10 this week — great moment to upsell Pro.",  action:"View Keywords",              c:C.green,  bg:C.greenL },
+        ].map((a,i)=>(
+          <div key={i} style={{ background:a.bg, border:`1px solid ${a.c}33`, borderRadius:10, padding:"10px 16px", display:"flex", alignItems:"center", gap:10 }}>
+            <span style={{ fontSize:16 }}>{a.icon}</span>
+            <span style={{ color:a.c, fontWeight:700, fontSize:12, flexShrink:0 }}>{a.type}:</span>
+            <span style={{ color:C.text, fontSize:12, flex:1 }}>{a.msg}</span>
+            <button style={{ background:a.c, color:"#fff", border:"none", cursor:"pointer", padding:"5px 12px", borderRadius:6, fontSize:11, fontWeight:700, fontFamily:"inherit", flexShrink:0 }}>{a.action}</button>
+          </div>
+        ))}
+      </div>
       {/* My Projects */}
       <div style={{ margin:"0 20px 20px", background:C.white, border:`1px solid ${C.border}`, borderRadius:14, overflow:"hidden" }}>
         <div style={{ padding:"12px 16px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:10 }}>
@@ -2410,6 +2783,11 @@ function SiteAudit() {
           </div>
           <div style={{ color:C.yellow, fontWeight:700, fontSize:13, marginTop:8 }}>Needs Work</div>
           <button style={{ marginTop:12, background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"8px 16px", borderRadius:8, fontSize:12, fontWeight:700, fontFamily:"inherit" }}>Re-Crawl Site</button>
+          <div style={{ marginTop:10, background:`linear-gradient(135deg,${C.blueL}18,${C.orange}14)`, border:`1px solid ${C.blueL}33`, borderRadius:9, padding:"9px 12px" }}>
+            <div style={{ color:C.text, fontSize:11, fontWeight:700, marginBottom:3 }}>🎉 Score improved +12 pts this month!</div>
+            <div style={{ color:C.textMid, fontSize:10, lineHeight:1.5 }}>Unlock weekly auto-audits & AI fix recommendations with Pro.</div>
+            <button style={{ marginTop:6, width:"100%", background:C.orange, color:"#fff", border:"none", cursor:"pointer", padding:"5px 8px", borderRadius:6, fontSize:10, fontWeight:700, fontFamily:"inherit" }}>⚡ Unlock Pro Features</button>
+          </div>
         </div>
         <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14 }}>
           {issues.map(is => (
@@ -2998,46 +3376,149 @@ function ContentLab() {
 }
 
 // ── Reports ───────────────────────────────────────────────────────────
-function Reports() {
+function Reports({ onUpgrade }) {
+  const [tab, setTab] = useState("reports");
+  const [generating, setGenerating] = useState(null);
+  const [generated, setGenerated] = useState([]);
   const reports = [
-    { name:"SEO Monthly Report — April 2026", client:"SEO Engine Boost", date:"May 1, 2026", type:"Monthly", status:"Ready" },
-    { name:"Dental Pro Q1 Performance", client:"Dental Pro", date:"Apr 1, 2026", type:"Quarterly", status:"Ready" },
-    { name:"Keyword Performance Deep-Dive", client:"Fitness App", date:"Apr 15, 2026", type:"Custom", status:"Draft" },
-    { name:"Backlink Audit Report", client:"Tech Blog", date:"Apr 28, 2026", type:"Audit", status:"Ready" },
+    { name:"SEO Monthly Report — May 2026",    client:"SEO Engine Boost", date:"May 1, 2026", type:"Monthly",    status:"Ready" },
+    { name:"Dental Pro Q1 Performance",         client:"Dental Pro",      date:"Apr 1, 2026", type:"Quarterly",  status:"Ready" },
+    { name:"Keyword Performance Deep-Dive",     client:"Fitness App",     date:"Apr 15, 2026",type:"Custom",     status:"Draft" },
+    { name:"Backlink Audit Report",             client:"Tech Blog",       date:"Apr 28, 2026",type:"Audit",      status:"Ready" },
   ];
+  const aiReportTemplates = [
+    { icon:"📊", name:"Full SEO Audit Report",         desc:"Rankings, technical issues, backlinks, recommendations",  time:"~30s", plan:"Free" },
+    { icon:"🔑", name:"Keyword Performance Report",    desc:"Tracked keywords, position changes, opportunities",       time:"~20s", plan:"Free" },
+    { icon:"🔗", name:"Backlink Profile Report",       desc:"New/lost links, authority score, anchor analysis",        time:"~25s", plan:"Starter" },
+    { icon:"🏆", name:"Competitor Gap Report",         desc:"Compare rankings, keywords, backlinks vs competitors",    time:"~45s", plan:"Pro" },
+    { icon:"📈", name:"Client Progress Report",        desc:"Branded report with ROI, wins, and next steps",          time:"~35s", plan:"Pro" },
+    { icon:"⚡", name:"AI Opportunity Brief",           desc:"Top 10 growth opportunities ranked by impact",           time:"~20s", plan:"Free" },
+  ];
+
+  const handleGenerate = (template) => {
+    if(template.plan==="Pro" && onUpgrade) { onUpgrade("export"); return; }
+    setGenerating(template.name);
+    setTimeout(() => {
+      setGenerating(null);
+      setGenerated(prev => [...prev, template.name]);
+    }, 2200);
+  };
+
   return (
-    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", padding:"22px 28px", background:C.bg }}>
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
-        <div style={{ display:"flex", gap:8 }}>
-          {["All Reports","Monthly","Quarterly","Custom","Audit"].map(t => (
-            <button key={t} style={{ background:t==="All Reports"?C.blueL:"transparent", color:t==="All Reports"?"#fff":C.textMid, border:`1px solid ${t==="All Reports"?C.blueL:C.border}`, cursor:"pointer", padding:"7px 14px", borderRadius:7, fontSize:12, fontFamily:"inherit" }}>{t}</button>
-          ))}
-        </div>
-        <button style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"9px 18px", borderRadius:8, fontSize:13, fontWeight:700, fontFamily:"inherit", display:"flex", alignItems:"center", gap:6 }}>
-          <Plus size={13}/> New Report
-        </button>
-      </div>
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:16 }}>
-        {reports.map((r,i) => (
-          <div key={i} className="card ch" style={{ padding:20 }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:12 }}>
-              <div>
-                <div style={{ color:C.text, fontWeight:700, fontSize:14, marginBottom:4 }}>{r.name}</div>
-                <div style={{ color:C.textDim, fontSize:12 }}>{r.client} · {r.date}</div>
-              </div>
-              <span className="chip" style={{ color:r.status==="Ready"?C.green:C.yellow, background:r.status==="Ready"?C.greenL:C.yellowL }}>{r.status}</span>
-            </div>
-            <div style={{ display:"flex", gap:6 }}>
-              <span className="chip" style={{ color:C.blueL, background:C.bluePale }}>{r.type}</span>
-            </div>
-            <div style={{ display:"flex", gap:8, marginTop:14 }}>
-              <button style={{ flex:1, background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"7px", borderRadius:7, fontSize:12, fontWeight:700, fontFamily:"inherit", display:"flex", alignItems:"center", justifyContent:"center", gap:5 }}>
-                <Download size={11}/> Export PDF
-              </button>
-              <button style={{ flex:1, background:"transparent", border:`1px solid ${C.border}`, color:C.textMid, cursor:"pointer", padding:"7px", borderRadius:7, fontSize:12, fontFamily:"inherit" }}>Preview</button>
-            </div>
-          </div>
+    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", background:C.bg }}>
+      {/* Header tabs */}
+      <div style={{ background:C.white, borderBottom:`1px solid ${C.border}`, padding:"0 24px", display:"flex", alignItems:"center" }}>
+        {[["reports","📄 My Reports"],["generate","✨ AI Report Generator"],["scheduled","🔁 Scheduled"]].map(([id,label])=>(
+          <button key={id} onClick={()=>setTab(id)} style={{ padding:"11px 18px", border:"none", borderBottom:tab===id?`2.5px solid ${C.blueL}`:"2.5px solid transparent", cursor:"pointer", fontSize:13, fontWeight:tab===id?700:500, fontFamily:"inherit", background:"transparent", color:tab===id?C.blueL:C.textMid, marginBottom:-1 }}>{label}</button>
         ))}
+        <div style={{ marginLeft:"auto", display:"flex", gap:6, padding:"8px 0" }}>
+          <button onClick={()=>setTab("generate")} style={{ background:`linear-gradient(135deg,${C.blue},${C.blueL})`, color:"#fff", border:"none", cursor:"pointer", padding:"7px 14px", borderRadius:7, fontSize:12, fontWeight:700, fontFamily:"inherit", display:"flex", alignItems:"center", gap:5 }}>
+            <Bot size={12}/> Generate with AI
+          </button>
+        </div>
+      </div>
+
+      <div style={{ padding:"20px 24px" }}>
+
+        {/* My Reports tab */}
+        {tab==="reports" && (
+          <>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:16 }}>
+              {reports.map((r,i)=>(
+                <div key={i} className="card ch" style={{ padding:20 }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:10 }}>
+                    <div>
+                      <div style={{ color:C.text, fontWeight:700, fontSize:14, marginBottom:4 }}>{r.name}</div>
+                      <div style={{ color:C.textDim, fontSize:12 }}>{r.client} · {r.date}</div>
+                    </div>
+                    <span className="chip" style={{ color:r.status==="Ready"?C.green:C.yellow, background:r.status==="Ready"?C.greenL:C.yellowL }}>{r.status}</span>
+                  </div>
+                  <span className="chip" style={{ color:C.blueL, background:C.bluePale, marginBottom:14, display:"inline-block" }}>{r.type}</span>
+                  <div style={{ display:"flex", gap:8 }}>
+                    <button onClick={()=>onUpgrade&&onUpgrade("export")} style={{ flex:1, background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"7px", borderRadius:7, fontSize:12, fontWeight:700, fontFamily:"inherit", display:"flex", alignItems:"center", justifyContent:"center", gap:5 }}>
+                      <Download size={11}/> Export PDF
+                    </button>
+                    <button style={{ flex:1, background:"transparent", border:`1px solid ${C.border}`, color:C.textMid, cursor:"pointer", padding:"7px", borderRadius:7, fontSize:12, fontFamily:"inherit" }}>Preview</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* AI Generator tab */}
+        {tab==="generate" && (
+          <>
+            <div style={{ background:`linear-gradient(135deg,${C.blue},${C.blueL})`, borderRadius:14, padding:"20px 24px", marginBottom:20, display:"flex", alignItems:"center", gap:16 }}>
+              <div style={{ width:44, height:44, borderRadius:12, background:"rgba(255,255,255,.2)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                <Bot size={22} color="#fff"/>
+              </div>
+              <div>
+                <div className="sg" style={{ color:"#fff", fontWeight:800, fontSize:16, marginBottom:4 }}>AI Report Generator</div>
+                <p style={{ color:"rgba(255,255,255,.8)", fontSize:12 }}>Select a template below — AI will pull live data from your project and generate a complete, branded report in seconds.</p>
+              </div>
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:14 }}>
+              {aiReportTemplates.map((t,i)=>{
+                const isGenerating = generating===t.name;
+                const isDone = generated.includes(t.name);
+                const isLocked = t.plan==="Pro";
+                return (
+                  <div key={i} className="card" style={{ padding:20, position:"relative", border:isDone?`2px solid ${C.green}`:isLocked?`1px dashed ${C.border}`:`1px solid ${C.border}` }}>
+                    {isLocked && <div style={{ position:"absolute", top:10, right:10 }}><span className="chip" style={{ color:C.orange, background:C.orangeL, fontSize:9 }}>PRO 🔒</span></div>}
+                    <div style={{ fontSize:28, marginBottom:10 }}>{t.icon}</div>
+                    <div style={{ color:C.text, fontWeight:700, fontSize:13, marginBottom:4 }}>{t.name}</div>
+                    <p style={{ color:C.textMid, fontSize:11, lineHeight:1.55, marginBottom:10 }}>{t.desc}</p>
+                    <div style={{ display:"flex", gap:6, marginBottom:14 }}>
+                      <span className="chip" style={{ color:C.blueL, background:C.bluePale, fontSize:9 }}>{t.time}</span>
+                      <span className="chip" style={{ color:t.plan==="Free"?C.green:C.orange, background:t.plan==="Free"?C.greenL:C.orangeL, fontSize:9 }}>{t.plan}</span>
+                    </div>
+                    {isDone ? (
+                      <div style={{ background:C.greenL, borderRadius:7, padding:"8px 12px", display:"flex", alignItems:"center", gap:6 }}>
+                        <CheckCircle2 size={13} color={C.green}/>
+                        <span style={{ color:C.green, fontSize:12, fontWeight:700 }}>Report Ready — Download PDF</span>
+                      </div>
+                    ) : (
+                      <button onClick={()=>handleGenerate(t)} disabled={isGenerating} style={{ width:"100%", background:isGenerating?C.bg:isLocked?C.orange:C.blueL, color:isGenerating?C.textMid:"#fff", border:`1px solid ${isGenerating?C.border:"transparent"}`, cursor:isGenerating?"not-allowed":"pointer", padding:"8px", borderRadius:7, fontSize:12, fontWeight:700, fontFamily:"inherit", display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}>
+                        {isGenerating?<><span style={{animation:"spin 1s linear infinite",display:"inline-block"}}>⚙️</span> Generating...</>:<><Bot size={12}/>{isLocked?"Unlock with Pro →":"Generate Report"}</>}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {/* Scheduled tab */}
+        {tab==="scheduled" && (
+          <div className="card" style={{ overflow:"hidden" }}>
+            <div style={{ padding:"12px 18px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center" }}>
+              <span className="sg" style={{ color:C.text, fontWeight:700, fontSize:14, flex:1 }}>Scheduled Reports</span>
+              <button style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"6px 14px", borderRadius:7, fontSize:12, fontWeight:700, fontFamily:"inherit", display:"flex", alignItems:"center", gap:5 }}>
+                <Plus size={11}/> Schedule Report
+              </button>
+            </div>
+            {[
+              { name:"Monthly SEO Report",    clients:"All Pro clients",       freq:"1st of month",  next:"Jun 1",  format:"White-label PDF", active:true },
+              { name:"Weekly Rankings Digest", clients:"SEO Engine Boost",     freq:"Every Monday",  next:"May 13", format:"Email summary",   active:true },
+              { name:"Quarterly Business Review",clients:"TechFlow Agency",    freq:"Every quarter", next:"Jul 1",  format:"Custom PDF",      active:false },
+            ].map((s,i)=>(
+              <div key={i} style={{ padding:"14px 18px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:14 }}>
+                <div style={{ flex:1 }}>
+                  <div style={{ color:C.text, fontWeight:700, fontSize:13, marginBottom:3 }}>{s.name}</div>
+                  <div style={{ color:C.textDim, fontSize:11 }}>{s.clients} · {s.freq} · {s.format}</div>
+                </div>
+                <div style={{ textAlign:"right" }}>
+                  <div style={{ color:C.textDim, fontSize:10, marginBottom:3 }}>Next send</div>
+                  <div style={{ color:C.text, fontWeight:700, fontSize:12 }}>{s.next}</div>
+                </div>
+                <span className="chip" style={{ color:s.active?C.green:C.textDim, background:s.active?C.greenL:C.bg }}>{s.active?"Active":"Paused"}</span>
+                <button style={{ background:"transparent", border:`1px solid ${C.border}`, color:C.textMid, cursor:"pointer", padding:"5px 10px", borderRadius:6, fontSize:11, fontFamily:"inherit" }}>Edit</button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -4561,6 +5042,539 @@ function PlanBadge({ plan, onClick }) {
   );
 }
 
+// ── Automation Workflows ─────────────────────────────────────────
+function AutomationWorkflows() {
+  const [tab, setTab] = useState("active");
+  const [showBuilder, setShowBuilder] = useState(false);
+  const [builderStep, setBuilderStep] = useState(0);
+
+  const automations = [
+    { name:"Audit Completed → Generate Report", trigger:"Site Audit Completed", actions:["Generate AI Report","Notify Client via Email","Create Follow-up Task"], status:"Active", runs:24, last:"2h ago" },
+    { name:"Keyword Drop → Alert Team", trigger:"Keyword drops 3+ positions", actions:["Send Slack notification","Create urgent task","Log to dashboard"], status:"Active", runs:8, last:"1d ago" },
+    { name:"New Backlink → Record & Score", trigger:"New backlink detected", actions:["Score backlink quality","Add to tracker","Notify if DA 50+"], status:"Active", runs:142, last:"3h ago" },
+    { name:"Invoice Overdue → Chase Sequence", trigger:"Invoice overdue 7 days", actions:["Send reminder email","Create follow-up task","Flag client as At Risk"], status:"Paused", runs:3, last:"5d ago" },
+    { name:"Monthly → Auto-generate Client Reports", trigger:"1st of every month", actions:["Generate SEO report","Bundle rankings + audits","Send to client portal"], status:"Active", runs:12, last:"May 1" },
+  ];
+
+  const templates = [
+    { icon:"📊", name:"Audit → Report → Notify",     desc:"Run audit, generate AI report, email client automatically",    triggers:2, actions:3 },
+    { icon:"🔔", name:"Rank Drop Alert",              desc:"Alert team when any tracked keyword drops 3+ positions",         triggers:1, actions:2 },
+    { icon:"💳", name:"Invoice Chase Sequence",       desc:"Automatically follow up on overdue invoices with escalation",    triggers:1, actions:4 },
+    { icon:"📅", name:"Monthly Client Report",        desc:"Generate and deliver branded SEO report on the 1st each month",  triggers:1, actions:3 },
+    { icon:"🔗", name:"New Backlink Quality Check",   desc:"Score and classify new backlinks as they're detected",           triggers:1, actions:3 },
+    { icon:"⚡", name:"New Lead → Onboard Sequence",  desc:"Create project, run first audit, send welcome portal invite",    triggers:1, actions:5 },
+  ];
+
+  const builderSteps = [
+    { title:"Choose Trigger",    desc:"What starts this automation?",   options:["Site Audit Completed","Keyword position changes","New backlink detected","Invoice overdue","New client added","Scheduled (daily/weekly/monthly)","Form submission","Manual trigger"] },
+    { title:"Add Actions",       desc:"What should happen next?",       options:["Generate AI Report","Send Email Notification","Create Task","Notify Team (Slack)","Update Client Portal","Post to Dashboard","Assign to team member","Wait X days then..."] },
+    { title:"Set Conditions",    desc:"Optional: only run when...",     options:["Only for Pro clients","Only if score < 70","Only weekdays","Only if first time","Only if revenue > $500","Skip if already done"] },
+    { title:"Name & Activate",   desc:"Give your automation a name",    options:[] },
+  ];
+
+  return (
+    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", background:C.bg }}>
+      {/* Header strip */}
+      <div style={{ padding:"14px 24px", background:C.white, borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:10 }}>
+        <div style={{ flex:1 }}>
+          <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:15 }}>Automation Workflows</div>
+          <div style={{ color:C.textDim, fontSize:11 }}>Replace manual work with automated sequences — set it once, run forever</div>
+        </div>
+        <button onClick={()=>setShowBuilder(true)} style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"9px 18px", borderRadius:8, fontSize:13, fontWeight:700, fontFamily:"inherit", display:"flex", alignItems:"center", gap:6 }}>
+          <Plus size={13}/> New Automation
+        </button>
+      </div>
+
+      <div style={{ padding:"20px 24px" }}>
+        {/* Stats */}
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12, marginBottom:22 }}>
+          {[
+            { l:"Active Automations",  v:"4",   c:C.green,  icon:Activity },
+            { l:"Total Runs (30d)",    v:"189", c:C.blueL,  icon:Repeat },
+            { l:"Hours Saved (est.)",  v:"94h", c:C.orange, icon:Clock },
+            { l:"Tasks Auto-created",  v:"47",  c:C.purple, icon:CheckSquare },
+          ].map(({l,v,c,icon:Icon})=>(
+            <div key={l} className="card" style={{ padding:"14px 18px" }}>
+              <div style={{ display:"flex", gap:8, alignItems:"center", marginBottom:8 }}>
+                <div style={{ width:28, height:28, borderRadius:7, background:`${c}18`, display:"flex", alignItems:"center", justifyContent:"center" }}><Icon size={13} color={c}/></div>
+                <span style={{ color:C.textDim, fontSize:11 }}>{l}</span>
+              </div>
+              <div className="sg" style={{ color:C.text, fontSize:22, fontWeight:800 }}>{v}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Tabs */}
+        <div style={{ display:"flex", gap:0, borderBottom:`1px solid ${C.border}`, marginBottom:0, background:C.white, borderRadius:"10px 10px 0 0", overflow:"hidden" }}>
+          {[["active","Active (4)"],["paused","Paused (1)"],["templates","Templates"],["history","Run History"]].map(([id,label])=>(
+            <button key={id} onClick={()=>setTab(id)} style={{ padding:"10px 20px", border:"none", borderBottom:tab===id?`2.5px solid ${C.blueL}`:"2.5px solid transparent", cursor:"pointer", fontSize:13, fontWeight:tab===id?700:500, fontFamily:"inherit", background:"transparent", color:tab===id?C.blueL:C.textMid, marginBottom:-1 }}>{label}</button>
+          ))}
+        </div>
+
+        {/* Active / Paused automations */}
+        {(tab==="active"||tab==="paused") && (
+          <div className="card" style={{ overflow:"hidden" }}>
+            {automations.filter(a=>tab==="active"?a.status==="Active":a.status==="Paused").map((a,i,arr)=>(
+              <div key={i} style={{ padding:"16px 20px", borderBottom:i<arr.length-1?`1px solid ${C.border}`:"none" }}>
+                <div style={{ display:"flex", alignItems:"flex-start", gap:14 }}>
+                  <div style={{ width:36, height:36, borderRadius:10, background:a.status==="Active"?C.greenL:C.yellowL, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                    <Activity size={16} color={a.status==="Active"?C.green:C.yellow}/>
+                  </div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
+                      <span style={{ color:C.text, fontWeight:700, fontSize:14 }}>{a.name}</span>
+                      <span className="chip" style={{ color:a.status==="Active"?C.green:C.yellow, background:a.status==="Active"?C.greenL:C.yellowL }}>{a.status}</span>
+                    </div>
+                    {/* Flow diagram */}
+                    <div style={{ display:"flex", alignItems:"center", gap:6, flexWrap:"wrap", marginBottom:8 }}>
+                      <div style={{ background:C.bluePale, color:C.blueL, fontSize:11, fontWeight:700, padding:"4px 10px", borderRadius:6 }}>⚡ {a.trigger}</div>
+                      {a.actions.map((ac,j)=>(
+                        <div key={j} style={{ display:"flex", alignItems:"center", gap:6 }}>
+                          <span style={{ color:C.textDim, fontSize:12 }}>→</span>
+                          <div style={{ background:C.bg, border:`1px solid ${C.border}`, color:C.textMid, fontSize:11, padding:"4px 10px", borderRadius:6 }}>✓ {ac}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ display:"flex", gap:16 }}>
+                      <span style={{ color:C.textDim, fontSize:11 }}>Ran {a.runs} times</span>
+                      <span style={{ color:C.textDim, fontSize:11 }}>Last run: {a.last}</span>
+                    </div>
+                  </div>
+                  <div style={{ display:"flex", gap:6 }}>
+                    <button style={{ background:"transparent", border:`1px solid ${C.border}`, color:C.textMid, cursor:"pointer", padding:"5px 10px", borderRadius:6, fontSize:11, fontFamily:"inherit" }}>{a.status==="Active"?"Pause":"Resume"}</button>
+                    <button style={{ background:"transparent", border:`1px solid ${C.border}`, color:C.blueL, cursor:"pointer", padding:"5px 10px", borderRadius:6, fontSize:11, fontFamily:"inherit" }}>Edit</button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Templates */}
+        {tab==="templates" && (
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:14, paddingTop:16 }}>
+            {templates.map((t,i)=>(
+              <div key={i} className="card ch" style={{ padding:20 }}>
+                <div style={{ fontSize:28, marginBottom:12 }}>{t.icon}</div>
+                <div style={{ color:C.text, fontWeight:700, fontSize:14, marginBottom:6 }}>{t.name}</div>
+                <p style={{ color:C.textMid, fontSize:12, lineHeight:1.6, marginBottom:14 }}>{t.desc}</p>
+                <div style={{ display:"flex", gap:8, marginBottom:14 }}>
+                  <span className="chip" style={{ color:C.blueL, background:C.bluePale }}>{t.triggers} trigger{t.triggers>1?"s":""}</span>
+                  <span className="chip" style={{ color:C.purple, background:C.purpleL }}>{t.actions} actions</span>
+                </div>
+                <button onClick={()=>{setShowBuilder(true);setBuilderStep(0);}} style={{ width:"100%", background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"8px", borderRadius:7, fontSize:12, fontWeight:700, fontFamily:"inherit" }}>Use Template</button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Run history */}
+        {tab==="history" && (
+          <div className="card" style={{ overflow:"hidden", marginTop:0 }}>
+            <div style={{ display:"grid", gridTemplateColumns:"2fr 1fr 1fr 1fr", padding:"9px 16px", background:C.bg, borderBottom:`1px solid ${C.border}` }}>
+              {["Automation","Status","Duration","Ran At"].map(h=><div key={h} style={{ color:C.textDim, fontSize:10, fontWeight:700 }}>{h}</div>)}
+            </div>
+            {[
+              { name:"Audit Completed → Generate Report", status:"Success", dur:"4.2s", ran:"2h ago" },
+              { name:"New Backlink Quality Check", status:"Success", dur:"1.1s", ran:"3h ago" },
+              { name:"Monthly Client Report", status:"Success", dur:"12.4s", ran:"May 1" },
+              { name:"Keyword Drop Alert", status:"Success", dur:"0.8s", ran:"1d ago" },
+              { name:"Invoice Chase Sequence", status:"Failed", dur:"—", ran:"5d ago" },
+            ].map((r,i)=>(
+              <div key={i} className="td" style={{ display:"grid", gridTemplateColumns:"2fr 1fr 1fr 1fr", padding:"11px 16px", borderBottom:`1px solid ${C.border}`, alignItems:"center" }}>
+                <span style={{ color:C.text, fontSize:13 }}>{r.name}</span>
+                <span className="chip" style={{ color:r.status==="Success"?C.green:C.red, background:r.status==="Success"?C.greenL:C.redL }}>{r.status}</span>
+                <span style={{ color:C.textMid, fontSize:12 }}>{r.dur}</span>
+                <span style={{ color:C.textDim, fontSize:12 }}>{r.ran}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Automation Builder Modal */}
+      {showBuilder && (
+        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.45)", zIndex:500, display:"flex", alignItems:"center", justifyContent:"center" }} onClick={()=>setShowBuilder(false)}>
+          <div style={{ background:C.white, borderRadius:18, padding:"32px 36px", width:"90%", maxWidth:560, boxShadow:"0 20px 60px rgba(0,0,0,.2)" }} onClick={e=>e.stopPropagation()}>
+            {/* Progress */}
+            <div style={{ display:"flex", gap:6, marginBottom:20 }}>
+              {builderSteps.map((_,i)=>(
+                <div key={i} style={{ flex:1, height:5, borderRadius:3, background:i<=builderStep?C.blueL:C.border }}/>
+              ))}
+            </div>
+            <div className="sg" style={{ color:C.text, fontSize:18, fontWeight:800, marginBottom:4 }}>{builderSteps[builderStep].title}</div>
+            <div style={{ color:C.textDim, fontSize:13, marginBottom:18 }}>{builderSteps[builderStep].desc}</div>
+            {builderStep<3 ? (
+              <div style={{ display:"flex", flexDirection:"column", gap:8, marginBottom:24 }}>
+                {builderSteps[builderStep].options.map((opt,i)=>(
+                  <div key={i} className="hl" style={{ background:C.bg, border:`1px solid ${C.border}`, borderRadius:9, padding:"11px 14px", cursor:"pointer", color:C.text, fontSize:13 }}>
+                    {opt}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ marginBottom:24 }}>
+                <input placeholder="e.g. Monthly Client Report Builder" style={{ width:"100%", background:C.bg, border:`1px solid ${C.border}`, borderRadius:8, padding:"10px 14px", color:C.text, fontSize:13, fontFamily:"inherit", outline:"none" }}/>
+              </div>
+            )}
+            <div style={{ display:"flex", gap:10 }}>
+              <button onClick={()=>builderStep>0?setBuilderStep(s=>s-1):setShowBuilder(false)} style={{ flex:1, background:"transparent", border:`1px solid ${C.border}`, color:C.textMid, cursor:"pointer", padding:"10px", borderRadius:9, fontSize:13, fontFamily:"inherit" }}>{builderStep>0?"Back":"Cancel"}</button>
+              <button onClick={()=>builderStep<3?setBuilderStep(s=>s+1):setShowBuilder(false)} style={{ flex:2, background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"10px", borderRadius:9, fontSize:13, fontWeight:700, fontFamily:"inherit" }}>{builderStep<3?"Continue →":"✓ Activate Automation"}</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── File & Document Management ───────────────────────────────────
+function FileManager() {
+  const [folder, setFolder] = useState("all");
+  const [view, setViewMode] = useState("list");
+  const files = [
+    { name:"Dental Pro — SEO Report May 2026.pdf", type:"PDF", size:"2.4 MB", client:"Dental Pro", date:"May 1", folder:"reports", icon:"📄" },
+    { name:"LegalEdge Audit Findings Q1.pdf",       type:"PDF", size:"1.8 MB", client:"LegalEdge", date:"Apr 5", folder:"reports", icon:"📄" },
+    { name:"SEO Engine Boost Contract 2026.docx",   type:"DOCX", size:"480 KB", client:"Internal", date:"Jan 12", folder:"contracts", icon:"📝" },
+    { name:"FitLife Proposal — Pro Package.pdf",    type:"PDF", size:"3.1 MB", client:"FitLife", date:"Mar 28", folder:"proposals", icon:"📋" },
+    { name:"Google Analytics Credentials.txt",     type:"TXT", size:"2 KB",   client:"Internal", date:"Feb 3", folder:"credentials", icon:"🔑" },
+    { name:"TechFlow Campaign Assets.zip",          type:"ZIP", size:"24 MB",  client:"TechFlow", date:"Apr 15", folder:"assets", icon:"📦" },
+    { name:"Keyword Research — May 2026.xlsx",      type:"XLSX", size:"890 KB", client:"Internal", date:"May 2", folder:"reports", icon:"📊" },
+    { name:"Client Onboarding Checklist.docx",      type:"DOCX", size:"120 KB", client:"Internal", date:"Mar 1", folder:"templates", icon:"✅" },
+  ];
+  const folders = [
+    { id:"all",         label:"All Files",   count:files.length,     icon:"📁" },
+    { id:"reports",     label:"Reports",     count:files.filter(f=>f.folder==="reports").length,     icon:"📊" },
+    { id:"contracts",   label:"Contracts",   count:files.filter(f=>f.folder==="contracts").length,   icon:"📝" },
+    { id:"proposals",   label:"Proposals",   count:files.filter(f=>f.folder==="proposals").length,   icon:"📋" },
+    { id:"credentials", label:"Credentials", count:files.filter(f=>f.folder==="credentials").length, icon:"🔑" },
+    { id:"assets",      label:"Assets",      count:files.filter(f=>f.folder==="assets").length,      icon:"📦" },
+    { id:"templates",   label:"Templates",   count:files.filter(f=>f.folder==="templates").length,   icon:"⚙️" },
+  ];
+  const displayed = folder==="all" ? files : files.filter(f=>f.folder===folder);
+  const typeCol = t => t==="PDF"?C.red:t==="DOCX"?C.blueL:t==="XLSX"?C.green:t==="ZIP"?C.orange:C.textDim;
+
+  return (
+    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", background:C.bg }}>
+      <div style={{ display:"flex", height:"100%" }}>
+        {/* Left folder nav */}
+        <div style={{ width:200, background:C.white, borderRight:`1px solid ${C.border}`, padding:"16px 10px", flexShrink:0 }}>
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12, padding:"0 6px" }}>
+            <span className="sg" style={{ color:C.text, fontWeight:700, fontSize:13 }}>Files</span>
+            <button style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", width:22, height:22, borderRadius:5, display:"flex", alignItems:"center", justifyContent:"center" }}><Plus size={11}/></button>
+          </div>
+          {folders.map(f=>(
+            <button key={f.id} onClick={()=>setFolder(f.id)} style={{ display:"flex", alignItems:"center", gap:8, width:"100%", padding:"8px 10px", borderRadius:7, border:"none", cursor:"pointer", background:folder===f.id?C.bluePale:"transparent", color:folder===f.id?C.blueL:C.textMid, fontSize:12, fontFamily:"inherit", fontWeight:folder===f.id?700:400, marginBottom:2, textAlign:"left" }}>
+              <span>{f.icon}</span>
+              <span style={{ flex:1 }}>{f.label}</span>
+              <span style={{ background:folder===f.id?C.blueL:C.bg, color:folder===f.id?"#fff":C.textDim, fontSize:9, fontWeight:700, padding:"1px 6px", borderRadius:10 }}>{f.count}</span>
+            </button>
+          ))}
+          {/* Storage usage */}
+          <div style={{ marginTop:20, padding:"10px 10px", background:C.bg, borderRadius:9 }}>
+            <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
+              <span style={{ color:C.textDim, fontSize:10 }}>Storage used</span>
+              <span style={{ color:C.textDim, fontSize:10 }}>3.2 / 5 GB</span>
+            </div>
+            <ProgBar v={64} col={C.blueL} h={5}/>
+            <div style={{ color:C.textDim, fontSize:10, marginTop:4 }}>1.8 GB remaining</div>
+          </div>
+        </div>
+
+        {/* Main content */}
+        <div style={{ flex:1, padding:"16px 20px", overflowY:"auto" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:16 }}>
+            <div style={{ flex:1, display:"flex", alignItems:"center", gap:8, background:C.white, border:`1px solid ${C.border}`, borderRadius:8, padding:"8px 12px" }}>
+              <Search size={13} color={C.textDim}/>
+              <input placeholder="Search files..." style={{ background:"transparent", border:"none", outline:"none", color:C.text, fontSize:13, fontFamily:"inherit", flex:1 }}/>
+            </div>
+            <button style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"9px 18px", borderRadius:8, fontSize:13, fontWeight:700, fontFamily:"inherit", display:"flex", alignItems:"center", gap:5 }}>
+              <Upload size={13}/> Upload
+            </button>
+          </div>
+          <div className="card" style={{ overflow:"hidden" }}>
+            <div style={{ display:"grid", gridTemplateColumns:"2fr 100px 120px 140px 120px 100px", padding:"9px 16px", background:C.bg, borderBottom:`1px solid ${C.border}` }}>
+              {["Name","Type","Size","Client","Date",""].map(h=><div key={h} style={{ color:C.textDim, fontSize:10, fontWeight:700 }}>{h}</div>)}
+            </div>
+            {displayed.map((f,i)=>(
+              <div key={i} className="td" style={{ display:"grid", gridTemplateColumns:"2fr 100px 120px 140px 120px 100px", padding:"11px 16px", borderBottom:`1px solid ${C.border}`, alignItems:"center" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                  <span style={{ fontSize:16 }}>{f.icon}</span>
+                  <span style={{ color:C.text, fontSize:13, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{f.name}</span>
+                </div>
+                <span className="chip" style={{ color:typeCol(f.type), background:`${typeCol(f.type)}18` }}>{f.type}</span>
+                <span style={{ color:C.textMid, fontSize:12 }}>{f.size}</span>
+                <span style={{ color:C.textMid, fontSize:12 }}>{f.client}</span>
+                <span style={{ color:C.textDim, fontSize:12 }}>{f.date}</span>
+                <div style={{ display:"flex", gap:4 }}>
+                  <button style={{ background:"transparent", border:`1px solid ${C.border}`, color:C.blueL, cursor:"pointer", padding:"4px 8px", borderRadius:5, fontSize:10, fontFamily:"inherit" }}>↓</button>
+                  <button style={{ background:"transparent", border:`1px solid ${C.border}`, color:C.textMid, cursor:"pointer", padding:"4px 8px", borderRadius:5, fontSize:10, fontFamily:"inherit" }}>⋯</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  ENTERPRISE QUALITY LAYER
+//  Toast · CommandPalette · SearchOverlay · QuickStart · ActivityLog
+// ════════════════════════════════════════════════════════════════════
+
+// ── Toast Notification System ─────────────────────────────────────
+function ToastContainer({ toasts, removeToast }) {
+  return (
+    <div style={{ position:"fixed", bottom:24, right:24, zIndex:9999, display:"flex", flexDirection:"column-reverse", gap:8, pointerEvents:"none" }}>
+      {toasts.map(t => (
+        <div key={t.id} className="fade" style={{ background:t.type==="success"?C.green:t.type==="error"?C.red:t.type==="warn"?C.orange:C.text, color:"#fff", borderRadius:10, padding:"11px 18px", fontSize:13, fontWeight:600, display:"flex", alignItems:"center", gap:10, boxShadow:"0 4px 20px rgba(0,0,0,.18)", pointerEvents:"all", maxWidth:340, minWidth:220 }}>
+          <span style={{ fontSize:16 }}>{t.type==="success"?"✓":t.type==="error"?"✗":t.type==="warn"?"⚠":"ℹ"}</span>
+          <span style={{ flex:1, lineHeight:1.4 }}>{t.msg}</span>
+          <button onClick={()=>removeToast(t.id)} style={{ background:"rgba(255,255,255,.2)", border:"none", cursor:"pointer", width:20, height:20, borderRadius:4, color:"#fff", fontSize:14, display:"flex", alignItems:"center", justifyContent:"center" }}>×</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Command Palette (⌘K) ──────────────────────────────────────────
+function CommandPalette({ onClose, onNavigate, screens }) {
+  const [q, setQ] = useState("");
+  const ref = useRef(null);
+
+  useEffect(() => { ref.current?.focus(); }, []);
+
+  const items = [
+    { label:"SEO Dashboard",       id:"crawl",          icon:"🏠", section:"Navigate" },
+    { label:"Site Audit",          id:"siteaudit",      icon:"🔍", section:"Navigate" },
+    { label:"Keyword Research",    id:"keyword",        icon:"🔑", section:"Navigate" },
+    { label:"Rank Tracking",       id:"rank",           icon:"📈", section:"Navigate" },
+    { label:"Backlink Research",   id:"backlink",       icon:"🔗", section:"Navigate" },
+    { label:"Competitive Research",id:"competitive",    icon:"⚔️", section:"Navigate" },
+    { label:"Content Lab",         id:"contentlab",     icon:"✍️", section:"Navigate" },
+    { label:"AI Suggestions",      id:"aisuggestions",  icon:"⚡", section:"Navigate" },
+    { label:"Reports",             id:"reports",        icon:"📊", section:"Navigate" },
+    { label:"Clients",             id:"clients",        icon:"👥", section:"Navigate" },
+    { label:"Tasks",               id:"tasks",          icon:"✅", section:"Navigate" },
+    { label:"Messages",            id:"messages",       icon:"💬", section:"Navigate" },
+    { label:"Automations",         id:"automations",    icon:"🤖", section:"Navigate" },
+    { label:"File Manager",        id:"files",          icon:"📁", section:"Navigate" },
+    { label:"Settings",            id:"settings",       icon:"⚙️", section:"Navigate" },
+    { label:"Run New Site Audit",  id:"siteaudit",      icon:"🚀", section:"Quick Actions" },
+    { label:"Add New Keyword",     id:"keyword",        icon:"➕", section:"Quick Actions" },
+    { label:"Create Report",       id:"reports",        icon:"📄", section:"Quick Actions" },
+    { label:"Invite Team Member",  id:"team",           icon:"👤", section:"Quick Actions" },
+    { label:"Schedule Meeting",    id:"calendar",       icon:"📅", section:"Quick Actions" },
+    { label:"Create Invoice",      id:"clients",        icon:"💳", section:"Quick Actions" },
+  ];
+
+  const filtered = q.trim()
+    ? items.filter(i => i.label.toLowerCase().includes(q.toLowerCase()))
+    : items;
+
+  const sections = [...new Set(filtered.map(i => i.section))];
+
+  return (
+    <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.55)", zIndex:2000, display:"flex", alignItems:"flex-start", justifyContent:"center", paddingTop:"14vh" }} onClick={onClose}>
+      <div style={{ background:C.white, borderRadius:16, width:560, maxHeight:480, overflow:"hidden", boxShadow:"0 24px 80px rgba(0,0,0,.25)", display:"flex", flexDirection:"column" }} onClick={e=>e.stopPropagation()}>
+        {/* Search input */}
+        <div style={{ padding:"14px 18px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:10 }}>
+          <Search size={16} color={C.textDim}/>
+          <input ref={ref} value={q} onChange={e=>setQ(e.target.value)} placeholder="Search or navigate anywhere..." style={{ flex:1, border:"none", outline:"none", fontSize:14, color:C.text, fontFamily:"inherit", background:"transparent" }}
+            onKeyDown={e=>{ if(e.key==="Escape") onClose(); if(e.key==="Enter"&&filtered[0]){ onNavigate(filtered[0].id); onClose(); }}}/>
+          <kbd style={{ background:C.bg, border:`1px solid ${C.border}`, borderRadius:5, padding:"2px 7px", fontSize:11, color:C.textDim }}>ESC</kbd>
+        </div>
+        {/* Results */}
+        <div style={{ overflowY:"auto", flex:1 }}>
+          {sections.map(section => (
+            <div key={section}>
+              <div style={{ padding:"10px 18px 4px", color:C.textDim, fontSize:10, fontWeight:700, letterSpacing:1.2, textTransform:"uppercase" }}>{section}</div>
+              {filtered.filter(i=>i.section===section).map((item,idx) => (
+                <div key={idx} onClick={()=>{ onNavigate(item.id); onClose(); }} className="hl" style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 18px", cursor:"pointer" }}>
+                  <span style={{ fontSize:18, width:24, textAlign:"center" }}>{item.icon}</span>
+                  <span style={{ color:C.text, fontSize:13, flex:1 }}>{item.label}</span>
+                  <kbd style={{ background:C.bg, border:`1px solid ${C.border}`, borderRadius:4, padding:"1px 6px", fontSize:10, color:C.textDim }}>↵</kbd>
+                </div>
+              ))}
+            </div>
+          ))}
+          {filtered.length===0 && (
+            <div style={{ padding:"32px", textAlign:"center", color:C.textDim }}>
+              <div style={{ fontSize:32, marginBottom:8 }}>🔍</div>
+              <div style={{ fontSize:13 }}>No results for "{q}"</div>
+            </div>
+          )}
+        </div>
+        <div style={{ padding:"10px 18px", borderTop:`1px solid ${C.border}`, display:"flex", gap:16, background:C.bg }}>
+          <span style={{ color:C.textDim, fontSize:11 }}>↑↓ Navigate</span>
+          <span style={{ color:C.textDim, fontSize:11 }}>↵ Open</span>
+          <span style={{ color:C.textDim, fontSize:11 }}>ESC Close</span>
+          <span style={{ marginLeft:"auto", color:C.textDim, fontSize:11 }}>Tip: Use ⌘K / Ctrl+K to open</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Quick Start Guide ─────────────────────────────────────────────
+function QuickStartGuide({ onNavigate, onClose }) {
+  const [done, setDone] = useState([]);
+  const steps = [
+    { id:"project",  icon:"🏗", title:"Create your first project",          desc:"Add your domain to start tracking",        action:"crawl",    time:"1 min" },
+    { id:"audit",    icon:"🔍", title:"Run a site audit",                   desc:"Find and fix all technical SEO issues",    action:"siteaudit",time:"2 min" },
+    { id:"keywords", icon:"🔑", title:"Add keywords to track",              desc:"Monitor your ranking positions daily",     action:"rank",     time:"1 min" },
+    { id:"team",     icon:"👤", title:"Invite your first team member",      desc:"Collaborate inside the platform",          action:"team",     time:"30 sec" },
+    { id:"client",   icon:"👥", title:"Add your first client",              desc:"Set up client portal and reporting",       action:"clients",  time:"2 min" },
+    { id:"report",   icon:"📊", title:"Generate your first AI report",      desc:"Branded report ready to send to clients", action:"reports",  time:"1 min" },
+    { id:"automate", icon:"⚡", title:"Set up an automation",               desc:"Replace manual work with AI workflows",    action:"automations",time:"2 min" },
+  ];
+  const pct = Math.round((done.length/steps.length)*100);
+
+  return (
+    <div style={{ position:"fixed", bottom:80, right:24, width:340, background:C.white, borderRadius:16, boxShadow:"0 12px 40px rgba(0,0,0,.18)", border:`1px solid ${C.border}`, zIndex:500, overflow:"hidden" }}>
+      {/* Header */}
+      <div style={{ background:`linear-gradient(135deg,${C.blue},${C.blueL})`, padding:"16px 18px" }}>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+          <div className="sg" style={{ color:"#fff", fontWeight:800, fontSize:14 }}>🚀 Quick Start</div>
+          <button onClick={onClose} style={{ background:"rgba(255,255,255,.15)", border:"none", cursor:"pointer", width:24, height:24, borderRadius:6, color:"#fff", fontSize:14 }}>×</button>
+        </div>
+        <div style={{ background:"rgba(255,255,255,.2)", borderRadius:6, height:6, marginBottom:6 }}>
+          <div style={{ width:`${pct}%`, height:"100%", background:"#fff", borderRadius:6, transition:"width .3s" }}/>
+        </div>
+        <div style={{ color:"rgba(255,255,255,.8)", fontSize:11 }}>{done.length}/{steps.length} completed · {pct}% setup done</div>
+      </div>
+      {/* Steps */}
+      <div style={{ maxHeight:320, overflowY:"auto" }}>
+        {steps.map(s => {
+          const isDone = done.includes(s.id);
+          return (
+            <div key={s.id} className="hl" style={{ display:"flex", alignItems:"center", gap:12, padding:"11px 14px", borderBottom:`1px solid ${C.border}`, cursor:"pointer", background:isDone?C.greenL+"40":"transparent" }}
+              onClick={()=>{ if(!isDone) setDone(d=>[...d,s.id]); onNavigate(s.action); }}>
+              <div style={{ width:32, height:32, borderRadius:8, background:isDone?C.greenL:C.bg, border:`2px solid ${isDone?C.green:C.border}`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                {isDone ? <CheckCircle2 size={14} color={C.green}/> : <span style={{ fontSize:14 }}>{s.icon}</span>}
+              </div>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ color:isDone?C.textDim:C.text, fontWeight:isDone?400:600, fontSize:12, marginBottom:1, textDecoration:isDone?"line-through":"none" }}>{s.title}</div>
+                <div style={{ color:C.textDim, fontSize:10 }}>{s.desc}</div>
+              </div>
+              <span style={{ color:C.textDim, fontSize:10, flexShrink:0 }}>{s.time}</span>
+            </div>
+          );
+        })}
+      </div>
+      {pct===100 && (
+        <div style={{ padding:"12px 16px", background:C.greenL, textAlign:"center" }}>
+          <div style={{ color:C.green, fontWeight:700, fontSize:13 }}>🎉 Setup complete! You're ready to launch.</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Activity Log Screen ───────────────────────────────────────────
+function ActivityLog() {
+  const [filter, setFilter] = useState("all");
+  const activities = [
+    { user:"You",          action:"Generated AI SEO Report",           resource:"Dental Pro",          type:"ai",      time:"2 min ago",  icon:"⚡" },
+    { user:"Mahmoud",      action:"Completed keyword audit",            resource:"TechFlow",            type:"seo",     time:"14 min ago", icon:"🔑" },
+    { user:"AI Copilot",   action:"Fixed 3 broken internal links",     resource:"seoengineboost.com",  type:"ai",      time:"1h ago",     icon:"🤖" },
+    { user:"Aisha",        action:"Created 4 tasks",                   resource:"May Campaign",        type:"task",    time:"2h ago",     icon:"✅" },
+    { user:"You",          action:"Sent invoice INV-2026-043",          resource:"TechFlow Agency",     type:"billing", time:"3h ago",     icon:"💳" },
+    { user:"Sam",          action:"Published blog post",               resource:"Dental Client",       type:"content", time:"4h ago",     icon:"📝" },
+    { user:"Jordan",       action:"Approved client report",            resource:"LegalEdge Q1 Report", type:"approval",time:"5h ago",     icon:"✓" },
+    { user:"You",          action:"Ran site audit",                    resource:"dentalpro.com",       type:"seo",     time:"Yesterday",  icon:"🔍" },
+    { user:"AI Copilot",   action:"Generated monthly report",          resource:"All clients",         type:"ai",      time:"Yesterday",  icon:"📊" },
+    { user:"Mahmoud",      action:"Added 12 new keywords",             resource:"FitLife Studio",      type:"seo",     time:"2d ago",     icon:"🔑" },
+    { user:"System",       action:"Automation triggered: Invoice Chase", resource:"LegalEdge",         type:"auto",    time:"2d ago",     icon:"⚡" },
+    { user:"You",          action:"Upgraded plan to Pro",              resource:"Billing",             type:"billing", time:"3d ago",     icon:"💎" },
+  ];
+  const types = [["all","All"],["ai","AI Actions"],["seo","SEO"],["task","Tasks"],["billing","Billing"],["auto","Automations"],["approval","Approvals"]];
+  const typeCol = t => ({ai:C.purple,seo:C.blueL,task:C.green,billing:C.orange,auto:C.blueL,approval:C.green,content:C.yellow})[t]||C.textDim;
+  const filtered = filter==="all" ? activities : activities.filter(a=>a.type===filter);
+  return (
+    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", background:C.bg, padding:"20px 24px" }}>
+      <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:20 }}>
+        <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+          {types.map(([id,label])=>(
+            <button key={id} onClick={()=>setFilter(id)} style={{ background:filter===id?C.blueL:"transparent", color:filter===id?"#fff":C.textMid, border:`1px solid ${filter===id?C.blueL:C.border}`, cursor:"pointer", padding:"6px 14px", borderRadius:20, fontSize:12, fontFamily:"inherit" }}>{label}</button>
+          ))}
+        </div>
+        <button style={{ marginLeft:"auto", background:"transparent", border:`1px solid ${C.border}`, color:C.textMid, cursor:"pointer", padding:"7px 14px", borderRadius:7, fontSize:12, fontFamily:"inherit" }}>Export Log ↓</button>
+      </div>
+      <div className="card" style={{ overflow:"hidden" }}>
+        {filtered.map((a,i)=>(
+          <div key={i} className="td" style={{ display:"flex", alignItems:"center", gap:14, padding:"13px 18px", borderBottom:i<filtered.length-1?`1px solid ${C.border}`:"none" }}>
+            <div style={{ width:36, height:36, borderRadius:10, background:`${typeCol(a.type)}18`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, fontSize:16 }}>{a.icon}</div>
+            <div style={{ flex:1 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:3 }}>
+                <span style={{ color:C.text, fontWeight:700, fontSize:13 }}>{a.user}</span>
+                <span style={{ color:C.textMid, fontSize:13 }}>{a.action}</span>
+              </div>
+              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                <span style={{ color:C.blueL, fontSize:11, fontWeight:600 }}>{a.resource}</span>
+                <span className="chip" style={{ color:typeCol(a.type), background:`${typeCol(a.type)}18`, fontSize:9 }}>{a.type.toUpperCase()}</span>
+              </div>
+            </div>
+            <span style={{ color:C.textDim, fontSize:11, flexShrink:0 }}>{a.time}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Notifications Full Screen ─────────────────────────────────────
+function NotificationsScreen() {
+  const [filter, setFilter] = useState("all");
+  const [readAll, setReadAll] = useState(false);
+  const notifs = [
+    { icon:CheckCircle2, c:C.green,  title:"Audit complete",             body:"Site audit for dentalpro.com found 18 issues. View report.", time:"2m ago",  unread:true,  type:"audit" },
+    { icon:TrendingUp,   c:C.blueL,  title:"Keyword moved to #3",         body:"'seo tools 2026' moved from #7 to #3 this week.",           time:"14m ago", unread:true,  type:"rank" },
+    { icon:MessageSquare,c:C.orange, title:"Mahmoud mentioned you",       body:"In #seo-team: '@You, can you check the TechFlow audit?'",   time:"1h ago",  unread:true,  type:"chat" },
+    { icon:AlertCircle,  c:C.red,    title:"AI credits running low",      body:"You have 2/10 AI credits remaining this month.",            time:"2h ago",  unread:true,  type:"billing" },
+    { icon:Bot,          c:C.purple, title:"AI report ready",             body:"Monthly SEO report for Dental Pro is ready to download.",   time:"3h ago",  unread:false, type:"ai" },
+    { icon:BarChart2,    c:C.green,  title:"Traffic up 18% this week",    body:"Organic traffic for seoengineboost.com hit a new high.",    time:"5h ago",  unread:false, type:"analytics" },
+    { icon:AlertCircle,  c:C.orange, title:"Invoice overdue",             body:"Invoice INV-2026-040 for LegalEdge is 7 days overdue.",     time:"Yesterday",unread:false,type:"billing" },
+    { icon:Users,        c:C.blueL,  title:"Sam joined your workspace",   body:"Sam Chen accepted your invitation and joined the team.",    time:"2d ago",  unread:false, type:"team" },
+  ];
+  const filtered = filter==="all" ? notifs : filter==="unread" ? notifs.filter(n=>n.unread) : notifs.filter(n=>n.type===filter);
+  const unreadCount = notifs.filter(n=>n.unread).length;
+
+  return (
+    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", background:C.bg, padding:"20px 24px" }}>
+      <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:20 }}>
+        <div style={{ display:"flex", gap:6 }}>
+          {[["all","All"],["unread",`Unread (${unreadCount})`],["audit","Audits"],["rank","Rankings"],["chat","Chat"],["billing","Billing"],["ai","AI"]].map(([id,label])=>(
+            <button key={id} onClick={()=>setFilter(id)} style={{ background:filter===id?C.blueL:"transparent", color:filter===id?"#fff":C.textMid, border:`1px solid ${filter===id?C.blueL:C.border}`, cursor:"pointer", padding:"6px 14px", borderRadius:20, fontSize:12, fontFamily:"inherit" }}>{label}</button>
+          ))}
+        </div>
+        <button onClick={()=>setReadAll(true)} style={{ marginLeft:"auto", background:"transparent", border:`1px solid ${C.border}`, color:C.blueL, cursor:"pointer", padding:"7px 14px", borderRadius:7, fontSize:12, fontFamily:"inherit" }}>Mark all read</button>
+      </div>
+      <div className="card" style={{ overflow:"hidden" }}>
+        {filtered.map((n,i)=>(
+          <div key={i} className="td" style={{ display:"flex", alignItems:"flex-start", gap:14, padding:"14px 18px", borderBottom:i<filtered.length-1?`1px solid ${C.border}`:"none", background:n.unread&&!readAll?`${n.c}06`:"transparent" }}>
+            {n.unread&&!readAll && <div style={{ width:7, height:7, borderRadius:"50%", background:C.blueL, marginTop:5, flexShrink:0 }}/>}
+            {(!n.unread||readAll) && <div style={{ width:7, height:7, flexShrink:0 }}/>}
+            <div style={{ width:36, height:36, borderRadius:10, background:`${n.c}18`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+              <n.icon size={16} color={n.c}/>
+            </div>
+            <div style={{ flex:1 }}>
+              <div style={{ color:C.text, fontWeight:n.unread&&!readAll?700:600, fontSize:13, marginBottom:3 }}>{n.title}</div>
+              <div style={{ color:C.textMid, fontSize:12, lineHeight:1.5 }}>{n.body}</div>
+            </div>
+            <div style={{ flexShrink:0, textAlign:"right" }}>
+              <div style={{ color:C.textDim, fontSize:11, marginBottom:4 }}>{n.time}</div>
+              <button style={{ background:"transparent", border:`1px solid ${C.border}`, color:C.blueL, cursor:"pointer", padding:"3px 8px", borderRadius:5, fontSize:10, fontFamily:"inherit" }}>View</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Updated SCREENS Map (with all screens including new sub-screens) ────
 const SCREENS = {
   crawl:               { C: CrawlDashboard,          title: "Dashboard",               sub: "Welcome to Boostly — your SEO command center" },
@@ -4599,6 +5613,10 @@ const SCREENS = {
   paymentlogs:         { C: PaymentLogs,             title: "Payment Logs",            sub: "Transaction history, filters & subscription status" },
   nlpanalytics:        { C: NLPAnalytics,            title: "NLP Analytics",           sub: "Keywords, AI articles & most active users" },
   pushnotifications:   { C: PushNotifications,       title: "Push Notifications",      sub: "Broadcast messages to all or targeted users" },
+  automations:         { C: AutomationWorkflows,    title: "Automation Workflows",    sub: "Set once, run forever — replace manual work with sequences" },
+  files:               { C: FileManager,             title: "File Manager",            sub: "Reports, contracts, proposals, credentials — all in one place" },
+  notifications:       { C: NotificationsScreen,     title: "Notifications",           sub: "All alerts, mentions, updates and action items" },
+  activitylog:         { C: ActivityLog,              title: "Activity Log",            sub: "Complete audit trail of all platform actions" },
 };
 
 // ── Updated Sidebar with backlink-gap sub ─────────────────────────────
@@ -4633,18 +5651,23 @@ function SidebarFull({ active, setActive, sub, setSub, openAI, setOpenAI }) {
     { id:"calendar",     icon:Calendar,  label:"Campaign Planner" },
   ];
   const teamNav = [
-    { id:"messages",  icon:MessageSquare, label:"Messages", badge:17 },
-    { id:"tasks",     icon:CheckSquare,   label:"Project Tasks" },
-    { id:"clients",   icon:Briefcase,     label:"Clients" },
-    { id:"team",      icon:Users,         label:"Team Members" },
-    { id:"dashboard", icon:BarChart2,     label:"Analytics" },
+    { id:"messages",       icon:MessageSquare, label:"Messages", badge:17 },
+    { id:"tasks",          icon:CheckSquare,   label:"Project Tasks" },
+    { id:"clients",        icon:Briefcase,     label:"Clients" },
+    { id:"team",           icon:Users,         label:"Team Members" },
+    { id:"calendar",       icon:Calendar,      label:"Campaign Planner" },
+    { id:"dashboard",      icon:BarChart2,     label:"Analytics Overview" },
+    { id:"notifications",  icon:Bell,          label:"Notifications", badge:4 },
+    { id:"activitylog",    icon:Activity,      label:"Activity Log" },
   ];
   const adminNav = [
-    { id:"admin",             icon:Shield,  label:"Admin Dashboard" },
-    { id:"usermanagement",    icon:Users,   label:"User Management" },
-    { id:"paymentlogs",       icon:BarChart,label:"Payment Logs" },
-    { id:"nlpanalytics",      icon:Activity,label:"NLP Analytics" },
-    { id:"pushnotifications", icon:Bell,    label:"Push Notifications" },
+    { id:"admin",             icon:Shield,      label:"Admin Dashboard" },
+    { id:"usermanagement",    icon:Users,       label:"User Management" },
+    { id:"paymentlogs",       icon:BarChart,    label:"Payment Logs" },
+    { id:"nlpanalytics",      icon:Activity,    label:"NLP Analytics" },
+    { id:"pushnotifications", icon:Bell,        label:"Push Notifications" },
+    { id:"automations",       icon:Workflow,    label:"Automations", badge:"NEW" },
+    { id:"files",             icon:Paperclip,   label:"File Manager" },
   ];
 
   const NavItem = ({ id, icon: Icon, label, badge, subs }) => (
@@ -4751,22 +5774,49 @@ function SidebarFull({ active, setActive, sub, setSub, openAI, setOpenAI }) {
 export default function App() {
   const [active, setActive] = useState("crawl");
   const [sub, setSub] = useState(null);
-  const [view, setView] = useState("app");
+  const [view, setView] = useState("onboarding"); // onboarding|login|signup|premiumSuccess|app|pricing
   const [aiOpen, setAiOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [plan, setPlan] = useState("free");
   const [upgradeModal, setUpgradeModal] = useState(null);
+  const [toasts, setToasts] = useState([]);
+  const [cmdOpen, setCmdOpen] = useState(false);
+  const [quickStart, setQuickStart] = useState(true);
+  const [userMenu, setUserMenu] = useState(false);
+
+  const addToast = (msg, type="info") => {
+    const id = Date.now();
+    setToasts(t => [...t, {id, msg, type}]);
+    setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 4000);
+  };
+  const removeToast = (id) => setToasts(t => t.filter(x => x.id !== id));
+
+  // ⌘K / Ctrl+K keyboard shortcut
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); setCmdOpen(prev => !prev); }
+      if (e.key === 'Escape') { setCmdOpen(false); setUserMenu(false); }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
 
   // Sub-routing: when competitive is active and a sub is selected, use that sub as the screen key
   const screenKey = (active === "competitive" && sub) ? sub : active;
   const screen = SCREENS[screenKey] || SCREENS.crawl;
   const Screen = screen.C;
 
+  // ── Auth / onboarding flow ──
+  if (view === "onboarding") return <><style>{CSS}</style><OnboardingScreen onDone={() => setView("login")}/></>;
+  if (view === "login")      return <><style>{CSS}</style><LoginScreen onLogin={() => setView("app")} onSignup={() => setView("signup")}/></>;
+  if (view === "signup")     return <><style>{CSS}</style><SignupScreen onSignup={() => setView("app")} onLogin={() => setView("login")}/></>;
+  if (view === "premiumSuccess") return <><style>{CSS}</style><PremiumSuccessScreen onContinue={() => { setView("app"); setPlan("pro"); }}/></>;
+
   if (view === "pricing") {
     return (
       <>
         <style>{CSS}</style>
-        <PricingPage goBack={() => setView("app")} currentPlan={plan} onSelectPlan={setPlan} />
+        <PricingPage goBack={() => setView("app")} currentPlan={plan} onSelectPlan={(p) => { setPlan(p); if(p!=="free") setView("premiumSuccess"); else setView("app"); }} />
       </>
     );
   }
@@ -4790,9 +5840,15 @@ export default function App() {
               <h1 className="sg" style={{color:C.text,fontSize:15,fontWeight:700,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{screen.title}</h1>
               <p style={{color:C.textDim,fontSize:10.5}}>{screen.sub}</p>
             </div>
-            <div style={{display:"flex",alignItems:"center",gap:6,background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,padding:"6px 10px",width:180,flexShrink:0}}>
+            <button onClick={()=>setCmdOpen(true)} style={{display:"flex",alignItems:"center",gap:6,background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,padding:"6px 12px",width:180,flexShrink:0,cursor:"pointer",fontFamily:"inherit"}}>
               <Search size={12} color={C.textDim}/>
-              <input placeholder="Search anything..." style={{background:"transparent",border:"none",outline:"none",color:C.textMid,fontSize:12,width:"100%",fontFamily:"inherit"}}/>
+              <span style={{color:C.textDim,fontSize:12,flex:1,textAlign:"left"}}>Search anything...</span>
+              <kbd style={{background:C.border,borderRadius:3,padding:"1px 5px",fontSize:9,color:C.textDim}}>⌘K</kbd>
+            </button>
+            <PlanBadge plan={plan} onClick={() => setView("pricing")}/>
+            <div style={{display:"flex",alignItems:"center",gap:5,background:USAGE.credits.used/USAGE.credits.limit>=0.8?C.redL:C.bg,border:`1px solid ${USAGE.credits.used/USAGE.credits.limit>=0.8?C.red:C.border}`,borderRadius:7,padding:"5px 10px",cursor:"pointer",flexShrink:0}} onClick={()=>setUpgradeModal("credits")}>
+              <span style={{fontSize:13}}>⚡</span>
+              <span style={{color:USAGE.credits.used/USAGE.credits.limit>=0.8?C.red:C.textMid,fontSize:11,fontWeight:700}}>{USAGE.credits.used}/{USAGE.credits.limit} credits</span>
             </div>
             <button onClick={() => setView("pricing")} style={{background:C.orange,color:"#fff",border:"none",cursor:"pointer",display:"flex",alignItems:"center",gap:5,padding:"7px 13px",borderRadius:8,fontSize:12,fontWeight:700,fontFamily:"inherit",flexShrink:0}}>
               ⚡ Upgrade
@@ -4824,14 +5880,53 @@ export default function App() {
                 ))}
               </div>
             )}
-            <Av l="Y" size={30}/>
+            {/* ⌘K shortcut button */}
+            <button onClick={()=>setCmdOpen(true)} style={{background:C.bg,border:`1px solid ${C.border}`,color:C.textDim,cursor:"pointer",padding:"5px 10px",borderRadius:7,fontSize:11,fontFamily:"inherit",display:"flex",alignItems:"center",gap:5,flexShrink:0}}>
+              <Search size={11}/> Search<kbd style={{background:C.border,borderRadius:3,padding:"1px 5px",fontSize:9,marginLeft:2}}>⌘K</kbd>
+            </button>
+            {/* User menu */}
+            <div style={{position:"relative"}}>
+              <div onClick={()=>setUserMenu(!userMenu)} style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer",padding:"4px 8px",borderRadius:9,background:userMenu?C.bluePale:"transparent"}}>
+                <Av l="Y" size={30}/>
+                <div style={{display:"none"}}><!-- user --></div>
+                <ChevronDown size={11} color={C.textDim}/>
+              </div>
+              {userMenu && (
+                <div style={{position:"absolute",top:44,right:0,width:200,background:C.white,border:`1px solid ${C.border}`,borderRadius:12,boxShadow:"0 8px 30px rgba(0,0,0,.12)",zIndex:100,overflow:"hidden"}} onClick={()=>setUserMenu(false)}>
+                  <div style={{padding:"12px 14px",borderBottom:`1px solid ${C.border}`}}>
+                    <div style={{color:C.text,fontWeight:700,fontSize:13}}>Your Account</div>
+                    <div style={{color:C.textDim,fontSize:11}}>admin@boostly.app</div>
+                    <PlanBadge plan={plan} onClick={()=>setView("pricing")}/>
+                  </div>
+                  {[
+                    {icon:Users,   label:"Profile & Settings", action:()=>setActive("settings")},
+                    {icon:BarChart2,label:"Billing & Plan",    action:()=>{setActive("settings");}},
+                    {icon:Bell,    label:"Notifications (4)",  action:()=>setActive("notifications")},
+                    {icon:Activity,label:"Activity Log",       action:()=>setActive("activitylog")},
+                    {icon:HelpCircle,label:"Help & Docs",       action:()=>{}},
+                    {icon:LogOut,  label:"Sign Out",            action:()=>setView("login"), red:true},
+                  ].map(({icon:Icon,label,action,red})=>(
+                    <div key={label} onClick={action} className="td" style={{display:"flex",alignItems:"center",gap:10,padding:"10px 14px",cursor:"pointer",borderBottom:`1px solid ${C.border}`}}>
+                      <Icon size={14} color={red?C.red:C.textMid}/>
+                      <span style={{color:red?C.red:C.text,fontSize:13}}>{label}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-          <Screen onNavigate={(id) => { setActive(id); setSub(null); }}/>
+          <Screen onNavigate={(id) => { setActive(id); setSub(null); }} onUpgrade={(trigger) => setUpgradeModal(trigger||"credits")} plan={plan}/>
         </div>
 
         {/* Floating AI Copilot */}
         {aiOpen && <AICopilot onClose={() => setAiOpen(false)}/>}
         {upgradeModal && <UpgradeModal trigger={upgradeModal} onClose={()=>setUpgradeModal(null)} onUpgrade={()=>{setView("pricing");setUpgradeModal(null);}}/>}
+        {/* Command Palette */}
+        {cmdOpen && <CommandPalette onClose={()=>setCmdOpen(false)} onNavigate={(id)=>{setActive(id);setSub(null);}} screens={SCREENS}/>}
+        {/* Quick Start Guide */}
+        {quickStart && view==="app" && active==="crawl" && <QuickStartGuide onNavigate={(id)=>{setActive(id);setSub(null);addToast("Navigated to "+id,"info");}} onClose={()=>setQuickStart(false)}/>}
+        {/* Toast Container */}
+        <ToastContainer toasts={toasts} removeToast={removeToast}/>
       </div>
     </>
   );
