@@ -1489,7 +1489,7 @@ function SettingsView() {
   const [notifPush, setNotifPush] = useState(true);
   const [notifSMS, setNotifSMS] = useState(false);
   const [notifWeekly, setNotifWeekly] = useState(true);
-  const tabs = [{id:"profile",icon:Users,l:"Profile"},{id:"general",icon:Settings,l:"General"},{id:"security",icon:Shield,l:"Security"},{id:"notifications",icon:Bell,l:"Notifications"},{id:"integrations",icon:Cpu,l:"Integrations"},{id:"billing",icon:BarChart,l:"Billing & Plan"},{id:"workspace",icon:Briefcase,l:"Workspace"},{id:"whitelabel",icon:Globe,l:"White-Label"}];
+  const tabs = [{id:"profile",icon:Users,l:"Profile"},{id:"workspace",icon:Briefcase,l:"Workspace"},{id:"notifications",icon:Bell,l:"Notifications"},{id:"integrations",icon:Cpu,l:"Integrations"},{id:"billing",icon:BarChart,l:"Billing"},{id:"security",icon:Shield,l:"Security"},{id:"whitelabel",icon:Globe,l:"White-Label"}];
   const Toggle = ({on,setOn}) => (<div onClick={()=>setOn(!on)} style={{width:44,height:24,borderRadius:12,background:on?C.blueL:"#CBD5E1",cursor:"pointer",position:"relative",transition:"background .2s",flexShrink:0}}><div style={{width:20,height:20,borderRadius:"50%",background:"#fff",position:"absolute",top:2,left:on?22:2,transition:"left .2s",boxShadow:"0 1px 3px rgba(0,0,0,.2)"}}/></div>);
   return (
     <div className="fade" style={{display:"flex",height:"calc(100vh - 57px)",overflow:"hidden"}}>
@@ -1500,7 +1500,8 @@ function SettingsView() {
       <div style={{flex:1,overflowY:"auto",padding:"24px 32px",background:C.bg}}>
         {tab==="profile" && (
           <div style={{maxWidth:620}}>
-            <div className="sg" style={{color:C.text,fontSize:18,fontWeight:800,marginBottom:5}}>Profile</div>
+            <div className="sg" style={{color:C.text,fontSize:18,fontWeight:800,marginBottom:2}}>Profile</div>
+            <div style={{color:C.textDim,fontSize:13,marginBottom:16}}>Account & integrations</div>
             <div className="card" style={{padding:"22px 24px",marginBottom:16}}>
               <div style={{display:"flex",alignItems:"center",gap:18,marginBottom:22,paddingBottom:18,borderBottom:`1px solid ${C.border}`}}>
                 <div style={{position:"relative"}}><Av l="Y" size={72}/><button style={{position:"absolute",bottom:0,right:0,width:22,height:22,borderRadius:"50%",background:C.blueL,border:"2px solid #fff",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}><Edit2 size={10} color="#fff"/></button></div>
@@ -1558,24 +1559,7 @@ function SettingsView() {
           </div>
         )}
         {tab==="billing" && (
-          <div style={{maxWidth:680}}>
-            <div className="sg" style={{color:C.text,fontSize:18,fontWeight:800,marginBottom:5}}>Billing & Plan</div>
-            <div style={{background:`linear-gradient(135deg,${C.blue},${C.blueL})`,borderRadius:14,padding:"22px 26px",marginBottom:16}}>
-              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                <div><div style={{color:"rgba(255,255,255,.7)",fontSize:11,fontWeight:700,letterSpacing:1,marginBottom:4}}>CURRENT PLAN</div><div className="sg" style={{color:"#fff",fontSize:22,fontWeight:900,marginBottom:4}}>Pro Plan</div><div style={{color:"rgba(255,255,255,.75)",fontSize:13}}>$30/month · Renews June 1, 2026</div></div>
-                <div style={{textAlign:"right"}}><div style={{color:"rgba(255,255,255,.7)",fontSize:11,marginBottom:4}}>Usage this month</div><div style={{color:"#fff",fontSize:18,fontWeight:800}}>4 / 4 crawls</div><button style={{marginTop:8,background:C.orange,color:"#fff",border:"none",cursor:"pointer",padding:"7px 16px",borderRadius:8,fontSize:12,fontWeight:700,fontFamily:"inherit"}}>Upgrade Plan</button></div>
-              </div>
-            </div>
-            <div className="card" style={{padding:"18px 22px"}}>
-              <div className="sg" style={{color:C.text,fontSize:13,fontWeight:700,marginBottom:12}}>Monthly Usage</div>
-              {[{l:"Site Crawls",v:4,max:4,c:C.red},{l:"Keyword Searches",v:36,max:40,c:C.orange},{l:"Backlink Lookups",v:24,max:24,c:C.red},{l:"Reports Generated",v:8,max:20,c:C.green}].map(({l,v,max,c})=>(
-                <div key={l} style={{marginBottom:12}}>
-                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}><span style={{color:C.textMid,fontSize:12}}>{l}</span><span style={{color:v>=max?C.red:C.text,fontSize:12,fontWeight:700}}>{v} / {max}</span></div>
-                  <ProgBar v={(v/max)*100} col={v>=max?C.red:v>=max*0.8?C.orange:c} h={6}/>
-                </div>
-              ))}
-            </div>
-          </div>
+          <BillingPage plan="free" onUpgrade={(p)=>{}} addToast={()=>{}}/>
         )}
         {tab==="general" && (
           <div style={{maxWidth:620}}>
@@ -5576,6 +5560,371 @@ function NotificationsScreen() {
 }
 
 // ── Updated SCREENS Map (with all screens including new sub-screens) ────
+// ══════════════════════════════════════════════════════════════════
+//  BILLING PAGE — Stripe-quality, fully interactive
+// ══════════════════════════════════════════════════════════════════
+function BillingPage({ onUpgrade, onNavigate, addToast, plan }) {
+  const [billingCycle, setBillingCycle] = useState("monthly");
+  const [showCardForm, setShowCardForm] = useState(false);
+  const [cardNo, setCardNo] = useState("•••• •••• •••• 4242");
+  const [tab, setTab] = useState("overview");
+
+  const currentPlan = plan || "free";
+  const plans = [
+    { id:"free",    name:"Free",       mo:0,   yr:0,   color:C.textDim,  bg:C.bg,       features:["1 project","25 pages/crawl","20 keywords","10 AI credits","Basic audit"] },
+    { id:"starter", name:"Starter",    mo:29,  yr:22,  color:C.blueL,    bg:C.bluePale, features:["5 projects","5K pages/crawl","500 keywords","200 AI credits","PDF reports","Basic automations"] },
+    { id:"pro",     name:"Pro",        mo:79,  yr:59,  color:C.orange,   bg:C.orangeL,  popular:true, features:["20 projects","50K pages/crawl","5K keywords","2,000 AI credits","White-label","Team (10)","API access"] },
+    { id:"agency",  name:"Agency",     mo:199, yr:149, color:C.purple,   bg:C.purpleL,  features:["Unlimited everything","9,999 AI credits","Full API","Team (50)","Custom domain","Dedicated support"] },
+  ];
+
+  const invoices = [
+    { inv:"INV-2026-044", date:"May 1, 2026",  amount:79,  plan:"Pro",     status:"Paid",   period:"May 2026" },
+    { inv:"INV-2026-038", date:"Apr 1, 2026",  amount:79,  plan:"Pro",     status:"Paid",   period:"Apr 2026" },
+    { inv:"INV-2026-032", date:"Mar 1, 2026",  amount:79,  plan:"Pro",     status:"Paid",   period:"Mar 2026" },
+    { inv:"INV-2026-026", date:"Feb 1, 2026",  amount:29,  plan:"Starter", status:"Paid",   period:"Feb 2026" },
+    { inv:"INV-2026-019", date:"Jan 1, 2026",  amount:29,  plan:"Starter", status:"Paid",   period:"Jan 2026" },
+    { inv:"INV-2025-148", date:"Dec 1, 2025",  amount:0,   plan:"Free",    status:"Free",   period:"Dec 2025" },
+  ];
+
+  const usage = [
+    { label:"AI Credits",        used:8,    limit:10,    unit:"credits",    reset:"Jun 1" },
+    { label:"Site Audits",       used:4,    limit:4,     unit:"audits",     reset:"Jun 1" },
+    { label:"Keywords Tracked",  used:14,   limit:20,    unit:"keywords",   reset:"Jun 1" },
+    { label:"Projects",          used:1,    limit:1,     unit:"projects",   reset:"Never" },
+    { label:"Team Members",      used:1,    limit:1,     unit:"members",    reset:"Never" },
+    { label:"Reports Generated", used:8,    limit:20,    unit:"reports",    reset:"Jun 1" },
+  ];
+
+  const cp = plans.find(p=>p.id===currentPlan) || plans[0];
+
+  return (
+    <div className="fade" style={{ overflowY:"auto", height:"calc(100vh - 57px)", background:C.bg }}>
+      {/* Tabs */}
+      <div style={{ background:C.white, borderBottom:`1px solid ${C.border}`, padding:"0 32px", display:"flex", alignItems:"center" }}>
+        {[["overview","💳 Overview"],["plans","📦 Plans"],["invoices","🧾 Invoices"],["credits","⚡ AI Credits"]].map(([id,label])=>(
+          <button key={id} onClick={()=>setTab(id)} style={{ padding:"13px 18px", border:"none", borderBottom:tab===id?`2.5px solid ${C.blueL}`:"2.5px solid transparent", cursor:"pointer", fontSize:13, fontWeight:tab===id?700:500, fontFamily:"inherit", background:"transparent", color:tab===id?C.blueL:C.textMid, marginBottom:-1 }}>{label}</button>
+        ))}
+      </div>
+
+      <div style={{ padding:"28px 32px" }}>
+
+        {/* ── OVERVIEW TAB ── */}
+        {tab==="overview" && (
+          <>
+            {/* Current plan hero */}
+            <div style={{ background:`linear-gradient(135deg,${C.blue},${C.blueL})`, borderRadius:16, padding:"28px 32px", marginBottom:24, position:"relative", overflow:"hidden" }}>
+              <div style={{ position:"absolute", right:-40, top:-40, width:200, height:200, borderRadius:"50%", background:"rgba(255,255,255,.07)" }}/>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr auto", gap:20, position:"relative" }}>
+                <div>
+                  <div style={{ color:"rgba(255,255,255,.7)", fontSize:11, fontWeight:700, letterSpacing:1, marginBottom:6 }}>CURRENT PLAN</div>
+                  <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:8 }}>
+                    <span className="sg" style={{ color:"#fff", fontSize:30, fontWeight:900 }}>{cp.name} Plan</span>
+                    <span style={{ background:"rgba(255,255,255,.2)", color:"#fff", padding:"4px 12px", borderRadius:20, fontSize:12, fontWeight:700 }}>{currentPlan==="free"?"Free":"Active ✓"}</span>
+                  </div>
+                  <div style={{ color:"rgba(255,255,255,.75)", fontSize:14 }}>
+                    {cp.mo===0 ? "Free forever · Limited features" : `$${billingCycle==="monthly"?cp.mo:cp.yr}/month · Renews Jun 1, 2026`}
+                  </div>
+                </div>
+                <div style={{ textAlign:"right" }}>
+                  {currentPlan!=="agency" && (
+                    <button onClick={()=>setTab("plans")} style={{ background:"#fff", color:C.blueL, border:"none", cursor:"pointer", padding:"12px 24px", borderRadius:10, fontSize:14, fontWeight:800, fontFamily:"inherit", display:"block", marginBottom:8 }}>
+                      ⚡ Upgrade Plan
+                    </button>
+                  )}
+                  {currentPlan!=="free" && (
+                    <button style={{ background:"rgba(255,255,255,.1)", color:"rgba(255,255,255,.7)", border:"1px solid rgba(255,255,255,.2)", cursor:"pointer", padding:"8px 18px", borderRadius:8, fontSize:12, fontFamily:"inherit" }}>
+                      Cancel Subscription
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Usage grid */}
+            <div style={{ marginBottom:24 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
+                <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:16 }}>Monthly Usage</div>
+                <div style={{ color:C.textDim, fontSize:12 }}>Resets Jun 1, 2026</div>
+              </div>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:12 }}>
+                {usage.map(u => {
+                  const pct = Math.round((u.used/u.limit)*100);
+                  const danger = pct >= 80;
+                  return (
+                    <div key={u.label} className="card" style={{ padding:"18px 20px", border:danger?`1px solid ${C.red}33`:`1px solid ${C.border}`, background:danger?`${C.red}04`:"#fff" }}>
+                      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:10 }}>
+                        <div style={{ color:C.text, fontSize:13, fontWeight:700 }}>{u.label}</div>
+                        {danger && <span style={{ background:C.redL, color:C.red, fontSize:9, fontWeight:800, padding:"2px 6px", borderRadius:10 }}>LIMIT</span>}
+                      </div>
+                      <div style={{ display:"flex", justifyContent:"space-between", marginBottom:8 }}>
+                        <span className="sg" style={{ color:danger?C.red:C.text, fontSize:22, fontWeight:800 }}>{u.used}</span>
+                        <span style={{ color:C.textDim, fontSize:12, alignSelf:"flex-end" }}>/ {u.limit} {u.unit}</span>
+                      </div>
+                      <div style={{ background:C.border, borderRadius:10, height:6, overflow:"hidden", marginBottom:6 }}>
+                        <div style={{ width:`${Math.min(pct,100)}%`, height:"100%", background:danger?C.red:pct>=60?C.orange:C.blueL, borderRadius:10, transition:"width .3s" }}/>
+                      </div>
+                      <div style={{ color:C.textDim, fontSize:10 }}>Resets {u.reset}</div>
+                    </div>
+                  );
+                })}
+              </div>
+              {usage.some(u=>(u.used/u.limit)>=0.8) && (
+                <div style={{ background:`${C.orange}10`, border:`1px solid ${C.orange}33`, borderRadius:10, padding:"12px 18px", marginTop:14, display:"flex", alignItems:"center", gap:10 }}>
+                  <span style={{ fontSize:18 }}>⚠️</span>
+                  <div style={{ flex:1 }}>
+                    <div style={{ color:C.orange, fontWeight:700, fontSize:13 }}>You're approaching your plan limits</div>
+                    <div style={{ color:C.textMid, fontSize:12 }}>Upgrade to Pro to get 2,000 AI credits, 5K keywords, and 20 projects.</div>
+                  </div>
+                  <button onClick={()=>setTab("plans")} style={{ background:C.orange, color:"#fff", border:"none", cursor:"pointer", padding:"8px 16px", borderRadius:8, fontSize:12, fontWeight:700, fontFamily:"inherit", flexShrink:0 }}>Upgrade Now</button>
+                </div>
+              )}
+            </div>
+
+            {/* Payment method */}
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16, marginBottom:24 }}>
+              <div className="card" style={{ padding:"20px 24px" }}>
+                <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:14, marginBottom:16 }}>Payment Method</div>
+                {!showCardForm ? (
+                  <div style={{ display:"flex", alignItems:"center", gap:14 }}>
+                    <div style={{ width:52, height:36, background:"linear-gradient(135deg,#1A1F71,#2563EB)", borderRadius:6, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <span style={{ color:"#fff", fontSize:11, fontWeight:800 }}>VISA</span>
+                    </div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ color:C.text, fontWeight:700, fontSize:14 }}>{cardNo}</div>
+                      <div style={{ color:C.textDim, fontSize:12 }}>Expires 09/2027</div>
+                    </div>
+                    <button onClick={()=>setShowCardForm(true)} style={{ background:"transparent", border:`1px solid ${C.border}`, color:C.blueL, cursor:"pointer", padding:"6px 12px", borderRadius:7, fontSize:12, fontFamily:"inherit" }}>Update</button>
+                  </div>
+                ) : (
+                  <div>
+                    <input placeholder="Card number" style={{ width:"100%", background:C.bg, border:`1px solid ${C.border}`, borderRadius:8, padding:"9px 13px", color:C.text, fontSize:13, fontFamily:"inherit", outline:"none", marginBottom:10 }}/>
+                    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:10 }}>
+                      <input placeholder="MM / YY" style={{ background:C.bg, border:`1px solid ${C.border}`, borderRadius:8, padding:"9px 13px", color:C.text, fontSize:13, fontFamily:"inherit", outline:"none" }}/>
+                      <input placeholder="CVC" style={{ background:C.bg, border:`1px solid ${C.border}`, borderRadius:8, padding:"9px 13px", color:C.text, fontSize:13, fontFamily:"inherit", outline:"none" }}/>
+                    </div>
+                    <div style={{ display:"flex", gap:8 }}>
+                      <button onClick={()=>{setShowCardForm(false);setCardNo("•••• •••• •••• 5678");}} style={{ flex:1, background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"9px", borderRadius:8, fontSize:13, fontWeight:700, fontFamily:"inherit" }}>Save Card</button>
+                      <button onClick={()=>setShowCardForm(false)} style={{ flex:1, background:"transparent", border:`1px solid ${C.border}`, color:C.textMid, cursor:"pointer", padding:"9px", borderRadius:8, fontSize:13, fontFamily:"inherit" }}>Cancel</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="card" style={{ padding:"20px 24px" }}>
+                <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:14, marginBottom:16 }}>Billing Cycle</div>
+                <div style={{ display:"flex", background:C.bg, borderRadius:9, padding:4, gap:2, marginBottom:14 }}>
+                  {[["monthly","Monthly"],["yearly","Yearly (-25%)"]].map(([id,label])=>(
+                    <button key={id} onClick={()=>setBillingCycle(id)} style={{ flex:1, padding:"9px 0", border:"none", borderRadius:7, cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"inherit", background:billingCycle===id?"#fff":"transparent", color:billingCycle===id?C.text:C.textDim, boxShadow:billingCycle===id?"0 1px 4px rgba(0,0,0,.08)":"none" }}>{label}</button>
+                  ))}
+                </div>
+                {billingCycle==="yearly" && <div style={{ background:C.greenL, borderRadius:8, padding:"10px 14px", color:C.green, fontSize:12, fontWeight:700 }}>🎉 Save ${(cp.mo-cp.yr)*12}/year with annual billing</div>}
+                {billingCycle==="monthly" && <div style={{ color:C.textDim, fontSize:12 }}>Switch to annual billing to save 25% every year.</div>}
+              </div>
+            </div>
+
+            {/* Recent invoices preview */}
+            <div className="card" style={{ overflow:"hidden" }}>
+              <div style={{ padding:"14px 20px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center" }}>
+                <span className="sg" style={{ color:C.text, fontWeight:700, fontSize:14, flex:1 }}>Recent Invoices</span>
+                <button onClick={()=>setTab("invoices")} style={{ background:"transparent", border:"none", color:C.blueL, cursor:"pointer", fontSize:12, fontFamily:"inherit" }}>View All →</button>
+              </div>
+              {invoices.slice(0,4).map((inv,i)=>(
+                <div key={i} className="td" style={{ display:"flex", alignItems:"center", gap:16, padding:"12px 20px", borderBottom:`1px solid ${C.border}` }}>
+                  <div style={{ width:36, height:36, borderRadius:9, background:C.bluePale, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <span style={{ fontSize:16 }}>🧾</span>
+                  </div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ color:C.text, fontWeight:700, fontSize:13 }}>{inv.inv}</div>
+                    <div style={{ color:C.textDim, fontSize:11 }}>{inv.period} · {inv.plan} Plan</div>
+                  </div>
+                  <div style={{ color:C.text, fontWeight:700, fontSize:14 }}>{inv.amount>0?`$${inv.amount}`:"—"}</div>
+                  <span className="chip" style={{ color:inv.status==="Paid"?C.green:C.textDim, background:inv.status==="Paid"?C.greenL:C.bg }}>{inv.status}</span>
+                  <span style={{ color:C.textDim, fontSize:12 }}>{inv.date}</span>
+                  <button style={{ background:"transparent", border:`1px solid ${C.border}`, color:C.blueL, cursor:"pointer", padding:"5px 10px", borderRadius:6, fontSize:11, fontFamily:"inherit" }}>↓ PDF</button>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* ── PLANS TAB ── */}
+        {tab==="plans" && (
+          <>
+            <div style={{ textAlign:"center", marginBottom:28 }}>
+              <h2 className="sg" style={{ color:C.text, fontSize:26, fontWeight:900, marginBottom:8 }}>Choose the right plan for your needs</h2>
+              <p style={{ color:C.textMid, fontSize:14 }}>All plans include a 14-day free trial. No credit card required.</p>
+              <div style={{ display:"flex", justifyContent:"center", marginTop:16 }}>
+                <div style={{ display:"flex", background:C.bg, borderRadius:8, padding:4, gap:2 }}>
+                  {[["monthly","Monthly"],["yearly","Yearly — Save 25%"]].map(([id,label])=>(
+                    <button key={id} onClick={()=>setBillingCycle(id)} style={{ padding:"8px 22px", border:"none", borderRadius:6, cursor:"pointer", fontSize:13, fontWeight:600, fontFamily:"inherit", background:billingCycle===id?"#fff":"transparent", color:billingCycle===id?C.text:C.textDim }}>
+                      {label}{id==="yearly"&&<span style={{ marginLeft:6, background:C.greenL, color:C.green, fontSize:10, fontWeight:800, padding:"2px 7px", borderRadius:10 }}>-25%</span>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:16 }}>
+              {plans.map(p => {
+                const price = billingCycle==="monthly"?p.mo:p.yr;
+                const isCurrent = p.id===currentPlan;
+                return (
+                  <div key={p.id} style={{ background:"#fff", border:`${p.popular?"2":"1"}px solid ${p.popular?C.orange:isCurrent?C.green:C.border}`, borderRadius:16, padding:"24px 22px", position:"relative", boxShadow:p.popular?"0 8px 28px rgba(249,115,22,.15)":"0 1px 4px rgba(0,0,0,.05)", transform:p.popular?"translateY(-6px)":"none" }}>
+                    {p.popular && <div style={{ position:"absolute", top:-12, left:"50%", transform:"translateX(-50%)", background:`linear-gradient(135deg,${C.orange},#EA580C)`, color:"#fff", fontSize:10, fontWeight:800, padding:"4px 16px", borderRadius:20 }}>MOST POPULAR</div>}
+                    {isCurrent && <div style={{ position:"absolute", top:-12, left:"50%", transform:"translateX(-50%)", background:C.green, color:"#fff", fontSize:10, fontWeight:800, padding:"4px 16px", borderRadius:20 }}>YOUR PLAN</div>}
+                    <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
+                      <span style={{ background:`${p.color}18`, color:p.color, fontWeight:700, fontSize:12, padding:"3px 10px", borderRadius:20 }}>{p.name}</span>
+                    </div>
+                    <div style={{ marginBottom:16 }}>
+                      {p.mo===0 ? (
+                        <span className="sg" style={{ fontSize:32, fontWeight:900, color:C.text }}>Free</span>
+                      ) : (
+                        <>
+                          <span className="sg" style={{ fontSize:34, fontWeight:900, color:p.popular?C.orange:C.text }}>${price}</span>
+                          <span style={{ color:C.textDim, fontSize:13 }}>/month</span>
+                          {billingCycle==="yearly"&&p.mo>0&&<div style={{ color:C.green, fontSize:11, fontWeight:600 }}>Save ${(p.mo-p.yr)*12}/year</div>}
+                        </>
+                      )}
+                    </div>
+                    <button
+                      onClick={()=>{ if(!isCurrent&&onUpgrade) onUpgrade(p.id); }}
+                      style={{ width:"100%", padding:"10px", fontSize:13, borderRadius:9, border:"none", marginBottom:18, cursor:isCurrent?"default":"pointer", background:isCurrent?C.greenL:p.popular?`linear-gradient(135deg,${C.orange},#EA580C)`:C.blueL, color:isCurrent?C.green:"#fff", fontFamily:"inherit", fontWeight:700 }}>
+                      {isCurrent?"✓ Current Plan":p.mo===0?"Get Started Free":`Upgrade to ${p.name}`}
+                    </button>
+                    <div style={{ borderTop:`1px solid ${C.border}`, paddingTop:14 }}>
+                      {p.features.map(f=>(
+                        <div key={f} style={{ display:"flex", alignItems:"center", gap:7, marginBottom:8 }}>
+                          <div style={{ width:16, height:16, borderRadius:"50%", background:`${p.color}18`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                            <CheckCircle2 size={9} color={p.color}/>
+                          </div>
+                          <span style={{ color:C.textMid, fontSize:12 }}>{f}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{ marginTop:32, background:C.bg, borderRadius:14, padding:"24px 28px", display:"flex", alignItems:"center", gap:20 }}>
+              <div style={{ fontSize:40 }}>🏢</div>
+              <div style={{ flex:1 }}>
+                <div className="sg" style={{ color:C.text, fontWeight:800, fontSize:16, marginBottom:4 }}>Enterprise Plan</div>
+                <p style={{ color:C.textMid, fontSize:13 }}>Custom pricing for large teams. SSO, SAML, dedicated support, custom AI, SLAs, audit logs, and unlimited everything.</p>
+              </div>
+              <button style={{ background:C.text, color:"#fff", border:"none", cursor:"pointer", padding:"12px 24px", borderRadius:10, fontSize:13, fontWeight:700, fontFamily:"inherit", flexShrink:0 }}>Contact Sales →</button>
+            </div>
+          </>
+        )}
+
+        {/* ── INVOICES TAB ── */}
+        {tab==="invoices" && (
+          <>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:14, marginBottom:24 }}>
+              {[
+                { l:"Total Paid (2026)", v:"$316",   c:C.green  },
+                { l:"Current Plan",      v:"Pro $79", c:C.blueL  },
+                { l:"Next Invoice",      v:"Jun 1",   c:C.orange },
+              ].map(s=>(
+                <div key={s.l} className="card" style={{ padding:"16px 20px" }}>
+                  <div style={{ color:C.textDim, fontSize:12, marginBottom:6 }}>{s.l}</div>
+                  <div className="sg" style={{ color:s.c, fontSize:22, fontWeight:800 }}>{s.v}</div>
+                </div>
+              ))}
+            </div>
+            <div className="card" style={{ overflow:"hidden" }}>
+              <div style={{ padding:"14px 20px", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:10 }}>
+                <span className="sg" style={{ color:C.text, fontWeight:700, fontSize:14, flex:1 }}>All Invoices</span>
+                <button style={{ background:C.bg, border:`1px solid ${C.border}`, color:C.textMid, cursor:"pointer", padding:"6px 12px", borderRadius:7, fontSize:12, fontFamily:"inherit" }}>Export All ↓</button>
+              </div>
+              <table style={{ width:"100%", borderCollapse:"collapse" }}>
+                <thead><tr style={{ background:C.bg }}>
+                  {["Invoice #","Date","Period","Plan","Amount","Status",""].map(h=>(
+                    <th key={h} style={{ padding:"10px 18px", textAlign:"left", color:C.textDim, fontSize:11, fontWeight:700, borderBottom:`1px solid ${C.border}` }}>{h}</th>
+                  ))}
+                </tr></thead>
+                <tbody>
+                  {invoices.map((inv,i)=>(
+                    <tr key={i} className="td">
+                      <td style={{ padding:"13px 18px", color:C.blueL, fontWeight:600, fontSize:13, borderBottom:`1px solid ${C.border}` }}>{inv.inv}</td>
+                      <td style={{ padding:"13px 18px", color:C.textMid, fontSize:12, borderBottom:`1px solid ${C.border}` }}>{inv.date}</td>
+                      <td style={{ padding:"13px 18px", color:C.textMid, fontSize:12, borderBottom:`1px solid ${C.border}` }}>{inv.period}</td>
+                      <td style={{ padding:"13px 18px", borderBottom:`1px solid ${C.border}` }}><span className="chip" style={{ color:C.blueL, background:C.bluePale }}>{inv.plan}</span></td>
+                      <td style={{ padding:"13px 18px", borderBottom:`1px solid ${C.border}` }}><span className="sg" style={{ color:inv.amount>0?C.text:C.textDim, fontWeight:700, fontSize:14 }}>{inv.amount>0?`$${inv.amount}`:"—"}</span></td>
+                      <td style={{ padding:"13px 18px", borderBottom:`1px solid ${C.border}` }}><span className="chip" style={{ color:inv.status==="Paid"?C.green:C.textDim, background:inv.status==="Paid"?C.greenL:C.bg }}>{inv.status}</span></td>
+                      <td style={{ padding:"13px 18px", borderBottom:`1px solid ${C.border}` }}>
+                        <button style={{ background:"transparent", border:`1px solid ${C.border}`, color:C.blueL, cursor:"pointer", padding:"5px 12px", borderRadius:6, fontSize:11, fontFamily:"inherit" }}>↓ PDF</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+
+        {/* ── AI CREDITS TAB ── */}
+        {tab==="credits" && (
+          <>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20, marginBottom:24 }}>
+              <div style={{ background:`linear-gradient(135deg,${C.blue},${C.blueL})`, borderRadius:14, padding:"24px 28px", color:"#fff" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
+                  <div style={{ width:40, height:40, borderRadius:10, background:"rgba(255,255,255,.2)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <Zap size={20} color="#fff" fill="#fff"/>
+                  </div>
+                  <div>
+                    <div className="sg" style={{ fontWeight:800, fontSize:16 }}>AI Credits</div>
+                    <div style={{ color:"rgba(255,255,255,.7)", fontSize:11 }}>Resets Jun 1, 2026</div>
+                  </div>
+                </div>
+                <div style={{ display:"flex", alignItems:"baseline", gap:8, marginBottom:12 }}>
+                  <span className="sg" style={{ fontSize:48, fontWeight:900 }}>8</span>
+                  <span style={{ color:"rgba(255,255,255,.7)", fontSize:16 }}>/ 10 used</span>
+                </div>
+                <div style={{ background:"rgba(255,255,255,.2)", borderRadius:10, height:8, marginBottom:8 }}>
+                  <div style={{ width:"80%", height:"100%", background:"#fff", borderRadius:10 }}/>
+                </div>
+                <div style={{ color:"rgba(255,255,255,.75)", fontSize:12 }}>2 credits remaining — upgrade for more</div>
+              </div>
+              <div className="card" style={{ padding:"24px 28px" }}>
+                <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:15, marginBottom:6 }}>Buy More Credits</div>
+                <p style={{ color:C.textMid, fontSize:13, marginBottom:16 }}>Top up your credits at any time. No expiry.</p>
+                {[[50,"$9.99"],[200,"$29.99"],[500,"$59.99"],[1000,"$99.99"]].map(([credits,price])=>(
+                  <div key={credits} className="hl" style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"11px 14px", borderRadius:9, border:`1px solid ${C.border}`, marginBottom:8, cursor:"pointer" }}>
+                    <div>
+                      <span className="sg" style={{ color:C.text, fontWeight:700, fontSize:15 }}>{credits} credits</span>
+                      <span style={{ color:C.textDim, fontSize:12, marginLeft:8 }}>({(credits/parseInt(price.replace("$",""))).toFixed(1)} per $1)</span>
+                    </div>
+                    <button style={{ background:C.blueL, color:"#fff", border:"none", cursor:"pointer", padding:"7px 16px", borderRadius:7, fontSize:13, fontWeight:700, fontFamily:"inherit" }}>{price}</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="card" style={{ padding:"20px 24px" }}>
+              <div className="sg" style={{ color:C.text, fontWeight:700, fontSize:14, marginBottom:14 }}>Credits by Feature</div>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:12 }}>
+                {[
+                  { feature:"AI Site Report",      cost:3,  icon:"📊", used:2 },
+                  { feature:"Keyword Suggestions", cost:1,  icon:"🔑", used:3 },
+                  { feature:"Content Generation",  cost:5,  icon:"✍️", used:1 },
+                  { feature:"Competitor Analysis", cost:2,  icon:"⚔️", used:1 },
+                  { feature:"AI Meeting Summary",  cost:2,  icon:"🎙", used:0 },
+                  { feature:"Backlink Check",       cost:1,  icon:"🔗", used:1 },
+                ].map(({feature,cost,icon,used})=>(
+                  <div key={feature} className="card" style={{ padding:"14px 16px", background:C.bg }}>
+                    <div style={{ display:"flex", gap:8, alignItems:"center", marginBottom:6 }}>
+                      <span style={{ fontSize:18 }}>{icon}</span>
+                      <span style={{ color:C.text, fontWeight:600, fontSize:12 }}>{feature}</span>
+                    </div>
+                    <div style={{ color:C.textDim, fontSize:11 }}>{cost} credit{cost>1?"s":""} each · Used {used} today</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 const SCREENS = {
   crawl:               { C: CrawlDashboard,          title: "Dashboard",               sub: "Welcome to Boostly — your SEO command center" },
   dashboard:           { C: Dashboard,               title: "Analytics Overview",      sub: "SEO Engine Boost · Full platform metrics" },
@@ -5607,7 +5956,7 @@ const SCREENS = {
   clients:             { C: Clients,                 title: "Clients",                 sub: "Manage all client projects and relationships" },
   team:                { C: TeamMembers,             title: "Team Members",            sub: "Manage your team, roles & permissions" },
   calendar:            { C: CalendarView,            title: "Campaign Planner",        sub: "Campaign calendar, social queue & scheduler" },
-  settings:            { C: SettingsView,            title: "Settings",                sub: "Account, workspace & integrations" },
+  settings:            { C: SettingsView,            title: "Settings",                sub: "Account & integrations" },
   admin:               { C: AdminDashboard,          title: "Admin Dashboard",         sub: "Platform overview, users & revenue analytics" },
   usermanagement:      { C: UserManagement,          title: "User Management",         sub: "View, upgrade, and manage all platform users" },
   paymentlogs:         { C: PaymentLogs,             title: "Payment Logs",            sub: "Transaction history, filters & subscription status" },
@@ -5617,6 +5966,8 @@ const SCREENS = {
   files:               { C: FileManager,             title: "File Manager",            sub: "Reports, contracts, proposals, credentials — all in one place" },
   notifications:       { C: NotificationsScreen,     title: "Notifications",           sub: "All alerts, mentions, updates and action items" },
   activitylog:         { C: ActivityLog,              title: "Activity Log",            sub: "Complete audit trail of all platform actions" },
+  billing:             { C: BillingPage,            title: "Billing & Subscription",  sub: "Plans, invoices, AI credits & payment methods" },
+  gopremium:           { C: BillingPage,            title: "Go Premium",              sub: "Upgrade your plan to unlock full power" },
 };
 
 // ── Updated Sidebar with backlink-gap sub ─────────────────────────────
@@ -5632,14 +5983,14 @@ function SidebarFull({ active, setActive, sub, setSub, openAI, setOpenAI }) {
     { id:"articlechecker",      icon:FileText,        label:"Article Checker" },
     {
       id:"competitive", icon:Globe, label:"Competitive Research",
-      subs:[{id:"domain-overview",l:"Domain Overview"},{id:"keyword-gap",l:"Keyword Gap"},{id:"backlink-gap",l:"Backlink Gap"}]
+      subs:[{id:"domain-overview",l:"Domain Overview"},{id:"keyword-gap",l:"Keyword Gap"},{id:"backlink-gap",l:"Backlink Gap"},{id:"competitoranalyzer",l:"Competitor Analyzer"}]
     },
     { id:"competitoranalyzer",  icon:Target,          label:"Competitor Analyzer" },
     { id:"keyword",             icon:Search,          label:"Keyword Research" },
     { id:"advancedkeywords",    icon:TrendingUp,      label:"Advanced Keywords", badge:"PRO" },
     { id:"keywordsperformance", icon:BarChart2,       label:"Keywords Performance" },
     { id:"backlink",            icon:Link2,           label:"Backlink Research" },
-    { id:"rank",                icon:BarChart2,       label:"Rank Tracking" },
+    { id:"rank",                icon:TrendingUp,      label:"Rank Tracking" },
     { id:"ranktracker",         icon:Activity,        label:"Domain Tracker" },
     { id:"trafficanalytics",    icon:BarChart,        label:"Traffic Analytics" },
     { id:"localseo",            icon:Globe,           label:"Local SEO" },
@@ -5737,6 +6088,9 @@ function SidebarFull({ active, setActive, sub, setSub, openAI, setOpenAI }) {
           <div className={`nav${active==="settings"?" on":""}`} onClick={() => {setActive("settings");setSub(null);}}>
             <Settings size={14}/> Settings
           </div>
+          <div className={`nav${active==="billing"?" on":""}`} onClick={() => {setActive("billing");setSub(null);}}>
+            <BarChart size={14}/> Billing & Plans
+          </div>
           <div className="nav" style={{color:C.textDim}}><HelpCircle size={14}/> Help & Docs</div>
         </div>
       </div>
@@ -5757,8 +6111,8 @@ function SidebarFull({ active, setActive, sub, setSub, openAI, setOpenAI }) {
           <div style={{color:"rgba(255,255,255,.8)",fontSize:10.5,lineHeight:1.5}}>Unlock unlimited crawls, keywords & AI features</div>
           <button style={{marginTop:8,width:"100%",background:"rgba(255,255,255,.2)",border:"1px solid rgba(255,255,255,.3)",color:"#fff",cursor:"pointer",padding:"5px 0",borderRadius:7,fontSize:11,fontWeight:700,fontFamily:"inherit"}}>View Plans →</button>
         </div>
-        <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 8px",background:C.bg,borderRadius:9,cursor:"pointer"}}>
-          <Av l="Y" size={28}/>
+        <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 8px",background:C.bg,borderRadius:9,cursor:"pointer"}} onClick={() => setActive("settings")}>
+          <div style={{width:28,height:28,borderRadius:"50%",background:`linear-gradient(135deg,${C.blueL},${C.blue})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:11,fontWeight:700,flexShrink:0}}>Y</div>
           <div style={{flex:1,minWidth:0}}>
             <div style={{color:C.text,fontSize:12,fontWeight:700}}>Your Account</div>
             <div style={{color:C.textDim,fontSize:10}}>Admin · Pro Plan</div>
@@ -5900,7 +6254,7 @@ export default function App() {
                   </div>
                   {[
                     {icon:Users,   label:"Profile & Settings", action:()=>setActive("settings")},
-                    {icon:BarChart2,label:"Billing & Plan",    action:()=>{setActive("settings");}},
+                    {icon:BarChart2,label:"Billing & Plan",    action:()=>setActive("billing")},
                     {icon:Bell,    label:"Notifications (4)",  action:()=>setActive("notifications")},
                     {icon:Activity,label:"Activity Log",       action:()=>setActive("activitylog")},
                     {icon:HelpCircle,label:"Help & Docs",       action:()=>{}},
