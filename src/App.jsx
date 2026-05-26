@@ -6165,6 +6165,1020 @@ function NotificationsScreen() {
   );
 }
 
+// ══════════════════════════════════════════════════════════════════════
+//  BULK REPORTING — Generate hundreds of audits via CSV upload
+// ══════════════════════════════════════════════════════════════════════
+function BulkReporting({ onNavigate }) {
+  const [step, setStep] = useState(1); // 1=upload 2=configure 3=processing 4=done
+  const [csvData] = useState([
+    {domain:"dentalpro.com",       status:"done",   score:74, issues:18, traffic:"31K"},
+    {domain:"fitnessapp.io",       status:"done",   score:55, issues:47, traffic:"18K"},
+    {domain:"techinsights.blog",   status:"done",   score:81, issues:8,  traffic:"94K"},
+    {domain:"legaledge.com",       status:"running",score:"—",issues:"—",traffic:"—"},
+    {domain:"bloomrealty.com",     status:"queued", score:"—",issues:"—",traffic:"—"},
+    {domain:"autocare-shop.com",   status:"queued", score:"—",issues:"—",traffic:"—"},
+  ]);
+  const done = csvData.filter(r=>r.status==="done").length;
+  const pct  = Math.round((done/csvData.length)*100);
+
+  return (
+    <div className="fade" style={{overflowY:"auto",height:"calc(100vh - 57px)",background:C.bg}}>
+      {/* Hero strip */}
+      <div style={{background:`linear-gradient(135deg,${C.blue},${C.blueL})`,padding:"24px 32px",display:"flex",alignItems:"center",gap:20}}>
+        <div style={{flex:1}}>
+          <div style={{color:"#FED7AA",fontSize:11,fontWeight:700,letterSpacing:1,marginBottom:6}}>AGENCY FEATURE</div>
+          <h2 className="sg" style={{color:"#fff",fontSize:22,fontWeight:800,marginBottom:6}}>Bulk SEO Reporting</h2>
+          <p style={{color:"rgba(255,255,255,.75)",fontSize:13}}>Upload a CSV of hundreds of domains — Boostly generates full SEO reports for all of them automatically.</p>
+        </div>
+        <div style={{display:"flex",gap:10}}>
+          <button onClick={()=>setStep(1)} style={{background:"rgba(255,255,255,.15)",border:"1px solid rgba(255,255,255,.3)",color:"#fff",cursor:"pointer",padding:"9px 18px",borderRadius:9,fontSize:13,fontWeight:700,fontFamily:"inherit"}}>New Batch</button>
+          <button style={{background:"#fff",color:C.blueL,border:"none",cursor:"pointer",padding:"9px 18px",borderRadius:9,fontSize:13,fontWeight:700,fontFamily:"inherit"}}>View All Batches</button>
+        </div>
+      </div>
+
+      <div style={{padding:"24px 32px"}}>
+        {/* Step indicator */}
+        <div style={{display:"flex",alignItems:"center",gap:0,marginBottom:28}}>
+          {[["1","Upload CSV"],["2","Configure"],["3","Processing"],["4","Download"]].map(([n,label],i)=>{
+            const active = parseInt(n)===step, done_s = parseInt(n)<step;
+            return (
+              <div key={n} style={{display:"flex",alignItems:"center",flex:i<3?1:0}}>
+                <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
+                  <div style={{width:36,height:36,borderRadius:"50%",background:done_s?C.green:active?C.blueL:C.border,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:700,fontSize:13}}>
+                    {done_s?"✓":n}
+                  </div>
+                  <span style={{color:active?C.blueL:C.textDim,fontSize:11,fontWeight:active?700:400,whiteSpace:"nowrap"}}>{label}</span>
+                </div>
+                {i<3&&<div style={{height:2,flex:1,background:done_s?C.green:C.border,margin:"0 8px",marginBottom:20}}/>}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Step 1: Upload */}
+        {step===1&&(
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:24}}>
+            <div>
+              <div className="card" style={{padding:"28px",textAlign:"center",border:`2px dashed ${C.blueL}`,borderRadius:14,marginBottom:16,cursor:"pointer",background:`${C.blueL}04`}} onClick={()=>setStep(2)}>
+                <div style={{fontSize:48,marginBottom:12}}>📤</div>
+                <div className="sg" style={{color:C.text,fontWeight:700,fontSize:16,marginBottom:6}}>Drop CSV File Here</div>
+                <div style={{color:C.textDim,fontSize:13,marginBottom:16}}>or click to browse</div>
+                <div style={{background:C.bg,borderRadius:8,padding:"8px 14px",display:"inline-flex",alignItems:"center",gap:6}}>
+                  <span style={{color:C.textDim,fontSize:11}}>Accepted: .csv, .xlsx, .txt</span>
+                </div>
+              </div>
+              <button onClick={()=>setStep(2)} style={{width:"100%",background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"12px",borderRadius:10,fontSize:14,fontWeight:700,fontFamily:"inherit"}}>Use Example CSV (6 domains)</button>
+            </div>
+            <div>
+              <div className="card" style={{padding:"20px 22px",marginBottom:14}}>
+                <div className="sg" style={{color:C.text,fontWeight:700,fontSize:14,marginBottom:10}}>CSV Format Required</div>
+                <div style={{background:"#1E293B",borderRadius:9,padding:"14px",fontFamily:"monospace",fontSize:12,color:"#E2E8F0",lineHeight:1.7}}>
+                  <div style={{color:"#94A3B8"}}>domain,label</div>
+                  <div>dentalpro.com,Dental Client</div>
+                  <div>fitnessapp.io,Fitness App</div>
+                  <div>techblog.com,Tech Blog</div>
+                </div>
+              </div>
+              <div className="card" style={{padding:"16px 20px"}}>
+                <div className="sg" style={{color:C.text,fontWeight:700,fontSize:13,marginBottom:8}}>What's Included in Each Report</div>
+                {["Technical SEO audit (100+ checks)","Keyword rankings snapshot","Backlink profile overview","Core Web Vitals + speed","On-page SEO score","AI recommendations"].map(f=>(
+                  <div key={f} style={{display:"flex",gap:8,marginBottom:6}}>
+                    <CheckCircle2 size={13} color={C.green}/><span style={{color:C.textMid,fontSize:12}}>{f}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Configure */}
+        {step===2&&(
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:24}}>
+            <div className="card" style={{padding:"22px 24px"}}>
+              <div className="sg" style={{color:C.text,fontWeight:700,fontSize:15,marginBottom:18}}>Report Configuration</div>
+              {[{l:"Report Type",opts:["Full SEO Audit","Keyword Summary","Backlink Only","Custom"]},{l:"Format",opts:["PDF","CSV","Both"]},{l:"Language",opts:["English","Arabic","Spanish","French"]},{l:"White-label",opts:["Boostly Branded","Agency Brand","Client Brand"]}].map(({l,opts})=>(
+                <div key={l} style={{marginBottom:14}}>
+                  <label style={{color:C.text,fontSize:12,fontWeight:600,display:"block",marginBottom:5}}>{l}</label>
+                  <select style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 12px",color:C.text,fontSize:13,fontFamily:"inherit",outline:"none"}}>
+                    {opts.map(o=><option key={o}>{o}</option>)}
+                  </select>
+                </div>
+              ))}
+              <div style={{marginBottom:14}}>
+                <label style={{color:C.text,fontSize:12,fontWeight:600,display:"block",marginBottom:5}}>Delivery Email</label>
+                <input defaultValue="admin@boostly.app" style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 12px",color:C.text,fontSize:13,fontFamily:"inherit",outline:"none"}}/>
+              </div>
+              <button onClick={()=>{setStep(3);setTimeout(()=>setStep(4),2000);}} style={{width:"100%",background:`linear-gradient(135deg,${C.orange},#EA580C)`,color:"#fff",border:"none",cursor:"pointer",padding:"12px",borderRadius:10,fontSize:14,fontWeight:700,fontFamily:"inherit"}}>
+                🚀 Run Batch Audit — 6 Domains
+              </button>
+            </div>
+            <div>
+              <div className="card" style={{padding:"20px",marginBottom:14}}>
+                <div className="sg" style={{color:C.text,fontWeight:700,fontSize:14,marginBottom:12}}>Domains Queued (6)</div>
+                {csvData.map((r,i)=>(
+                  <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:`1px solid ${C.border}`}}>
+                    <Globe size={13} color={C.blueL}/>
+                    <span style={{flex:1,color:C.text,fontSize:13}}>{r.domain}</span>
+                    <span className="chip" style={{color:C.blueL,background:C.bluePale,fontSize:9}}>QUEUED</span>
+                  </div>
+                ))}
+              </div>
+              <div className="card" style={{padding:"16px",background:`${C.orange}08`,border:`1px solid ${C.orange}33`}}>
+                <div style={{color:C.orange,fontWeight:700,fontSize:13,marginBottom:4}}>⏱ Estimated Time</div>
+                <div className="sg" style={{color:C.text,fontSize:22,fontWeight:800}}>~3 minutes</div>
+                <div style={{color:C.textDim,fontSize:11}}>30 sec per domain average</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Processing */}
+        {step===3&&(
+          <div style={{textAlign:"center",padding:"40px 0"}}>
+            <div style={{fontSize:64,marginBottom:16}}>⚙️</div>
+            <div className="sg" style={{color:C.text,fontSize:22,fontWeight:800,marginBottom:8}}>Running Batch Audit...</div>
+            <div style={{background:C.border,borderRadius:10,height:10,maxWidth:400,margin:"20px auto"}}>
+              <div style={{width:`${pct}%`,height:"100%",background:C.blueL,borderRadius:10,transition:"width 1s"}}/>
+            </div>
+            <div style={{color:C.textMid,fontSize:13}}>{done} / {csvData.length} reports complete</div>
+          </div>
+        )}
+
+        {/* Step 4: Results */}
+        {step===4&&(
+          <>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:20}}>
+              {[{l:"Reports Generated",v:"6",c:C.green},{l:"Avg Site Score",v:"70",c:C.blueL},{l:"Total Issues Found",v:"73",c:C.red},{l:"Processing Time",v:"2.8 min",c:C.orange}].map(s=>(
+                <div key={s.l} className="card" style={{padding:"14px 18px"}}>
+                  <div className="sg" style={{color:s.c,fontSize:22,fontWeight:800}}>{s.v}</div>
+                  <div style={{color:C.textDim,fontSize:11,marginTop:2}}>{s.l}</div>
+                </div>
+              ))}
+            </div>
+            <div className="card" style={{overflow:"hidden"}}>
+              <div style={{padding:"13px 20px",borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center"}}>
+                <span className="sg" style={{color:C.text,fontWeight:700,fontSize:14,flex:1}}>Batch Results — May 9, 2026</span>
+                <button style={{background:C.green,color:"#fff",border:"none",cursor:"pointer",padding:"8px 18px",borderRadius:8,fontSize:13,fontWeight:700,fontFamily:"inherit",display:"flex",alignItems:"center",gap:6}}>
+                  <Download size={13}/> Download All (ZIP)
+                </button>
+              </div>
+              <table style={{width:"100%",borderCollapse:"collapse"}}>
+                <thead><tr style={{background:C.bg}}>
+                  {["Domain","Score","Issues","Traffic","Status","Report"].map(h=>(
+                    <th key={h} style={{padding:"10px 16px",textAlign:"left",color:C.textDim,fontSize:10,fontWeight:700,borderBottom:`1px solid ${C.border}`}}>{h}</th>
+                  ))}
+                </tr></thead>
+                <tbody>
+                  {csvData.map((r,i)=>(
+                    <tr key={i} className="td">
+                      <td style={{padding:"13px 16px",borderBottom:`1px solid ${C.border}`}}><div style={{display:"flex",alignItems:"center",gap:8}}><Globe size={13} color={C.blueL}/><span style={{color:C.blueL,fontWeight:600,fontSize:13}}>{r.domain}</span></div></td>
+                      <td style={{padding:"13px 16px",borderBottom:`1px solid ${C.border}`}}>
+                        {r.score!=="—"&&<div style={{display:"flex",alignItems:"center",gap:6}}><ProgBar v={r.score} col={r.score>=70?C.green:r.score>=50?C.yellow:C.red} h={6}/><span style={{color:C.text,fontWeight:700,fontSize:12,minWidth:24}}>{r.score}</span></div>}
+                        {r.score==="—"&&<span style={{color:C.textDim}}>—</span>}
+                      </td>
+                      <td style={{padding:"13px 16px",color:r.issues!=="—"?C.red:C.textDim,fontWeight:r.issues!=="—"?700:400,fontSize:13,borderBottom:`1px solid ${C.border}`}}>{r.issues}</td>
+                      <td style={{padding:"13px 16px",color:C.textMid,fontSize:13,borderBottom:`1px solid ${C.border}`}}>{r.traffic}</td>
+                      <td style={{padding:"13px 16px",borderBottom:`1px solid ${C.border}`}}>
+                        <span className="chip" style={{color:r.status==="done"?C.green:r.status==="running"?C.orange:C.textDim,background:r.status==="done"?C.greenL:r.status==="running"?C.orangeL:C.bg}}>{r.status==="done"?"✓ Done":r.status==="running"?"Running...":"Queued"}</span>
+                      </td>
+                      <td style={{padding:"13px 16px",borderBottom:`1px solid ${C.border}`}}>
+                        {r.status==="done"&&<button style={{background:C.bluePale,color:C.blueL,border:"none",cursor:"pointer",padding:"5px 10px",borderRadius:6,fontSize:11,fontWeight:700,fontFamily:"inherit"}}>↓ PDF</button>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  BACKLINK MONITOR — Track new/lost backlinks over time
+// ══════════════════════════════════════════════════════════════════════
+function BacklinkMonitor({ onNavigate }) {
+  const [tab, setTab] = useState("new");
+  const [domain, setDomain] = useState("seoengineboost.com");
+  const gainLossData = [
+    {m:"Nov '25",gained:82,lost:34},{m:"Dec '25",gained:95,lost:41},{m:"Jan '26",gained:112,lost:28},
+    {m:"Feb '26",gained:98,lost:52},{m:"Mar '26",gained:134,lost:31},{m:"Apr '26",gained:118,lost:44},{m:"May '26",gained:143,lost:29},
+  ];
+  const newLinks = [
+    {domain:"techcrunch.com",   dr:91,anchor:"Best SEO Tools",       url:"/best-seo-tools-2026",        date:"May 8, 2026",  dofollow:true,  type:"Editorial"},
+    {domain:"moz.com",         dr:86,anchor:"SEO platform review",   url:"/seo-platform-comparison",    date:"May 6, 2026",  dofollow:true,  type:"Editorial"},
+    {domain:"reddit.com",      dr:92,anchor:"seoengineboost.com",    url:"/r/SEO/comments/...",          date:"May 5, 2026",  dofollow:false, type:"Forum"},
+    {domain:"hubspot.com",     dr:93,anchor:"Keyword research tools",url:"/blog/keyword-research-tools",date:"May 3, 2026",  dofollow:true,  type:"Resource"},
+    {domain:"backlinko.com",   dr:85,anchor:"free seo audit",        url:"/seo-audit-guide",            date:"Apr 30, 2026", dofollow:true,  type:"Editorial"},
+    {domain:"ahrefs.com",      dr:88,anchor:"rank tracking software",url:"/blog/rank-trackers",         date:"Apr 28, 2026", dofollow:false, type:"Resource"},
+  ];
+  const lostLinks = [
+    {domain:"searchenginejournal.com",dr:81,anchor:"SEO tools list",  date:"May 7, 2026",  reason:"Page removed"},
+    {domain:"seobook.com",            dr:69,anchor:"audit tools",      date:"Apr 25, 2026", reason:"Link removed"},
+    {domain:"neilpatel.com",          dr:89,anchor:"seo software",     date:"Apr 20, 2026", reason:"URL changed"},
+  ];
+
+  return (
+    <div className="fade" style={{overflowY:"auto",height:"calc(100vh - 57px)",background:C.bg}}>
+      {/* Header */}
+      <div style={{background:C.white,borderBottom:`1px solid ${C.border}`,padding:"14px 28px",display:"flex",alignItems:"center",gap:12}}>
+        <div style={{flex:1,display:"flex",alignItems:"center",gap:10,background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,padding:"9px 14px"}}>
+          <Globe size={14} color={C.blueL}/>
+          <input value={domain} onChange={e=>setDomain(e.target.value)} style={{flex:1,background:"transparent",border:"none",outline:"none",color:C.text,fontSize:13,fontFamily:"inherit"}}/>
+        </div>
+        <select style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,padding:"9px 12px",color:C.text,fontSize:12,fontFamily:"inherit"}}>
+          <option>All Time</option><option>Last 7 days</option><option>Last 30 days</option><option>Last 90 days</option>
+        </select>
+        <button style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"9px 22px",borderRadius:9,fontSize:13,fontWeight:700,fontFamily:"inherit"}}>Monitor</button>
+        <button style={{background:"transparent",border:`1px solid ${C.border}`,color:C.textMid,cursor:"pointer",padding:"9px 12px",borderRadius:9,fontSize:12,fontFamily:"inherit",display:"flex",alignItems:"center",gap:5}}>
+          <Bell size={13}/> Alerts On
+        </button>
+      </div>
+
+      <div style={{padding:"20px 28px"}}>
+        {/* Stats */}
+        <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:20}}>
+          {[
+            {l:"Total Backlinks",  v:"14.3K",  c:C.blueL,  chg:"+143 this month"},
+            {l:"Ref. Domains",     v:"920",    c:C.green,  chg:"+38 new"},
+            {l:"New This Month",   v:"143",    c:C.green,  chg:"↑ vs 118 last mo"},
+            {l:"Lost This Month",  v:"29",     c:C.orange, chg:"↓ vs 44 last mo"},
+            {l:"Net Gain",         v:"+114",   c:C.green,  chg:"Best month ever 🎉"},
+          ].map(s=>(
+            <div key={s.l} className="card" style={{padding:"14px 16px"}}>
+              <div className="sg" style={{color:s.c,fontSize:22,fontWeight:800,marginBottom:2}}>{s.v}</div>
+              <div style={{color:C.text,fontSize:12,fontWeight:600,marginBottom:2}}>{s.l}</div>
+              <div style={{color:C.textDim,fontSize:10}}>{s.chg}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Gain/Loss chart */}
+        <div className="card" style={{padding:"20px 24px",marginBottom:20}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+            <div>
+              <div className="sg" style={{color:C.text,fontWeight:700,fontSize:15}}>New vs Lost Backlinks</div>
+              <div style={{color:C.textDim,fontSize:12}}>Dec 2025 → May 2026</div>
+            </div>
+            <div style={{display:"flex",gap:16}}>
+              {[["Gained",C.green],["Lost",C.red]].map(([l,c])=>(
+                <div key={l} style={{display:"flex",alignItems:"center",gap:5}}><div style={{width:10,height:3,background:c,borderRadius:2}}/><span style={{color:C.textDim,fontSize:11}}>{l}</span></div>
+              ))}
+            </div>
+          </div>
+          <ResponsiveContainer width="100%" height={200}>
+            <RBarChart data={gainLossData} barGap={4}>
+              <CartesianGrid strokeDasharray="3 3" stroke={C.border}/>
+              <XAxis dataKey="m" tick={{fill:C.textDim,fontSize:10}} axisLine={false} tickLine={false}/>
+              <YAxis tick={{fill:C.textDim,fontSize:10}} axisLine={false} tickLine={false}/>
+              <Tooltip contentStyle={{background:C.white,border:`1px solid ${C.border}`,borderRadius:8,fontSize:11}}/>
+              <Bar dataKey="gained" fill={C.green} radius={[4,4,0,0]} name="Gained"/>
+              <Bar dataKey="lost" fill={`${C.red}80`} radius={[4,4,0,0]} name="Lost"/>
+            </RBarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Tabs */}
+        <div style={{display:"flex",gap:0,background:C.white,borderRadius:"10px 10px 0 0",overflow:"hidden",borderBottom:`1px solid ${C.border}`}}>
+          {[["new",`🆕 New Links (${newLinks.length})`],["lost",`📉 Lost Links (${lostLinks.length})`],["alerts","🔔 Alert Settings"]].map(([id,label])=>(
+            <button key={id} onClick={()=>setTab(id)} style={{padding:"12px 20px",border:"none",borderBottom:tab===id?`2.5px solid ${C.blueL}`:"2.5px solid transparent",cursor:"pointer",fontSize:13,fontWeight:tab===id?700:500,fontFamily:"inherit",background:"transparent",color:tab===id?C.blueL:C.textMid,marginBottom:-1}}>{label}</button>
+          ))}
+          <div style={{flex:1}}/>
+          <button style={{background:"transparent",border:"none",color:C.blueL,cursor:"pointer",fontSize:12,fontFamily:"inherit",padding:"0 16px"}}>Export ↓</button>
+        </div>
+
+        {tab==="new"&&(
+          <div className="card" style={{overflow:"hidden"}}>
+            <div style={{display:"grid",gridTemplateColumns:"2fr 60px 2fr 1.5fr 90px 80px 100px",padding:"9px 16px",background:C.bg,borderBottom:`1px solid ${C.border}`}}>
+              {["SOURCE DOMAIN","DR","ANCHOR TEXT","TARGET PAGE","DATE","FOLLOW","TYPE"].map(h=>(
+                <div key={h} style={{color:C.textDim,fontSize:10,fontWeight:700,letterSpacing:.4}}>{h}</div>
+              ))}
+            </div>
+            {newLinks.map((lnk,i)=>(
+              <div key={i} className="td" style={{display:"grid",gridTemplateColumns:"2fr 60px 2fr 1.5fr 90px 80px 100px",padding:"12px 16px",borderBottom:`1px solid ${C.border}`,alignItems:"center"}}>
+                <div style={{display:"flex",alignItems:"center",gap:7}}>
+                  <div style={{width:26,height:26,borderRadius:6,background:C.bluePale,display:"flex",alignItems:"center",justifyContent:"center"}}><Globe size={11} color={C.blueL}/></div>
+                  <span style={{color:C.blueL,fontWeight:600,fontSize:13}}>{lnk.domain}</span>
+                </div>
+                <span className="sg" style={{color:C.text,fontWeight:700,fontSize:13}}>{lnk.dr}</span>
+                <span style={{color:C.textMid,fontSize:12}}>{lnk.anchor}</span>
+                <span style={{color:C.textDim,fontSize:11,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{lnk.url}</span>
+                <span style={{color:C.textDim,fontSize:11}}>{lnk.date}</span>
+                <span className="chip" style={{color:lnk.dofollow?C.green:C.textDim,background:lnk.dofollow?C.greenL:C.bg,fontSize:10}}>{lnk.dofollow?"Dofollow":"Nofollow"}</span>
+                <span className="chip" style={{color:C.blueL,background:C.bluePale,fontSize:10}}>{lnk.type}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {tab==="lost"&&(
+          <div className="card" style={{overflow:"hidden"}}>
+            <div style={{display:"grid",gridTemplateColumns:"2fr 60px 2fr 120px 160px",padding:"9px 16px",background:C.bg,borderBottom:`1px solid ${C.border}`}}>
+              {["SOURCE DOMAIN","DR","ANCHOR TEXT","DATE LOST","REASON"].map(h=>(
+                <div key={h} style={{color:C.textDim,fontSize:10,fontWeight:700,letterSpacing:.4}}>{h}</div>
+              ))}
+            </div>
+            {lostLinks.map((lnk,i)=>(
+              <div key={i} className="td" style={{display:"grid",gridTemplateColumns:"2fr 60px 2fr 120px 160px",padding:"12px 16px",borderBottom:`1px solid ${C.border}`,alignItems:"center"}}>
+                <div style={{display:"flex",alignItems:"center",gap:7}}>
+                  <div style={{width:26,height:26,borderRadius:6,background:C.redL,display:"flex",alignItems:"center",justifyContent:"center"}}><Globe size={11} color={C.red}/></div>
+                  <span style={{color:C.text,fontWeight:600,fontSize:13}}>{lnk.domain}</span>
+                </div>
+                <span className="sg" style={{color:C.text,fontWeight:700,fontSize:13}}>{lnk.dr}</span>
+                <span style={{color:C.textMid,fontSize:12}}>{lnk.anchor}</span>
+                <span style={{color:C.textDim,fontSize:11}}>{lnk.date}</span>
+                <span className="chip" style={{color:C.orange,background:C.orangeL,fontSize:10}}>{lnk.reason}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {tab==="alerts"&&(
+          <div className="card" style={{padding:"22px 24px"}}>
+            <div className="sg" style={{color:C.text,fontWeight:700,fontSize:14,marginBottom:16}}>Backlink Alert Configuration</div>
+            {[
+              {label:"New backlinks detected",     val:true, freq:"Instantly"},
+              {label:"Backlinks lost",              val:true, freq:"Daily digest"},
+              {label:"Toxic backlink detected",     val:true, freq:"Instantly"},
+              {label:"Referring domain milestone",  val:false,freq:"Weekly"},
+              {label:"Authority score change",      val:true, freq:"Weekly"},
+            ].map((alert,i)=>(
+              <div key={i} style={{display:"flex",alignItems:"center",gap:14,padding:"12px 0",borderBottom:`1px solid ${C.border}`}}>
+                <div style={{flex:1}}>
+                  <div style={{color:C.text,fontSize:13,fontWeight:600}}>{alert.label}</div>
+                  <div style={{color:C.textDim,fontSize:11}}>Frequency: {alert.freq}</div>
+                </div>
+                <div style={{width:44,height:24,borderRadius:12,background:alert.val?C.blueL:C.border,position:"relative",cursor:"pointer"}}>
+                  <div style={{position:"absolute",width:18,height:18,borderRadius:"50%",background:"#fff",top:3,left:alert.val?22:4,transition:"left .2s",boxShadow:"0 1px 3px rgba(0,0,0,.2)"}}/>
+                </div>
+              </div>
+            ))}
+            <button style={{marginTop:16,background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"10px 22px",borderRadius:9,fontSize:13,fontWeight:700,fontFamily:"inherit"}}>Save Alert Settings</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  AI TOOLS HUB — Content generators, keyword tools, social tools
+// ══════════════════════════════════════════════════════════════════════
+function AIToolsHub({ onNavigate }) {
+  const [activeTool, setActiveTool] = useState(null);
+  const [output, setOutput] = useState("");
+  const [input, setInput] = useState("");
+  const [generating, setGenerating] = useState(false);
+
+  const categories = [
+    {
+      name:"✍️ Content Tools", color:C.blueL, bg:C.bluePale,
+      tools:[
+        {id:"meta",       icon:"🏷",  name:"Meta Title & Description Generator", desc:"Generate SEO-optimized meta tags instantly",               prompt:"domain/topic"},
+        {id:"blog",       icon:"📝",  name:"Blog Post Outline Generator",        desc:"AI creates a full blog structure in seconds",             prompt:"topic"},
+        {id:"cta",        icon:"🎯",  name:"Call to Action Generator",           desc:"Create powerful CTAs that convert visitors",              prompt:"product/service"},
+        {id:"product",    icon:"🛍",  name:"Product Description Generator",      desc:"Compelling product descriptions at scale",                prompt:"product name + specs"},
+      ]
+    },
+    {
+      name:"🔑 AI SEO Tools", color:C.green, bg:C.greenL,
+      tools:[
+        {id:"longtail",   icon:"🔍",  name:"Long Tail Keyword Generator",        desc:"Find high-converting long-tail keywords",                 prompt:"seed keyword"},
+        {id:"cluster",    icon:"🗂",  name:"Keyword Clustering Tool",            desc:"Group keywords by topic for content planning",           prompt:"keyword list"},
+        {id:"schema",     icon:"⚙️",  name:"Schema Markup Generator",            desc:"Generate JSON-LD schema for any page type",              prompt:"page type + details"},
+        {id:"title",      icon:"✏️",  name:"SEO Title Tag Optimizer",            desc:"A/B test title variations for higher CTR",               prompt:"current title + keyword"},
+      ]
+    },
+    {
+      name:"📱 Social Media Tools", color:C.orange, bg:C.orangeL,
+      tools:[
+        {id:"bio",        icon:"👤",  name:"AI Bio Generator",                   desc:"Create perfect profile bios for any platform",           prompt:"name + role + brand"},
+        {id:"ytitle",     icon:"▶️",  name:"YouTube Title Generator",             desc:"Catchy titles that get clicks on YouTube",               prompt:"video topic"},
+        {id:"script",     icon:"🎬",  name:"AI Script Generator",                desc:"Full video scripts for YouTube or TikTok",               prompt:"video topic + length"},
+        {id:"linkedin",   icon:"💼",  name:"LinkedIn Headline Generator",         desc:"Stand-out professional headlines",                       prompt:"job title + skills"},
+      ]
+    },
+  ];
+
+  const allTools = categories.flatMap(cat => cat.tools);
+
+  const generate = (tool) => {
+    if(!input.trim()) return;
+    setGenerating(true);
+    setOutput("");
+    setTimeout(() => {
+      const outputs = {
+        meta: `<title>${input} — Expert Services | Boostly AI</title>\n<meta name="description" content="Discover the best ${input} solutions. Get expert insights, proven strategies, and AI-powered recommendations. Start free today — no credit card required.">`,
+        blog: `# Complete Guide to ${input} in 2026\n\n## Introduction\n## Why ${input} Matters\n## Top 5 Strategies\n## Step-by-Step Implementation\n## Common Mistakes to Avoid\n## Tools & Resources\n## Conclusion & Next Steps`,
+        cta: `"Start Your Free ${input} Trial Today →"\n"Get Instant ${input} Analysis — No Credit Card"\n"Join 10,000+ Teams Using ${input} to Grow Faster"`,
+        longtail: `${input} for beginners\nbest ${input} tools 2026\nhow to use ${input} effectively\n${input} near me\n${input} vs alternatives\ncheap ${input} services\n${input} tutorial step by step\n${input} for small business`,
+        cluster: `CLUSTER 1: ${input} Basics (8 keywords)\nCLUSTER 2: ${input} Tools & Software (12 keywords)\nCLUSTER 3: ${input} Pricing & Cost (6 keywords)\nCLUSTER 4: ${input} Best Practices (15 keywords)`,
+        bio: `${input} | Digital Strategist & Growth Expert\nHelping brands scale with AI-powered ${input} solutions 🚀\nFeatured in TechCrunch | 10K+ clients worldwide\n📧 hello@boostly.app | 🌐 boostly.app`,
+        default: `✨ AI-generated content for "${input}":\n\nHere is your optimized content based on the latest AI models and SEO best practices. This output is tailored to maximize engagement, search visibility, and conversion rates for your specific use case.`
+      };
+      setOutput(outputs[tool.id] || outputs.default);
+      setGenerating(false);
+    }, 1500);
+  };
+
+  return (
+    <div className="fade" style={{overflowY:"auto",height:"calc(100vh - 57px)",background:C.bg}}>
+      {/* Hero */}
+      <div style={{background:`linear-gradient(135deg,${C.blue},${C.blueL},${C.orange})`,padding:"28px 32px",position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",right:-60,top:-60,width:280,height:280,borderRadius:"50%",background:"rgba(255,255,255,.06)"}}/>
+        <div style={{position:"relative"}}>
+          <div style={{color:"#FED7AA",fontSize:11,fontWeight:700,letterSpacing:1,marginBottom:6}}>POWERED BY AI</div>
+          <h2 className="sg" style={{color:"#fff",fontSize:24,fontWeight:800,marginBottom:6}}>AI Content & SEO Tools</h2>
+          <p style={{color:"rgba(255,255,255,.8)",fontSize:13,maxWidth:500}}>12 powerful AI tools for SEO, content creation, and social media — all in one place. Generate professional content in seconds.</p>
+        </div>
+      </div>
+
+      {/* Tool selector + output panel */}
+      {activeTool && (
+        <div style={{background:C.white,borderBottom:`1px solid ${C.border}`,padding:"16px 32px",display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
+          <div>
+            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
+              <span style={{fontSize:24}}>{activeTool.icon}</span>
+              <div>
+                <div className="sg" style={{color:C.text,fontWeight:700,fontSize:15}}>{activeTool.name}</div>
+                <div style={{color:C.textDim,fontSize:12}}>{activeTool.desc}</div>
+              </div>
+              <button onClick={()=>{setActiveTool(null);setOutput("");}} style={{marginLeft:"auto",background:"transparent",border:`1px solid ${C.border}`,cursor:"pointer",padding:"4px 8px",borderRadius:6,fontSize:11,color:C.textMid,fontFamily:"inherit"}}>✕ Close</button>
+            </div>
+            <div style={{display:"flex",gap:8}}>
+              <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&generate(activeTool)} placeholder={`Enter ${activeTool.prompt}...`} style={{flex:1,background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,padding:"10px 14px",color:C.text,fontSize:13,fontFamily:"inherit",outline:"none"}}/>
+              <button onClick={()=>generate(activeTool)} disabled={generating} style={{background:`linear-gradient(135deg,${C.blueL},${C.blue})`,color:"#fff",border:"none",cursor:"pointer",padding:"10px 20px",borderRadius:9,fontSize:13,fontWeight:700,fontFamily:"inherit",display:"flex",alignItems:"center",gap:6}}>
+                {generating?<span style={{display:"inline-block",animation:"p 1s infinite"}}>⚡</span>:<Bot size={13}/>}
+                {generating?"Generating...":"Generate"}
+              </button>
+            </div>
+          </div>
+          <div style={{background:C.bg,borderRadius:10,padding:"12px 16px",minHeight:80,fontFamily:"monospace",fontSize:12,color:C.text,lineHeight:1.7,whiteSpace:"pre-wrap",overflow:"auto",maxHeight:150,border:`1px solid ${C.border}`}}>
+            {output||<span style={{color:C.textDim}}>← Enter input and click Generate</span>}
+          </div>
+        </div>
+      )}
+
+      {/* Tool categories */}
+      <div style={{padding:"24px 32px"}}>
+        {categories.map((cat,ci)=>(
+          <div key={ci} style={{marginBottom:28}}>
+            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
+              <div style={{height:3,width:32,borderRadius:2,background:cat.color}}/>
+              <h3 className="sg" style={{color:C.text,fontSize:16,fontWeight:800}}>{cat.name}</h3>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:14}}>
+              {cat.tools.map((tool,ti)=>(
+                <div key={ti} className="card ch" style={{padding:"18px 20px",cursor:"pointer",border:activeTool?.id===tool.id?`2px solid ${cat.color}`:`1px solid ${C.border}`,background:activeTool?.id===tool.id?`${cat.color}06`:"#fff"}} onClick={()=>{setActiveTool(tool);setInput("");setOutput("");}}>
+                  <div style={{width:42,height:42,borderRadius:12,background:cat.bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,marginBottom:12}}>{tool.icon}</div>
+                  <div className="sg" style={{color:C.text,fontWeight:700,fontSize:13,marginBottom:6,lineHeight:1.3}}>{tool.name}</div>
+                  <div style={{color:C.textDim,fontSize:11,lineHeight:1.5}}>{tool.desc}</div>
+                  {activeTool?.id===tool.id&&<div style={{marginTop:10,color:cat.color,fontSize:11,fontWeight:700}}>▶ Active</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  FREE TOOLS HUB — Directory of 20+ free SEO mini-tools
+// ══════════════════════════════════════════════════════════════════════
+function FreeToolsHub({ onNavigate }) {
+  const [search, setSearch] = useState("");
+  const tools = [
+    {name:"Meta Tag Checker",           cat:"On-Page",    icon:"🏷",  url:"/meta-checker",        desc:"Analyze title, description and og tags"},
+    {name:"Robots.txt Tester",           cat:"Technical",  icon:"🤖",  url:"/robots-tester",       desc:"Validate and debug robots.txt files"},
+    {name:"Sitemap Validator",           cat:"Technical",  icon:"🗺",  url:"/sitemap-validator",   desc:"Check XML sitemap for errors"},
+    {name:"Page Speed Checker",          cat:"Performance",icon:"⚡",  url:"/speed-checker",       desc:"Test Core Web Vitals instantly"},
+    {name:"Mobile Friendly Test",        cat:"Mobile",     icon:"📱",  url:"/mobile-test",         desc:"Check mobile usability score"},
+    {name:"Schema Markup Tester",        cat:"Technical",  icon:"⚙️",  url:"/schema-tester",       desc:"Validate JSON-LD structured data"},
+    {name:"Canonical URL Checker",       cat:"Technical",  icon:"🔗",  url:"/canonical-checker",   desc:"Detect canonical tag issues"},
+    {name:"Keyword Density Analyzer",    cat:"On-Page",    icon:"📊",  url:"/kd-analyzer",         desc:"Find keyword over/under optimization"},
+    {name:"Duplicate Content Checker",   cat:"On-Page",    icon:"📋",  url:"/duplicate-checker",   desc:"Detect duplicate content issues"},
+    {name:"Broken Link Checker",         cat:"Technical",  icon:"💔",  url:"/broken-links",        desc:"Find 404 errors across your site"},
+    {name:"SERP Preview Tool",           cat:"On-Page",    icon:"🔍",  url:"/serp-preview",        desc:"Preview how your page looks in Google"},
+    {name:"Open Graph Checker",          cat:"Social",     icon:"📣",  url:"/og-checker",          desc:"Test how links appear on social media"},
+    {name:"Redirect Checker",            cat:"Technical",  icon:"↪️",  url:"/redirect-checker",    desc:"Trace redirect chains instantly"},
+    {name:"HSTS Checker",                cat:"Security",   icon:"🔒",  url:"/hsts-checker",        desc:"Check HTTPS and HSTS configuration"},
+    {name:"DNS Lookup Tool",             cat:"Technical",  icon:"🌐",  url:"/dns-lookup",          desc:"Query DNS records for any domain"},
+    {name:"SSL Certificate Checker",     cat:"Security",   icon:"🛡",  url:"/ssl-checker",         desc:"Verify SSL certificate validity"},
+    {name:"HTTP Header Checker",         cat:"Technical",  icon:"📡",  url:"/header-checker",      desc:"Inspect HTTP response headers"},
+    {name:"Word Count Tool",             cat:"Content",    icon:"📝",  url:"/word-count",          desc:"Count words, sentences and reading time"},
+    {name:"Readability Checker",         cat:"Content",    icon:"📖",  url:"/readability",         desc:"Flesch-Kincaid readability score"},
+    {name:"Alt Text Checker",            cat:"On-Page",    icon:"🖼",  url:"/alt-checker",         desc:"Find images missing alt attributes"},
+    {name:"Internal Link Analyzer",      cat:"On-Page",    icon:"🕸",  url:"/internal-links",      desc:"Map internal link structure"},
+    {name:"Page Authority Checker",      cat:"Authority",  icon:"⭐",  url:"/pa-checker",          desc:"Check Moz Page Authority score"},
+    {name:"Spam Score Checker",          cat:"Authority",  icon:"🚨",  url:"/spam-checker",        desc:"Identify toxic link spam score"},
+    {name:"Google Index Checker",        cat:"Technical",  icon:"📑",  url:"/index-checker",       desc:"Check if pages are indexed by Google"},
+  ];
+  const cats = [...new Set(tools.map(t=>t.cat))];
+  const [activeCat, setActiveCat] = useState("All");
+  const catCol = {Technical:C.blueL,"On-Page":C.green,Performance:C.orange,Security:C.red,Content:C.purple,Social:C.yellow,Authority:C.orange,Mobile:C.green};
+
+  const filtered = tools.filter(t=>(activeCat==="All"||t.cat===activeCat)&&(t.name.toLowerCase().includes(search.toLowerCase())||t.desc.toLowerCase().includes(search.toLowerCase())));
+
+  return (
+    <div className="fade" style={{overflowY:"auto",height:"calc(100vh - 57px)",background:C.bg}}>
+      <div style={{background:`linear-gradient(135deg,${C.blue},${C.blueL})`,padding:"28px 32px",position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",right:-60,top:-60,width:250,height:250,borderRadius:"50%",background:"rgba(255,255,255,.07)"}}/>
+        <div style={{position:"relative"}}>
+          <div style={{color:"#FED7AA",fontSize:11,fontWeight:700,letterSpacing:1,marginBottom:6}}>100% FREE — NO SIGN-UP</div>
+          <h2 className="sg" style={{color:"#fff",fontSize:24,fontWeight:800,marginBottom:6}}>Free SEO Tools</h2>
+          <p style={{color:"rgba(255,255,255,.8)",fontSize:13}}>{tools.length}+ professional SEO tools, completely free. No limits, no catch.</p>
+          <div style={{display:"flex",gap:8,marginTop:16,background:"rgba(255,255,255,.15)",borderRadius:10,padding:"8px 14px",maxWidth:400}}>
+            <Search size={16} color="rgba(255,255,255,.7)"/>
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search tools..." style={{background:"transparent",border:"none",outline:"none",color:"#fff",fontSize:13,fontFamily:"inherit",flex:1}}/>
+          </div>
+        </div>
+      </div>
+      <div style={{padding:"20px 32px"}}>
+        {/* Category filters */}
+        <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:20}}>
+          {["All",...cats].map(cat=>(
+            <button key={cat} onClick={()=>setActiveCat(cat)} style={{background:activeCat===cat?(catCol[cat]||C.blueL):"transparent",color:activeCat===cat?"#fff":(catCol[cat]||C.textMid),border:`1px solid ${activeCat===cat?(catCol[cat]||C.blueL):C.border}`,cursor:"pointer",padding:"6px 14px",borderRadius:20,fontSize:12,fontFamily:"inherit"}}>{cat} {cat!=="All"&&`(${tools.filter(t=>t.cat===cat).length})`}</button>
+          ))}
+        </div>
+        {/* Tools grid */}
+        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:14}}>
+          {filtered.map((tool,i)=>{
+            const col = catCol[tool.cat]||C.blueL;
+            return (
+              <div key={i} className="card ch" style={{padding:"18px 20px",cursor:"pointer"}} onClick={()=>onNavigate&&onNavigate("siteaudit")}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
+                  <span style={{fontSize:24}}>{tool.icon}</span>
+                  <span style={{background:`${col}18`,color:col,fontSize:9,fontWeight:700,padding:"2px 7px",borderRadius:10}}>{tool.cat}</span>
+                </div>
+                <div className="sg" style={{color:C.text,fontWeight:700,fontSize:13,marginBottom:4,lineHeight:1.3}}>{tool.name}</div>
+                <div style={{color:C.textDim,fontSize:11,lineHeight:1.5,marginBottom:10}}>{tool.desc}</div>
+                <div style={{color:col,fontSize:11,fontWeight:700}}>Use Free Tool →</div>
+              </div>
+            );
+          })}
+        </div>
+        {filtered.length===0&&<div style={{textAlign:"center",padding:"40px",color:C.textDim}}>No tools found for "{search}"</div>}
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  EMBEDDABLE AUDIT TOOL — Lead capture widget for agencies
+// ══════════════════════════════════════════════════════════════════════
+function EmbeddableAudit() {
+  const [tab, setTab] = useState("builder");
+  const [formBg, setFormBg] = useState(C.blueL);
+  const [btnText, setBtnText] = useState("Get Free SEO Audit");
+  const [showEmail, setShowEmail] = useState(true);
+  const [leads] = useState([
+    {name:"Dr. Ahmed Al-Rashid",   email:"ahmed@dentalclinic.com", domain:"dentalclinic.com",   score:58, date:"May 9, 2026",  status:"Hot"},
+    {name:"Sara Johnson",          email:"sara@legalfirm.com",      domain:"legalfirm.com",      score:42, date:"May 8, 2026",  status:"Hot"},
+    {name:"Mike Chen",             email:"mike@ecommerce.io",        domain:"ecommerce.io",       score:71, date:"May 7, 2026",  status:"Warm"},
+    {name:"Fatima Al-Zaidi",       email:"f.zaidi@realestate.ae",   domain:"realestate.ae",      score:39, date:"May 6, 2026",  status:"Hot"},
+    {name:"James Williams",        email:"james@restaurant.com",     domain:"restaurant.com",     score:63, date:"May 5, 2026",  status:"Warm"},
+  ]);
+  const embedCode = `<iframe src="https://boostly.app/embed/audit?key=YOUR_KEY&color=${formBg.replace('#','')}" width="100%" height="380" frameborder="0"></iframe>`;
+
+  return (
+    <div className="fade" style={{overflowY:"auto",height:"calc(100vh - 57px)",background:C.bg}}>
+      <div style={{background:`linear-gradient(135deg,${C.orange},#EA580C)`,padding:"24px 32px"}}>
+        <div style={{color:"rgba(255,255,255,.8)",fontSize:11,fontWeight:700,letterSpacing:1,marginBottom:6}}>LEAD GENERATION TOOL</div>
+        <h2 className="sg" style={{color:"#fff",fontSize:22,fontWeight:800,marginBottom:4}}>Embeddable SEO Audit Widget</h2>
+        <p style={{color:"rgba(255,255,255,.8)",fontSize:13}}>Embed a branded audit tool on your agency website. Capture leads automatically when visitors run audits.</p>
+      </div>
+      <div style={{borderBottom:`1px solid ${C.border}`,background:C.white,padding:"0 32px",display:"flex"}}>
+        {[["builder","🎨 Widget Builder"],["embed","💻 Embed Code"],["leads",`📋 Leads (${leads.length})`]].map(([id,label])=>(
+          <button key={id} onClick={()=>setTab(id)} style={{padding:"12px 20px",border:"none",borderBottom:tab===id?`2.5px solid ${C.orange}`:"2.5px solid transparent",cursor:"pointer",fontSize:13,fontWeight:tab===id?700:500,fontFamily:"inherit",background:"transparent",color:tab===id?C.orange:C.textMid,marginBottom:-1}}>{label}</button>
+        ))}
+      </div>
+      <div style={{padding:"24px 32px"}}>
+        {tab==="builder"&&(
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:24}}>
+            <div>
+              <div className="card" style={{padding:"22px 24px",marginBottom:16}}>
+                <div className="sg" style={{color:C.text,fontWeight:700,fontSize:14,marginBottom:16}}>Customize Your Widget</div>
+                {[{l:"Button Text",val:btnText,set:setBtnText,type:"text"},{l:"Brand Color",val:formBg,set:setFormBg,type:"color"}].map(({l,val,set,type})=>(
+                  <div key={l} style={{marginBottom:14}}>
+                    <label style={{color:C.textMid,fontSize:12,fontWeight:600,display:"block",marginBottom:5}}>{l}</label>
+                    <input type={type} value={val} onChange={e=>set(e.target.value)} style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,padding:"9px 12px",color:C.text,fontSize:13,fontFamily:"inherit",outline:"none"}}/>
+                  </div>
+                ))}
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 0",borderTop:`1px solid ${C.border}`}}>
+                  <span style={{color:C.text,fontSize:13}}>Collect email addresses</span>
+                  <div onClick={()=>setShowEmail(!showEmail)} style={{width:44,height:24,borderRadius:12,background:showEmail?C.orange:C.border,position:"relative",cursor:"pointer"}}>
+                    <div style={{position:"absolute",width:18,height:18,borderRadius:"50%",background:"#fff",top:3,left:showEmail?22:4,transition:"left .2s"}}/>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div style={{color:C.textDim,fontSize:11,fontWeight:700,marginBottom:8,letterSpacing:.8}}>LIVE PREVIEW</div>
+              <div style={{borderRadius:14,overflow:"hidden",boxShadow:"0 4px 20px rgba(0,0,0,.12)"}}>
+                <div style={{background:formBg,padding:"20px 22px"}}>
+                  <div className="sg" style={{color:"#fff",fontWeight:800,fontSize:16,marginBottom:4}}>Free SEO Audit</div>
+                  <div style={{color:"rgba(255,255,255,.8)",fontSize:12,marginBottom:14}}>Discover issues hurting your rankings in 60 seconds</div>
+                  <input placeholder="yourwebsite.com" style={{width:"100%",background:"rgba(255,255,255,.15)",border:"1px solid rgba(255,255,255,.3)",borderRadius:8,padding:"10px 14px",color:"#fff",fontSize:13,fontFamily:"inherit",outline:"none",marginBottom:10,boxSizing:"border-box"}}/>
+                  {showEmail&&<input placeholder="Your email address" style={{width:"100%",background:"rgba(255,255,255,.15)",border:"1px solid rgba(255,255,255,.3)",borderRadius:8,padding:"10px 14px",color:"#fff",fontSize:13,fontFamily:"inherit",outline:"none",marginBottom:10,boxSizing:"border-box"}}/>}
+                  <button style={{width:"100%",background:"#fff",color:formBg,border:"none",cursor:"pointer",padding:"11px",borderRadius:9,fontSize:13,fontWeight:800,fontFamily:"inherit"}}>{btnText}</button>
+                  <div style={{textAlign:"center",color:"rgba(255,255,255,.5)",fontSize:10,marginTop:8}}>Powered by Boostly</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {tab==="embed"&&(
+          <div className="card" style={{padding:"22px 24px"}}>
+            <div className="sg" style={{color:C.text,fontWeight:700,fontSize:14,marginBottom:4}}>Copy & Paste Embed Code</div>
+            <p style={{color:C.textDim,fontSize:12,marginBottom:16}}>Add this code anywhere on your website — WordPress, Wix, Webflow, custom HTML.</p>
+            <div style={{background:"#1E293B",borderRadius:10,padding:"16px 20px",fontFamily:"monospace",fontSize:12,color:"#E2E8F0",lineHeight:1.7,position:"relative",marginBottom:16}}>
+              {embedCode}
+              <button style={{position:"absolute",top:10,right:10,background:"rgba(255,255,255,.1)",border:"none",cursor:"pointer",padding:"4px 8px",borderRadius:5,color:"#fff",fontSize:11,fontFamily:"inherit"}}>Copy</button>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12}}>
+              {["WordPress","Webflow","Wix","Squarespace","Shopify","Custom HTML","React","Vue"].map(p=>(
+                <div key={p} className="card" style={{padding:"12px",textAlign:"center",cursor:"pointer"}}>
+                  <div style={{fontSize:20,marginBottom:4}}>🔧</div>
+                  <div style={{color:C.text,fontSize:12,fontWeight:600}}>{p}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {tab==="leads"&&(
+          <div className="card" style={{overflow:"hidden"}}>
+            <div style={{padding:"13px 20px",borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center"}}>
+              <span className="sg" style={{color:C.text,fontWeight:700,fontSize:14,flex:1}}>Captured Leads</span>
+              <button style={{background:C.green,color:"#fff",border:"none",cursor:"pointer",padding:"7px 14px",borderRadius:7,fontSize:12,fontWeight:700,fontFamily:"inherit"}}>↓ Export CSV</button>
+            </div>
+            <table style={{width:"100%",borderCollapse:"collapse"}}>
+              <thead><tr style={{background:C.bg}}>
+                {["Name","Email","Domain","Score","Date","Status","Action"].map(h=>(
+                  <th key={h} style={{padding:"10px 16px",textAlign:"left",color:C.textDim,fontSize:10,fontWeight:700,borderBottom:`1px solid ${C.border}`}}>{h}</th>
+                ))}
+              </tr></thead>
+              <tbody>
+                {leads.map((lead,i)=>(
+                  <tr key={i} className="td">
+                    <td style={{padding:"13px 16px",color:C.text,fontWeight:600,fontSize:13,borderBottom:`1px solid ${C.border}`}}>{lead.name}</td>
+                    <td style={{padding:"13px 16px",color:C.blueL,fontSize:12,borderBottom:`1px solid ${C.border}`}}>{lead.email}</td>
+                    <td style={{padding:"13px 16px",color:C.textMid,fontSize:12,borderBottom:`1px solid ${C.border}`}}>{lead.domain}</td>
+                    <td style={{padding:"13px 16px",borderBottom:`1px solid ${C.border}`}}>
+                      <span style={{background:lead.score>=70?C.greenL:lead.score>=50?C.yellowL:C.redL,color:lead.score>=70?C.green:lead.score>=50?C.yellow:C.red,fontWeight:700,fontSize:13,padding:"2px 8px",borderRadius:6}}>{lead.score}</span>
+                    </td>
+                    <td style={{padding:"13px 16px",color:C.textDim,fontSize:11,borderBottom:`1px solid ${C.border}`}}>{lead.date}</td>
+                    <td style={{padding:"13px 16px",borderBottom:`1px solid ${C.border}`}}>
+                      <span className="chip" style={{color:lead.status==="Hot"?C.red:C.orange,background:lead.status==="Hot"?C.redL:C.orangeL}}>{lead.status} {lead.status==="Hot"?"🔥":"🌡"}</span>
+                    </td>
+                    <td style={{padding:"13px 16px",borderBottom:`1px solid ${C.border}`}}>
+                      <button style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"5px 10px",borderRadius:6,fontSize:11,fontWeight:700,fontFamily:"inherit"}}>Contact</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  MARKETING LANDING PAGES — Full-page tool marketing sites
+//  Better than SEOptimizer using Boostly brand colors
+// ══════════════════════════════════════════════════════════════════════
+function LandingPages({ page, onEnterApp, plan }) {
+  // Shared landing page components
+  const Hero = ({title, subtitle, desc, ctaText, ctaAction, badge, gradient}) => (
+    <div style={{background:gradient||`linear-gradient(135deg,${C.blue} 0%,${C.blueL} 60%,#6366F1 100%)`,padding:"80px 0 60px",textAlign:"center",position:"relative",overflow:"hidden"}}>
+      <div style={{position:"absolute",left:"5%",top:"20%",width:300,height:300,borderRadius:"50%",background:"rgba(255,255,255,.05)"}}/>
+      <div style={{position:"absolute",right:"5%",bottom:"-10%",width:250,height:250,borderRadius:"50%",background:"rgba(255,255,255,.07)"}}/>
+      <div style={{position:"relative",maxWidth:800,margin:"0 auto",padding:"0 24px"}}>
+        {badge&&<div style={{display:"inline-block",background:"rgba(255,255,255,.15)",border:"1px solid rgba(255,255,255,.3)",color:"#FED7AA",fontSize:12,fontWeight:700,padding:"5px 16px",borderRadius:20,marginBottom:20,letterSpacing:.5}}>{badge}</div>}
+        <h1 className="sg" style={{color:"#fff",fontSize:48,fontWeight:900,marginBottom:16,lineHeight:1.15}}>{title}</h1>
+        <p style={{color:"rgba(255,255,255,.85)",fontSize:18,lineHeight:1.65,marginBottom:32,maxWidth:600,margin:"0 auto 32px"}}>{desc}</p>
+        <div style={{display:"flex",gap:12,justifyContent:"center"}}>
+          <button onClick={ctaAction} style={{background:"#fff",color:C.blueL,border:"none",cursor:"pointer",padding:"14px 32px",borderRadius:12,fontSize:15,fontWeight:800,fontFamily:"inherit",boxShadow:"0 4px 20px rgba(0,0,0,.2)"}}>{ctaText}</button>
+          <button onClick={onEnterApp} style={{background:"rgba(255,255,255,.15)",border:"1px solid rgba(255,255,255,.3)",color:"#fff",cursor:"pointer",padding:"14px 28px",borderRadius:12,fontSize:15,fontWeight:700,fontFamily:"inherit"}}>View Demo →</button>
+        </div>
+        <div style={{marginTop:24,color:"rgba(255,255,255,.6)",fontSize:12}}>No credit card required · Free plan available · Cancel anytime</div>
+      </div>
+    </div>
+  );
+
+  const FeatureCard = ({icon,title,desc,color}) => (
+    <div className="card" style={{padding:"24px 26px",borderTop:`3px solid ${color||C.blueL}`}}>
+      <div style={{width:48,height:48,borderRadius:14,background:`${color||C.blueL}18`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,marginBottom:14}}>{icon}</div>
+      <div className="sg" style={{color:C.text,fontWeight:700,fontSize:15,marginBottom:8}}>{title}</div>
+      <div style={{color:C.textMid,fontSize:13,lineHeight:1.65}}>{desc}</div>
+    </div>
+  );
+
+  const HowItWorks = ({steps}) => (
+    <div style={{padding:"60px 0",background:C.bg}}>
+      <div style={{maxWidth:1100,margin:"0 auto",padding:"0 32px"}}>
+        <h2 className="sg" style={{textAlign:"center",color:C.text,fontSize:32,fontWeight:800,marginBottom:8}}>How It Works</h2>
+        <p style={{textAlign:"center",color:C.textDim,fontSize:15,marginBottom:48}}>Get results in minutes — not hours</p>
+        <div style={{display:"grid",gridTemplateColumns:`repeat(${steps.length},1fr)`,gap:24}}>
+          {steps.map((s,i)=>(
+            <div key={i} style={{textAlign:"center",position:"relative"}}>
+              {i<steps.length-1&&<div style={{position:"absolute",top:28,left:"60%",width:"80%",height:2,background:`linear-gradient(90deg,${C.blueL},transparent)`,zIndex:0}}/>}
+              <div style={{width:56,height:56,borderRadius:"50%",background:`linear-gradient(135deg,${C.blueL},${C.blue})`,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px",position:"relative",zIndex:1}}>
+                <span style={{color:"#fff",fontWeight:800,fontSize:20}}>{i+1}</span>
+              </div>
+              <div className="sg" style={{color:C.text,fontWeight:700,fontSize:15,marginBottom:8}}>{s.title}</div>
+              <div style={{color:C.textMid,fontSize:13,lineHeight:1.6}}>{s.desc}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const PricingStrip = () => (
+    <div style={{padding:"60px 0",background:C.white,textAlign:"center"}}>
+      <div style={{maxWidth:900,margin:"0 auto",padding:"0 32px"}}>
+        <h2 className="sg" style={{color:C.text,fontSize:32,fontWeight:800,marginBottom:8}}>Simple Pricing</h2>
+        <p style={{color:C.textDim,fontSize:15,marginBottom:40}}>Start free. Upgrade when you need more power.</p>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:20}}>
+          {[
+            {name:"Free",price:0,desc:"Perfect for testing",features:["1 project","25 pages/crawl","10 AI credits","Basic reports"],color:C.textDim},
+            {name:"Pro",price:79,desc:"For agencies & teams",features:["Unlimited projects","50K pages/crawl","2,000 AI credits","White-label reports","Team collaboration","API access"],color:C.orange,popular:true},
+            {name:"Agency",price:199,desc:"Scale without limits",features:["Everything unlimited","9,999 AI credits","Custom domain","Dedicated support","Full API","50 team members"],color:C.purple},
+          ].map(p=>(
+            <div key={p.name} style={{background:p.popular?`linear-gradient(135deg,${C.orange}12,${C.orangeL})`:"#fff",border:`${p.popular?2:1}px solid ${p.popular?C.orange:C.border}`,borderRadius:16,padding:"28px 24px",position:"relative",boxShadow:p.popular?"0 8px 28px rgba(249,115,22,.15)":"none",transform:p.popular?"translateY(-6px)":"none"}}>
+              {p.popular&&<div style={{position:"absolute",top:-14,left:"50%",transform:"translateX(-50%)",background:`linear-gradient(135deg,${C.orange},#EA580C)`,color:"#fff",fontSize:11,fontWeight:800,padding:"4px 16px",borderRadius:20}}>MOST POPULAR</div>}
+              <div style={{color:p.color,fontWeight:700,fontSize:14,marginBottom:8}}>{p.name}</div>
+              <div className="sg" style={{color:C.text,fontSize:36,fontWeight:900,marginBottom:4}}>${p.price}<span style={{color:C.textDim,fontSize:13,fontWeight:400}}>/mo</span></div>
+              <div style={{color:C.textDim,fontSize:12,marginBottom:20}}>{p.desc}</div>
+              <button onClick={onEnterApp} style={{width:"100%",background:p.popular?`linear-gradient(135deg,${C.orange},#EA580C)`:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"11px",borderRadius:9,fontSize:13,fontWeight:700,fontFamily:"inherit",marginBottom:18}}>
+                {p.price===0?"Start Free":"Get Started →"}
+              </button>
+              {p.features.map(f=><div key={f} style={{display:"flex",gap:7,marginBottom:7,alignItems:"center"}}><CheckCircle2 size={13} color={p.color}/><span style={{color:C.textMid,fontSize:12}}>{f}</span></div>)}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const Testimonials = () => (
+    <div style={{padding:"60px 0",background:C.bg}}>
+      <div style={{maxWidth:1100,margin:"0 auto",padding:"0 32px"}}>
+        <h2 className="sg" style={{textAlign:"center",color:C.text,fontSize:28,fontWeight:800,marginBottom:40}}>What our customers are saying</h2>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:20}}>
+          {[
+            {name:"Dr. Maria Santos",role:"Dental Clinic Owner",text:"Boostly helped us go from page 3 to #1 for 'dental implants near me' in just 3 months. The AI audit found 47 issues we never knew existed.",avatar:"M",rating:5},
+            {name:"James Okonkwo",role:"SEO Agency Director",text:"We replaced SEMrush AND Slack with Boostly. Our team saves 15+ hours per week. The bulk reporting alone paid for itself in week 1.",avatar:"J",rating:5},
+            {name:"Aisha Al-Nwosu",role:"Freelance SEO Consultant",text:"The white-label reports look incredibly professional. My clients think I built the tool myself. Best investment for my freelance business.",avatar:"A",rating:5},
+          ].map((t,i)=>(
+            <div key={i} className="card" style={{padding:"24px 26px"}}>
+              <div style={{display:"flex",marginBottom:12}}>{[1,2,3,4,5].map(s=><span key={s} style={{color:C.yellow,fontSize:16}}>★</span>)}</div>
+              <p style={{color:C.text,fontSize:13,lineHeight:1.7,marginBottom:16,fontStyle:"italic"}}>"{t.text}"</p>
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                <div style={{width:36,height:36,borderRadius:"50%",background:`linear-gradient(135deg,${C.blueL},${C.blue})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:700,fontSize:14}}>{t.avatar}</div>
+                <div>
+                  <div style={{color:C.text,fontWeight:700,fontSize:13}}>{t.name}</div>
+                  <div style={{color:C.textDim,fontSize:11}}>{t.role}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const FooterCTA = ({text,ctaText}) => (
+    <div style={{background:`linear-gradient(135deg,${C.blue},${C.blueL})`,padding:"60px 32px",textAlign:"center"}}>
+      <h2 className="sg" style={{color:"#fff",fontSize:32,fontWeight:800,marginBottom:12}}>{text}</h2>
+      <button onClick={onEnterApp} style={{background:"#fff",color:C.blueL,border:"none",cursor:"pointer",padding:"14px 36px",borderRadius:12,fontSize:16,fontWeight:800,fontFamily:"inherit",marginTop:12}}>
+        {ctaText||"Start Free — No Credit Card"} →
+      </button>
+    </div>
+  );
+
+  const AppScreenshot = ({screen, label}) => (
+    <div style={{background:"#1E293B",borderRadius:14,padding:"12px",boxShadow:"0 20px 60px rgba(0,0,0,.2)"}}>
+      <div style={{display:"flex",gap:5,marginBottom:10}}>
+        {["#EF4444","#F59E0B","#10B981"].map(c=><div key={c} style={{width:10,height:10,borderRadius:"50%",background:c}}/>)}
+        <div style={{flex:1,background:"#334155",borderRadius:4,height:10,marginLeft:8}}/>
+      </div>
+      <div style={{background:`linear-gradient(135deg,${C.bg},${C.white})`,borderRadius:8,padding:"20px",minHeight:200,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:12}}>
+        <div style={{width:"100%",background:C.white,borderRadius:8,padding:"14px 16px",boxShadow:"0 2px 8px rgba(0,0,0,.08)"}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
+            {[["52.3K","Traffic",C.blueL],["1,475","Keywords",C.green],["14.3K","Backlinks",C.orange],["42","DR",C.purple]].map(([v,l,c])=>(
+              <div key={l} style={{background:C.bg,borderRadius:6,padding:"10px 8px",textAlign:"center"}}>
+                <div style={{color:c,fontWeight:800,fontSize:16}}>{v}</div>
+                <div style={{color:C.textDim,fontSize:9}}>{l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{width:"100%",background:C.white,borderRadius:8,padding:"12px 14px",boxShadow:"0 2px 8px rgba(0,0,0,.08)"}}>
+          <div style={{color:C.textDim,fontSize:10,marginBottom:8}}>KEYWORD SUGGESTIONS</div>
+          {[["dental implants near me","8,200","28","$4.20"],["dental implants cost","12,400","51","$8.40"]].map(([kw,vol,kd,cpc])=>(
+            <div key={kw} style={{display:"flex",gap:10,alignItems:"center",padding:"6px 0",borderBottom:`1px solid ${C.border}`}}>
+              <div style={{flex:1,color:C.text,fontSize:11,fontWeight:600}}>{kw}</div>
+              <span style={{color:C.textMid,fontSize:11}}>{vol}</span>
+              <span style={{background:"#DCFCE7",color:"#15803D",borderRadius:20,padding:"1px 7px",fontSize:10,fontWeight:700}}>{kd}</span>
+              <span style={{color:C.orange,fontSize:11,fontWeight:600}}>{cpc}</span>
+            </div>
+          ))}
+        </div>
+        {label&&<div style={{color:C.textDim,fontSize:10,textAlign:"center"}}>{label}</div>}
+      </div>
+    </div>
+  );
+
+  // ── LANDING PAGE: KEYWORD RESEARCH TOOL ─────────────────────────
+  if(page==="keyword-tool") return (
+    <div style={{overflowY:"auto",height:"100vh",background:C.bg}}>
+      <nav style={{background:"#fff",borderBottom:`1px solid ${C.border}`,padding:"0 32px",display:"flex",alignItems:"center",height:60,position:"sticky",top:0,zIndex:100}}>
+        <div style={{display:"flex",alignItems:"center",gap:8,marginRight:"auto"}}>
+          <div style={{width:28,height:28,borderRadius:7,background:`linear-gradient(135deg,${C.orange},${C.blueL})`,display:"flex",alignItems:"center",justifyContent:"center"}}><Zap size={15} color="#fff" fill="#fff"/></div>
+          <span className="sg" style={{color:C.text,fontWeight:800,fontSize:15}}>Boostly</span>
+        </div>
+        {["Features","Pricing","Blog","API"].map(l=><span key={l} style={{color:C.textMid,fontSize:13,cursor:"pointer",margin:"0 14px"}}>{l}</span>)}
+        <button onClick={onEnterApp} style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"8px 20px",borderRadius:8,fontSize:13,fontWeight:700,fontFamily:"inherit",marginLeft:20}}>Get Started Free</button>
+      </nav>
+
+      <Hero title="Keyword Research Tool" subtitle="Professional" desc="Find thousands of high-value keywords, analyze search volume, competition & CPC. Discover opportunities your competitors are missing." ctaText="Try Free Keyword Research" ctaAction={onEnterApp} badge="🔑 5 BILLION KEYWORDS IN DATABASE"/>
+
+      {/* Stats bar */}
+      <div style={{background:C.white,padding:"24px 0",borderBottom:`1px solid ${C.border}`}}>
+        <div style={{maxWidth:900,margin:"0 auto",display:"grid",gridTemplateColumns:"repeat(4,1fr)",textAlign:"center"}}>
+          {[["5B+","Keywords in database"],["190","Countries covered"],["24/7","Real-time data"],["100%","Free to start"]].map(([v,l])=>(
+            <div key={l}><div className="sg" style={{color:C.blueL,fontSize:36,fontWeight:900}}>{v}</div><div style={{color:C.textDim,fontSize:13}}>{l}</div></div>
+          ))}
+        </div>
+      </div>
+
+      {/* Features */}
+      <div style={{padding:"70px 32px",maxWidth:1100,margin:"0 auto"}}>
+        <h2 className="sg" style={{textAlign:"center",color:C.text,fontSize:32,fontWeight:800,marginBottom:8}}>Why is keyword research so important for good rankings?</h2>
+        <p style={{textAlign:"center",color:C.textDim,fontSize:15,marginBottom:50}}>Target the wrong keywords and all your SEO effort is wasted. Boostly helps you find the right ones.</p>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:20,marginBottom:40}}>
+          <FeatureCard icon="📊" title="Search Volume & Opportunities" desc="See exact monthly searches for any keyword. Find low-competition, high-volume opportunities your competitors are missing." color={C.blueL}/>
+          <FeatureCard icon="🎯" title="Keyword Difficulty Score" desc="Our AI calculates exactly how hard it is to rank for any keyword — so you focus on quick wins first." color={C.green}/>
+          <FeatureCard icon="💰" title="CPC & Commercial Intent" desc="Find keywords with high commercial value. Know exactly which ones drive revenue, not just traffic." color={C.orange}/>
+          <FeatureCard icon="🗂" title="Keyword Clusters" desc="AI automatically groups related keywords into topic clusters — making content planning effortless." color={C.purple}/>
+          <FeatureCard icon="❓" title="Questions People Ask" desc="Discover 'People Also Ask' style questions to target featured snippets and voice search." color={C.blueL}/>
+          <FeatureCard icon="🌍" title:"Find Keywords in 90+ Countries" desc="Research any country or language. Perfect for local SEO and international expansion." color={C.green}/>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:40,alignItems:"center"}}>
+          <div>
+            <div style={{color:C.blueL,fontWeight:700,fontSize:12,letterSpacing:1,marginBottom:10}}>KEYWORD OVERVIEW</div>
+            <h3 className="sg" style={{color:C.text,fontSize:26,fontWeight:800,marginBottom:14}}>Gauge the keyword difficulty of each target keyword</h3>
+            <p style={{color:C.textMid,fontSize:14,lineHeight:1.7,marginBottom:20}}>Our proprietary KD score (0-100) tells you exactly how competitive any keyword is based on the top 10 search results. Combined with search volume and CPC data, you'll always know which keywords to target first.</p>
+            <button onClick={onEnterApp} style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"12px 24px",borderRadius:10,fontSize:14,fontWeight:700,fontFamily:"inherit"}}>Analyze Keywords Free →</button>
+          </div>
+          <AppScreenshot label="Boostly Keyword Research Dashboard"/>
+        </div>
+      </div>
+
+      <HowItWorks steps={[{title:"Enter a Keyword",desc:"Type any keyword, topic or URL into the search bar"},{title:"Choose Location",desc:"Select country, language and device type"},{title:"Explore Results",desc:"See volume, KD, CPC and hundreds of related keywords"},{title:"Track & Export",desc:"Add keywords to rank tracker or export to CSV"}]}/>
+      <Testimonials/>
+      <PricingStrip/>
+      <FooterCTA text="Start finding high-value keywords today — completely free"/>
+    </div>
+  );
+
+  // ── LANDING PAGE: BACKLINK CHECKER ───────────────────────────────
+  if(page==="backlink-checker") return (
+    <div style={{overflowY:"auto",height:"100vh",background:C.bg}}>
+      <nav style={{background:"#fff",borderBottom:`1px solid ${C.border}`,padding:"0 32px",display:"flex",alignItems:"center",height:60,position:"sticky",top:0,zIndex:100}}>
+        <div style={{display:"flex",alignItems:"center",gap:8,marginRight:"auto"}}>
+          <div style={{width:28,height:28,borderRadius:7,background:`linear-gradient(135deg,${C.orange},${C.blueL})`,display:"flex",alignItems:"center",justifyContent:"center"}}><Zap size={15} color="#fff" fill="#fff"/></div>
+          <span className="sg" style={{color:C.text,fontWeight:800,fontSize:15}}>Boostly</span>
+        </div>
+        <button onClick={onEnterApp} style={{background:C.blueL,color:"#fff",border:"none",cursor:"pointer",padding:"8px 20px",borderRadius:8,fontSize:13,fontWeight:700,fontFamily:"inherit",marginLeft:"auto"}}>Get Started Free</button>
+      </nav>
+      <Hero title="Free Backlink Checker" desc="Research any site's complete backlink profile. Find new link opportunities, identify toxic links, and monitor your competitors' link building strategies." ctaText="Check Backlinks Free" ctaAction={onEnterApp} badge="🔗 14+ TRILLION BACKLINKS INDEXED" gradient={`linear-gradient(135deg,#1A4FB5 0%,#7C3AED 60%,#F97316 100%)`}/>
+      <div style={{padding:"70px 32px",maxWidth:1100,margin:"0 auto"}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:20,marginBottom:60}}>
+          <FeatureCard icon="🔍" title="Research Any Site's Backlink Profile" desc="Instantly see all backlinks pointing to any domain. Full data including DR, anchor text, follow/nofollow status." color={C.blueL}/>
+          <FeatureCard icon="📈" title="See Important Domain-Level Metrics" desc="Domain Rating (DR), referring domains, total backlinks, organic traffic and growth trends over time." color={C.orange}/>
+          <FeatureCard icon="📊" title="Monitor Backlinks Over Time" desc="Track new and lost backlinks automatically. Get email alerts when competitors gain or lose important links." color={C.green}/>
+          <FeatureCard icon="🔗" title="More Tools for Backlink Research" desc="Gap analysis, link prospecting, outreach tracking, toxic link detection — all integrated in one platform." color={C.purple}/>
+          <FeatureCard icon="⚠️" title="Fix Obvious Backlink Problems" desc="Identify and disavow toxic backlinks before they damage your rankings. Visual toxicity score for every link." color={C.red}/>
+          <FeatureCard icon="🕵️" title="Understand Competitor Secrets" desc="See exactly where your competitors get their best backlinks. Find the same opportunities for your site." color={C.blueL}/>
+        </div>
+      </div>
+      <HowItWorks steps={[{title:"Enter Any Domain",desc:"Paste any website URL to analyze its full link profile"},{title:"See All Backlinks",desc:"Get complete data: DR, anchor text, follow status, date"},{title:"Find Opportunities",desc:"Identify gap opportunities vs competitors instantly"},{title:"Start Outreach",desc:"Contact prospects directly from the Boostly dashboard"}]}/>
+      <Testimonials/>
+      <PricingStrip/>
+      <FooterCTA text="Analyze any website's backlinks — start free today"/>
+    </div>
+  );
+
+  // ── LANDING PAGE: BULK REPORTING ──────────────────────────────────
+  if(page==="bulk-reporting") return (
+    <div style={{overflowY:"auto",height:"100vh",background:C.bg}}>
+      <nav style={{background:"#fff",borderBottom:`1px solid ${C.border}`,padding:"0 32px",display:"flex",alignItems:"center",height:60,position:"sticky",top:0,zIndex:100}}>
+        <div style={{display:"flex",alignItems:"center",gap:8,marginRight:"auto"}}>
+          <div style={{width:28,height:28,borderRadius:7,background:`linear-gradient(135deg,${C.orange},${C.blueL})`,display:"flex",alignItems:"center",justifyContent:"center"}}><Zap size={15} color="#fff" fill="#fff"/></div>
+          <span className="sg" style={{color:C.text,fontWeight:800,fontSize:15}}>Boostly</span>
+        </div>
+        <button onClick={onEnterApp} style={{background:C.orange,color:"#fff",border:"none",cursor:"pointer",padding:"8px 20px",borderRadius:8,fontSize:13,fontWeight:700,fontFamily:"inherit",marginLeft:"auto"}}>Start Bulk Reporting</button>
+      </nav>
+      <Hero title="Bulk SEO Reporting" desc="Generate hundreds of custom SEO audit reports in minutes. Simply upload a CSV list of URLs and let Boostly do the heavy lifting for your agency." ctaText="Start Free Batch Audit" ctaAction={()=>onEnterApp()} badge="🚀 AGENCY FEATURE — SAVE 20+ HOURS/WEEK" gradient={`linear-gradient(135deg,${C.orange} 0%,#EA580C 50%,#DC2626 100%)`}/>
+      <div style={{padding:"70px 32px",maxWidth:1100,margin:"0 auto"}}>
+        <h2 className="sg" style={{textAlign:"center",color:C.text,fontSize:32,fontWeight:800,marginBottom:8}}>Bulk Reporting is perfect for:</h2>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:20,marginBottom:60}}>
+          <FeatureCard icon="🏢" title="Agency Prospecting" desc="Audit thousands of potential clients automatically. Send personalized reports to close new business at scale." color={C.orange}/>
+          <FeatureCard icon="📊" title="Researchers & Analysts" desc:"Do detailed analysis across hundreds of sites simultaneously. Export everything to CSV for further analysis." color={C.blueL}/>
+          <FeatureCard icon="🌍" title="Freelancers in Global Events" desc="Audit your entire portfolio at once. Identify which clients need urgent attention before your monthly calls." color={C.green}/>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:40,alignItems:"center",marginBottom:60}}>
+          <div>
+            <div style={{color:C.orange,fontWeight:700,fontSize:12,letterSpacing:1,marginBottom:10}}>HOW IT WORKS</div>
+            <h3 className="sg" style={{color:C.text,fontSize:26,fontWeight:800,marginBottom:14}}>Upload CSV → Get Reports in Minutes</h3>
+            <div style={{display:"flex",flexDirection:"column",gap:14}}>
+              {[["1","Prepare your CSV","Simply add domain,label columns to your spreadsheet"],["2","Upload & Configure","Choose report type, format, branding and language"],["3","Boostly Processes","Our AI crawls every site and analyzes 100+ SEO factors"],["4","Download Everything","Get all reports as a ZIP — PDF, CSV or both"]].map(([n,t,d])=>(
+                <div key={n} style={{display:"flex",gap:14,alignItems:"flex-start"}}>
+                  <div style={{width:32,height:32,borderRadius:"50%",background:C.orange,color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:14,flexShrink:0}}>{n}</div>
+                  <div><div style={{color:C.text,fontWeight:700,fontSize:14,marginBottom:2}}>{t}</div><div style={{color:C.textDim,fontSize:13}}>{d}</div></div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="card" style={{padding:"24px",background:"#1E293B",border:"none"}}>
+            <div style={{color:"#94A3B8",fontSize:11,marginBottom:8}}>example-domains.csv</div>
+            <div style={{fontFamily:"monospace",fontSize:12,color:"#E2E8F0",lineHeight:1.8}}>
+              <div style={{color:"#94A3B8"}}>domain,label,priority</div>
+              <div>dentalpro.com,Dental Client,high</div>
+              <div>fitnessapp.io,Fitness App,medium</div>
+              <div>techblog.com,Tech Blog,low</div>
+              <div>legalfirm.com,Legal Client,high</div>
+              <div style={{color:"#64748B"}}>... (up to 1000 rows)</div>
+            </div>
+            <div style={{marginTop:16,background:`${C.green}18`,border:`1px solid ${C.green}`,borderRadius:8,padding:"10px 14px",display:"flex",alignItems:"center",gap:8}}>
+              <CheckCircle2 size={14} color={C.green}/>
+              <span style={{color:C.green,fontSize:12,fontWeight:700}}>6 reports generated in 2.8 minutes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <Testimonials/>
+      <PricingStrip/>
+      <FooterCTA text="Generate your first batch of 10 reports free today"/>
+    </div>
+  );
+
+  // ── LANDING PAGE: WHITE LABEL REPORTS ────────────────────────────
+  if(page==="white-label") return (
+    <div style={{overflowY:"auto",height:"100vh",background:C.bg}}>
+      <nav style={{background:"#fff",borderBottom:`1px solid ${C.border}`,padding:"0 32px",display:"flex",alignItems:"center",height:60,position:"sticky",top:0,zIndex:100}}>
+        <div style={{display:"flex",alignItems:"center",gap:8,marginRight:"auto"}}>
+          <div style={{width:28,height:28,borderRadius:7,background:`linear-gradient(135deg,${C.orange},${C.blueL})`,display:"flex",alignItems:"center",justifyContent:"center"}}><Zap size={15} color="#fff" fill="#fff"/></div>
+          <span className="sg" style={{color:C.text,fontWeight:800,fontSize:15}}>Boostly</span>
+        </div>
+        <button onClick={onEnterApp} style={{background:C.purple,color:"#fff",border:"none",cursor:"pointer",padding:"8px 20px",borderRadius:8,fontSize:13,fontWeight:700,fontFamily:"inherit",marginLeft:"auto"}}>Start White-Label</button>
+      </nav>
+      <Hero title="White Label SEO Reports" desc="Generate stunning branded SEO reports with your agency's logo, colors and domain. Your clients see your brand — not ours." ctaText="Get White-Label Access" ctaAction={onEnterApp} badge="🏷 AGENCY BRANDING — USED BY 3,000+ AGENCIES" gradient={`linear-gradient(135deg,#7C3AED 0%,#4F46E5 50%,#2563EB 100%)`}/>
+      <div style={{padding:"70px 32px",maxWidth:1100,margin:"0 auto"}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:20}}>
+          <FeatureCard icon="🎨" title="Your Own Branded Reports" desc="Replace Boostly branding completely. Add your logo, agency colors and custom domain. Clients see YOUR brand." color={C.purple}/>
+          <FeatureCard icon="✏️" title="Complete Report Customization" desc="Choose which sections to include, add custom commentary, adjust scoring weights and more." color={C.blueL}/>
+          <FeatureCard icon="📧" title="Deliver via Your Own Domain" desc="Send reports from reports@youragency.com instead of Boostly's domain. Full email white-labeling." color={C.orange}/>
+          <FeatureCard icon="🌍" title="Reports in Your Language" desc="Generate client reports in 25+ languages. Perfect for agencies serving international clients." color={C.green}/>
+          <FeatureCard icon="🤖" title="AI-Written Summaries" desc="Boostly's AI writes a custom executive summary for each report — saving hours of manual writing." color={C.blueL}/>
+          <FeatureCard icon="📅" title="Automated Monthly Reports" desc="Schedule reports to deliver automatically on the 1st of each month — no manual work required." color={C.purple}/>
+        </div>
+      </div>
+      <Testimonials/>
+      <PricingStrip/>
+      <FooterCTA text="Impress your clients with stunning branded reports"/>
+    </div>
+  );
+
+  // Default: show landing hub
+  return (
+    <div style={{overflowY:"auto",height:"100vh",background:C.bg}}>
+      <div style={{background:`linear-gradient(135deg,${C.blue},${C.blueL})`,padding:"60px 32px",textAlign:"center"}}>
+        <h1 className="sg" style={{color:"#fff",fontSize:40,fontWeight:900,marginBottom:12}}>Boostly SEO Tools</h1>
+        <p style={{color:"rgba(255,255,255,.8)",fontSize:16,marginBottom:32}}>The complete AI-powered SEO & agency operating system</p>
+        <button onClick={onEnterApp} style={{background:"#fff",color:C.blueL,border:"none",cursor:"pointer",padding:"14px 32px",borderRadius:12,fontSize:15,fontWeight:800,fontFamily:"inherit"}}>Enter App →</button>
+      </div>
+      <div style={{padding:"40px 32px",maxWidth:1100,margin:"0 auto",display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:16}}>
+        {[["keyword-tool","🔑","Keyword Research Tool","Find high-value keywords"],["backlink-checker","🔗","Backlink Checker","Research any site's links"],["bulk-reporting","📊","Bulk Reporting","Generate 100s of audits"],["white-label","🏷","White Label Reports","Your brand, your reports"]].map(([pg,icon,title,desc])=>(
+          <div key={pg} className="card ch" style={{padding:"20px",cursor:"pointer",textAlign:"center"}} onClick={()=>onEnterApp()}>
+            <div style={{fontSize:36,marginBottom:12}}>{icon}</div>
+            <div className="sg" style={{color:C.text,fontWeight:700,fontSize:15,marginBottom:6}}>{title}</div>
+            <div style={{color:C.textDim,fontSize:12}}>{desc}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Updated SCREENS Map (with all screens including new sub-screens) ────
 // ══════════════════════════════════════════════════════════════════
 //  BILLING PAGE — Stripe-quality, fully interactive
@@ -6572,6 +7586,11 @@ const SCREENS = {
   files:               { C: FileManager,             title: "File Manager",            sub: "Reports, contracts, proposals, credentials — all in one place" },
   notifications:       { C: NotificationsScreen,     title: "Notifications",           sub: "All alerts, mentions, updates and action items" },
   activitylog:         { C: ActivityLog,              title: "Activity Log",            sub: "Complete audit trail of all platform actions" },
+  bulkreporting:       { C: BulkReporting,          title: "Bulk Reporting",          sub: "Generate hundreds of SEO audit reports via CSV upload" },
+  backlinkmonitor:     { C: BacklinkMonitor,         title: "Backlink Monitor",        sub: "Track new and lost backlinks over time with email alerts" },
+  aitools:             { C: AIToolsHub,              title: "AI Tools Hub",            sub: "12 AI tools for content, SEO, keywords and social media" },
+  freetools:           { C: FreeToolsHub,            title: "Free SEO Tools",          sub: "24+ professional free SEO mini-tools — no sign-up needed" },
+  embeddable:          { C: EmbeddableAudit,         title: "Embeddable Audit Widget", sub: "Embed an SEO audit tool on your website for lead capture" },
   billing:             { C: BillingPage,            title: "Billing & Subscription",  sub: "Plans, invoices, AI credits & payment methods" },
   gopremium:           { C: BillingPage,            title: "Go Premium",              sub: "Upgrade your plan to unlock full power" },
 };
@@ -6698,6 +7717,7 @@ function SidebarFull({ active, setActive, sub, setSub, openAI, setOpenAI }) {
             <BarChart size={14}/> Billing & Plans
           </div>
           <div className="nav" style={{color:C.textDim}}><HelpCircle size={14}/> Help & Docs</div>
+          <div className="nav" style={{color:C.textDim}} onClick={()=>{}}><Globe size={14}/> Tool Landing Pages</div>
         </div>
       </div>
 
@@ -6739,6 +7759,8 @@ export default function App() {
   const [notifOpen, setNotifOpen] = useState(false);
   const [plan, setPlan] = useState("free");
   const [upgradeModal, setUpgradeModal] = useState(null);
+  const [landingPage, setLandingPage] = useState(null); // null|"keyword-tool"|"backlink-checker"|"bulk-reporting"|"white-label"
+
   const [toasts, setToasts] = useState([]);
   const [cmdOpen, setCmdOpen] = useState(false);
   const [quickStart, setQuickStart] = useState(true);
@@ -6773,6 +7795,14 @@ export default function App() {
   if (view === "signup")     return <><style>{CSS}</style><SignupScreen onSignup={() => setView("app")} onLogin={() => setView("login")}/></>;
   if (view === "premiumSuccess") return <><style>{CSS}</style><PremiumSuccessScreen onContinue={() => { setView("app"); setPlan("pro"); }}/></>;
 
+  if (landingPage) {
+    return (
+      <>
+        <style>{CSS}</style>
+        <LandingPages page={landingPage} plan={plan} onEnterApp={() => { setLandingPage(null); setView("app"); }}/>
+      </>
+    );
+  }
   if (view === "pricing") {
     return (
       <>
